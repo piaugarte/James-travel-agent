@@ -1430,14 +1430,24 @@ async function sendChat(){
 document.getElementById('person-modal').addEventListener('click',function(e){if(e.target===this)closePersonModal();});
 function initActivitySortable(){
   if(typeof Sortable==='undefined')return;
+
+  // Open ALL days so their items-lists are visible and droppable
+  // Items lists inside closed days have display:none so Sortable can't see them
+  // Instead we keep bodies always rendered but use CSS height trick
   document.querySelectorAll('.items-list').forEach(function(list){
     if(list._sortable){list._sortable.destroy();list._sortable=null;}
     list._sortable=Sortable.create(list,{
-      group:'activities',
+      group:{name:'activities',put:true,pull:true},
       handle:'.drag-handle',
       animation:150,
       ghostClass:'sortable-ghost',
       filter:'.item-row.header',
+      onStart:function(){
+        // Open all day cards while dragging so drops work anywhere
+        document.querySelectorAll('.day-card').forEach(function(card){
+          card.classList.add('open');
+        });
+      },
       onEnd:function(evt){
         var itemId=evt.item.getAttribute('data-id');
         var newList=evt.to;
@@ -1445,17 +1455,24 @@ function initActivitySortable(){
         var newDayId=dayCard?dayCard.id.replace('day-',''):null;
         var item=allItems.find(function(x){return x.id===itemId;});
         if(!item)return;
+        // Update day_id if moved to a different day
         if(newDayId&&newDayId!==item.day_id){
+          var oldDayId=item.day_id;
           item.day_id=newDayId;
-          sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
+          sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId).then(function(){
+            // refresh badge counts on both days
+            renderDays();
+            initActivitySortable();
+          });
         }
+        // Update sort orders in destination list
         var rows=newList.querySelectorAll('[data-id]');
         rows.forEach(function(r,i){
           var id=r.getAttribute('data-id');
           var it=allItems.find(function(x){return x.id===id;});
           if(it&&it.sort_order!==i+1){it.sort_order=i+1;sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id);}
         });
-        showToast('Saved!');
+        showToast('Moved!');
       }
     });
   });
