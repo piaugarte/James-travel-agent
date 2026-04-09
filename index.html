@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -326,8 +327,8 @@ main{max-width:900px;margin:0 auto;padding:20px 16px 100px;}
 
 <script>
 // CONFIG - replace with your actual values in Vercel env, or hardcode here for testing
-const SUPABASE_URL = window.SUPABASE_URL || 'https://ajtjpcenmlzmpnzrfxvg.supabase.co';
-const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqdGpwY2VubWx6bXBuenJmeHZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2ODM5ODIsImV4cCI6MjA5MTI1OTk4Mn0.JoLMU5T6LJiCAQ_xLzEHmGI7CPACeeDMQjt_tfNSO5k';
+const SUPABASE_URL = 'https://ajtjpcenmlzmpnzrfxvg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqdGpwY2VubWx6bXBuenJmeHZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2ODM5ODIsImV4cCI6MjA5MTI1OTk4Mn0.JoLMU5T6LJiCAQ_xLzEHmGI7CPACeeDMQjt_tfNSO5k';
 const TRIP_ID = 'a1b2c3d4-0000-0000-0000-000000000001';
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -732,9 +733,13 @@ async function sendChat(){
         tripContext: context
       })
     });
-    const {reply, error} = await res.json();
+    const {reply, error, madeChanges} = await res.json();
     typing.remove();
     appendMsg('assistant', error ? 'Sorry, something went wrong. Try again!' : reply);
+    if (madeChanges) {
+      await loadAll();
+      showToast('Trip updated!');
+    }
   } catch(e){
     typing.remove();
     appendMsg('assistant', 'Connection error. Check your internet and try again.');
