@@ -64,23 +64,6 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .hero-stat .value{font-weight:700;font-size:18px;}
 /* phase banners */
 .phase-banner{border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;font-size:13px;line-height:1.5;}
-.phase-block{margin-bottom:20px;}
-.phase-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:12px 16px;border-radius:var(--radius);position:relative;}
-.phase-header.green{background:var(--green-pale);border-left:4px solid var(--green);}
-.phase-header.purple{background:var(--purple-pale);border-left:4px solid var(--purple);}
-.phase-header.amber{background:var(--amber-pale);border-left:4px solid var(--amber);}
-.phase-header.blue{background:var(--blue-pale);border-left:4px solid var(--blue);}
-.phase-header.red{background:var(--red-pale);border-left:4px solid var(--red);}
-.phase-title-input{font-family:"Funnel Display",sans-serif;font-weight:700;font-size:15px;border:none;background:transparent;color:inherit;flex:1;padding:0;min-width:0;}
-.phase-title-input:focus{outline:none;border-bottom:1px dashed currentColor;}
-.phase-subtitle-input{font-size:12px;border:none;background:transparent;color:inherit;opacity:0.8;width:100%;padding:0;margin-top:2px;}
-.phase-subtitle-input:focus{outline:none;border-bottom:1px dashed currentColor;}
-.phase-del-btn{background:none;border:none;cursor:pointer;opacity:0.4;font-size:14px;padding:2px 4px;border-radius:4px;color:inherit;flex-shrink:0;}
-.phase-del-btn:hover{opacity:1;}
-.phase-color-picker{display:flex;gap:4px;align-items:center;}
-.phase-color-dot{width:16px;height:16px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;}
-.phase-color-dot:hover,.phase-color-dot.active{border-color:rgba(0,0,0,0.3);transform:scale(1.2);}
-.days-container{min-height:40px;}
 .phase-banner.surrey{background:var(--green-pale);color:#1b4332;border-left:4px solid var(--green);}
 .phase-banner.whistler{background:var(--purple-pale);color:var(--purple);border-left:4px solid var(--purple);}
 .phase-banner.bday{background:var(--amber-pale);color:var(--amber);border-left:4px solid var(--amber);}
@@ -305,8 +288,12 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
       <button onclick="setItinView('calendar',this)">&#128197; Calendar</button>
     </div>
     <div id="itin-list">
-      <div id="phases-container"></div>
-      <button class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="addPhase()">+ Add phase</button>
+      <div class="phase-banner surrey"><strong>Phase 1: Surrey base camp (Jun 15-24)</strong>Staying free at Ines and Ben house in Surrey. Day trips to Vancouver, Richmond, North Shore.</div>
+      <div id="days-surrey"></div>
+      <div class="phase-banner whistler" style="margin-top:8px;"><strong>Phase 2: Whistler escape (Jun 25-28)</strong>Andy family flies in June 25. Everyone drives Sea to Sky Highway to group Airbnb.</div>
+      <div id="days-whistler"></div>
+      <div class="phase-banner bday" style="margin-top:8px;"><strong>Phase 3: Birthday week + Canada Day (Jun 29 - Jul 1)</strong>Happy 4th birthday Pia! Playland, UBC, and Canada Day fireworks.</div>
+      <div id="days-bday"></div>
     </div>
     <div id="itin-calendar" style="display:none;"></div>
   </div>
@@ -436,7 +423,7 @@ const CAT_LABELS = {activity:'Activity',hotel:'Hotel',food:'Food',flight:'Flight
 const GROUP_EMOJI = {'Pia family':'🏡','Andy family':'✈️','Ines family':'🏡','Relatives':'👥'};
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let tripData=null,allDays=[],allItems=[],allPacking=[],allPeople=[],allBudgetItems=[],allParticipants=[],allPhases=[];
+let tripData=null,allDays=[],allItems=[],allPacking=[],allPeople=[],allBudgetItems=[],allParticipants=[];
 let chatHistory=[],chatOpen=false,currentItinView='list',activeBudgetCat='all',editingPersonId=null;
 let activeCurrency='USD',fxRates={CAD:1,USD:0.72,PHP:41};
 
@@ -488,7 +475,6 @@ async function loadAll(){
   await loadFxRates();
   var results=await Promise.all([
     sb.from('trip').select('*').eq('id',TRIP_ID).single(),
-    sb.from('phases').select('*').eq('trip_id',TRIP_ID).order('sort_order'),
     sb.from('itinerary_days').select('*').eq('trip_id',TRIP_ID).order('day_number'),
     sb.from('itinerary_items').select('*').order('sort_order'),
     sb.from('packing_items').select('*').eq('trip_id',TRIP_ID),
@@ -496,39 +482,15 @@ async function loadAll(){
     sb.from('item_participants').select('*')
   ]);
   tripData=results[0].data;
-  allPhases=results[1].data||[];
-  allDays=results[2].data||[];
-  allItems=results[3].data||[];
-  allPacking=results[4].data||[];
-  allPeople=results[5].data||[];
-  allParticipants=results[6].data||[];
+  allDays=results[1].data||[];
+  allItems=results[2].data||[];
+  allPacking=results[3].data||[];
+  allPeople=results[4].data||[];
+  allParticipants=results[5].data||[];
   allBudgetItems=JSON.parse(localStorage.getItem('trip_budget_items')||'[]');
-  // If days have no phase_id, assign them to phases by day_number (legacy)
-  if(allPhases.length>0&&allDays.some(function(d){return !d.phase_id;})){
-    await assignLegacyPhases();
-  }
   if(allPeople.length===0)await seedPeople();
   renderHero();renderDays();renderCalendar();
   if(document.getElementById('tab-people').classList.contains('active'))renderPeople();
-}
-
-async function assignLegacyPhases(){
-  // Map old hardcoded phases to new phase rows by sort_order
-  var p1=allPhases.find(function(p){return p.sort_order===1;});
-  var p2=allPhases.find(function(p){return p.sort_order===2;});
-  var p3=allPhases.find(function(p){return p.sort_order===3;});
-  var updates=[];
-  allDays.forEach(function(d){
-    if(d.phase_id)return;
-    var phaseId=null;
-    if(d.day_number<=10&&p1)phaseId=p1.id;
-    else if(d.day_number<=14&&p2)phaseId=p2.id;
-    else if(p3)phaseId=p3.id;
-    if(phaseId){d.phase_id=phaseId;updates.push({id:d.id,phase_id:phaseId});}
-  });
-  for(var i=0;i<updates.length;i++){
-    await sb.from('itinerary_days').update({phase_id:updates[i].phase_id}).eq('id',updates[i].id);
-  }
 }
 
 async function seedPeople(){
@@ -615,6 +577,9 @@ function jumpToDay(dayId){
 
 function getPhase(n){if(n<=10)return 'surrey';if(n<=14)return 'whistler';return 'bday';}
 function getBadge(day){
+  var phase=getPhase(day.day_number);
+  if(day.day_number===15)return['bday','Birthday!'];
+  if(phase==='whistler')return['whistler','Whistler'];
   var total=allItems.filter(function(i){return i.day_id===day.id;}).reduce(function(s,i){return s+(Number(i.cost)||0);},0);
   if(total===0)return['free','Free'];
   if(total<100)return['free','Low cost'];
@@ -622,135 +587,10 @@ function getBadge(day){
   return['paid','Higher spend'];
 }
 
-function getPhaseColor(phase){return phase?phase.color||'green':'green';}
-
-function renderDays(){
-  var container=document.getElementById('phases-container');
-  if(!container)return;
-  container.innerHTML='';
-
-  var phases=allPhases.slice().sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);});
-
-  // If no phases loaded, use hardcoded fallback groups
-  if(!phases.length){
-    phases=[
-      {id:'_s',title:'Surrey base camp',subtitle:'Jun 15-24',color:'green',sort_order:1},
-      {id:'_w',title:'Whistler escape',subtitle:'Jun 25-28',color:'purple',sort_order:2},
-      {id:'_b',title:'Birthday week + Canada Day',subtitle:'Jun 29 - Jul 1',color:'amber',sort_order:3}
-    ];
-  }
-
-  // DEBUG - visible on screen
-  var dbg=document.createElement('div');
-  dbg.style.cssText='background:#ffeb3b;padding:8px;font-size:12px;margin-bottom:8px;border-radius:4px;';
-  dbg.textContent='phases:'+phases.length+' days:'+allDays.length+' phase0id:'+(phases[0]?phases[0].id:'none')+' day0phase:'+(allDays[0]?allDays[0].phase_id:'none');
-  container.appendChild(dbg);
-
-  phases.forEach(function(phase){
-    var phaseEl=document.createElement('div');
-    phaseEl.className='phase-block';
-
-    // phase header
-    var hdr=document.createElement('div');
-    hdr.className='phase-header '+getPhaseColor(phase);
-
-    var textWrap=document.createElement('div');textWrap.style.flex='1';
-    var titleIn=document.createElement('input');
-    titleIn.className='phase-title-input';titleIn.value=phase.title||'';titleIn.placeholder='Phase title...';
-    titleIn.onclick=function(e){e.stopPropagation();};
-    titleIn.onblur=function(){
-      if(titleIn.value.trim()&&titleIn.value.trim()!==phase.title){
-        phase.title=titleIn.value.trim();
-        if(!phase.id.startsWith('_'))sb.from('phases').update({title:phase.title}).eq('id',phase.id);
-        showToast('Phase updated!');
-      }
-    };
-    titleIn.onkeydown=function(e){if(e.key==='Enter')titleIn.blur();};
-    var subIn=document.createElement('input');
-    subIn.className='phase-subtitle-input';subIn.value=phase.subtitle||'';subIn.placeholder='Subtitle / dates...';
-    subIn.onclick=function(e){e.stopPropagation();};
-    subIn.onblur=function(){
-      if(subIn.value!==phase.subtitle){
-        phase.subtitle=subIn.value;
-        if(!phase.id.startsWith('_'))sb.from('phases').update({subtitle:phase.subtitle}).eq('id',phase.id);
-      }
-    };
-    textWrap.appendChild(titleIn);textWrap.appendChild(subIn);
-    hdr.appendChild(textWrap);
-
-    // color picker
-    var colorWrap=document.createElement('div');colorWrap.className='phase-color-picker';
-    [{c:'green',bg:'#2d6a4f'},{c:'purple',bg:'#5e35b1'},{c:'amber',bg:'#e76f00'},{c:'blue',bg:'#1565c0'},{c:'red',bg:'#c62828'}].forEach(function(col){
-      var dot=document.createElement('div');
-      dot.className='phase-color-dot'+(phase.color===col.c?' active':'');
-      dot.style.background=col.bg;dot.title=col.c;
-      dot.onclick=function(){
-        phase.color=col.c;
-        hdr.className='phase-header '+col.c;
-        colorWrap.querySelectorAll('.phase-color-dot').forEach(function(d){d.classList.remove('active');});
-        dot.classList.add('active');
-        if(!phase.id.startsWith('_'))sb.from('phases').update({color:col.c}).eq('id',phase.id);
-      };
-      colorWrap.appendChild(dot);
-    });
-    hdr.appendChild(colorWrap);
-
-    // delete button
-    var delBtn=document.createElement('button');delBtn.className='phase-del-btn';delBtn.innerHTML='&#128465;';delBtn.title='Delete phase';
-    delBtn.onclick=function(){if(!phase.id.startsWith('_'))deletePhase(phase.id);};
-    hdr.appendChild(delBtn);
-    phaseEl.appendChild(hdr);
-
-    // days in this phase
-    var daysDiv=document.createElement('div');
-    daysDiv.className='days-container';
-    daysDiv.id='days-phase-'+phase.id;
-
-    // match days: by phase_id if real phase, by day_number range if fallback
-    var phaseDays=allDays.filter(function(d){
-      if(phase.id==='_s') return d.day_number<=10;
-      if(phase.id==='_w') return d.day_number>10&&d.day_number<=14;
-      if(phase.id==='_b') return d.day_number>14;
-      return d.phase_id===phase.id;
-    }).sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0)||(a.day_number||0)-(b.day_number||0);});
-
-    phaseDays.forEach(function(day){
-      var card=buildDayCard(day,phase);
-      daysDiv.appendChild(card);
-    });
-    phaseEl.appendChild(daysDiv);
-    container.appendChild(phaseEl);
-  });
-
-  // render all items AFTER cards are in DOM
-  allDays.forEach(function(day){renderItems(day.id);});
-  initActivitySortable();
-}
-async function addPhase(){
-  var maxSort=allPhases.length?Math.max.apply(null,allPhases.map(function(p){return p.sort_order||0;})):0;
-  var res=await sb.from('phases').insert({trip_id:TRIP_ID,title:'New phase',subtitle:'',color:'blue',sort_order:maxSort+1}).select().single();
-  if(res.error){showToast('Error: '+res.error.message);return;}
-  allPhases.push(res.data);
-  renderDays();
-  showToast('Phase added!');
-}
-
-async function deletePhase(phaseId){
-  var phaseDays=allDays.filter(function(d){return d.phase_id===phaseId;});
-  if(phaseDays.length>0){
-    if(!confirm('This phase has '+phaseDays.length+' day(s). Delete the phase? Days will become unassigned.'))return;
-  }
-  await sb.from('phases').delete().eq('id',phaseId);
-  allPhases=allPhases.filter(function(p){return p.id!==phaseId;});
-  allDays.forEach(function(d){if(d.phase_id===phaseId)d.phase_id=null;});
-  renderDays();showToast('Phase deleted');
-}
-
 function buildDayCard(day, phase){
   var badge=getBadge(day);
   var badgeClass=badge[0],badgeLabel=badge[1];
-  var phaseColor=phase?getPhaseColor(phase):'green';
-  var numColor=phaseColor==='green'?'':phaseColor==='purple'?'purple':phaseColor==='amber'?'amber':'';
+  var numColor=phase==='whistler'?'purple':phase==='bday'?'amber':'';
   var dayItems=allItems.filter(function(i){return i.day_id===day.id;});
 
   var el=document.createElement('div');
@@ -1046,8 +886,27 @@ function renderItems(dayId){
   });
   container.appendChild(wrap);
 
+  // ── Sortable drag-to-reorder ──
+  if(typeof Sortable!=='undefined'){
+    Sortable.create(wrap,{
+      handle:'.drag-handle',
+      animation:150,
+      ghostClass:'sortable-ghost',
+      filter:'.item-row.header',
+      onEnd:function(evt){
+        var rows=wrap.querySelectorAll('[data-id]');
+        var updates=[];
+        rows.forEach(function(r,i){
+          var id=r.getAttribute('data-id');
+          var item=allItems.find(function(x){return x.id===id;});
+          if(item&&item.sort_order!==i+1){item.sort_order=i+1;updates.push({id:id,sort_order:i+1});}
+        });
+        updates.forEach(function(u){sb.from('itinerary_items').update({sort_order:u.sort_order}).eq('id',u.id);});
+        if(updates.length)showToast('Order saved!');
+      }
+    });
+  }
 }
-
 var saveDayNotes=debounce(function(dayId,notes){
   sb.from('itinerary_days').update({notes:notes,updated_at:new Date().toISOString()}).eq('id',dayId);
   var day=allDays.find(function(d){return d.id===dayId;});
@@ -1076,7 +935,7 @@ async function addItem(dayId){
   if(res.error){showToast('Error saving');return;}
   allItems.push(res.data);
   ['time','act','loc','cost'].forEach(function(f){document.getElementById('ai-'+f+'-'+dayId).value='';});
-  renderItems(dayId);initActivitySortable();renderHero();showToast('Activity added!');
+  renderItems(dayId);renderHero();showToast('Activity added!');
 }
 
 async function deleteItem(itemId){
