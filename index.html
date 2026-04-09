@@ -1224,21 +1224,23 @@ function initDragDrop(){
         var newBlock=newZone.closest('.day-block');
         var newDayId=newBlock?newBlock.getAttribute('data-day-id'):null;
         var item=allItems.find(function(x){return x.id===itemId;});
-        if(!item||!newDayId)return;
+        console.log('drag end - itemId:',itemId,'newDayId:',newDayId,'item:',item?'found':'NOT FOUND');
+        if(!item||!newDayId){console.log('early return!');return;}
         if(newDayId!==item.day_id){
           item.day_id=newDayId;
-          sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
+          sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId).then(function(r){console.log('day_id save:',r.error||'ok');});
         }
-        // update sort orders - use direct children only
         var rows=Array.from(newZone.children).filter(function(el){return el.getAttribute('data-id');});
-        var saves=[];
+        console.log('rows to save:',rows.length);
         rows.forEach(function(r,i){
           var id=r.getAttribute('data-id');
           var it=allItems.find(function(x){return x.id===id;});
-          if(it){it.sort_order=i+1;saves.push(sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id));}
+          if(it){
+            it.sort_order=i+1;
+            sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id).then(function(res){console.log('sort save',id,res.error||'ok');});
+          }
         });
-        Promise.all(saves).then(function(){showToast('Moved!');});
-        renderHero();renderCalendar();
+        renderHero();renderCalendar();showToast('Moved!');
       }
     });
   });
