@@ -741,23 +741,17 @@ function initCalSortable(){
         var itemId=evt.item.getAttribute('data-id');
         var newZone=evt.to;
         var newDayId=newZone.getAttribute('data-day-id');
-        var item=allItems.find(function(x){return x.id===itemId;});
-        if(!item||!newDayId)return;
-
-        if(newDayId!==item.day_id){
-          item.day_id=newDayId;
-          sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
-        }
-        var rows=Array.from(newZone.children).filter(function(el){return el.getAttribute('data-id');});
-
-        rows.forEach(function(r,i){
-          var id=r.getAttribute('data-id');
-          var it=allItems.find(function(x){return x.id===id;});
-          if(it){it.sort_order=i+1;sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id);}
-        });
-        renderDays();
-        renderCalendar();
-        showToast('Moved!');
+        if(!newDayId)return;
+        // save without re-rendering (re-render destroys sortable and causes snap-back)
+        saveDropOrder(itemId,newDayId,newZone);
+        // update list view silently without re-initing sortable
+        setTimeout(function(){
+          allDays.forEach(function(day){
+            var actsEl=document.getElementById('acts-'+day.id);
+            if(actsEl)renderActivities(day.id);
+          });
+          renderHero();
+        },300);
       }
     });
   });
