@@ -899,16 +899,7 @@ function renderActivities(dayId){
   var container=document.getElementById('acts-'+dayId);
   if(!container)return;
   container.innerHTML='';
-  var items=allItems.filter(function(i){return i.day_id===dayId;}).sort(function(a,b){
-    // sort by time if both have time, otherwise by sort_order
-    if(a.time&&b.time){
-      var ta=a.time.replace(':','');var tb=b.time.replace(':','');
-      return parseInt(ta)-parseInt(tb);
-    }
-    if(a.time&&!b.time)return -1;
-    if(!a.time&&b.time)return 1;
-    return (a.sort_order||0)-(b.sort_order||0);
-  });
+  var items=allItems.filter(function(i){return i.day_id===dayId;}).sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);});
   items.forEach(function(item){
     var itemParts=allParticipants.filter(function(p){return p.item_id===item.id;});
     var row=document.createElement('div');
