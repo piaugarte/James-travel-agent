@@ -865,6 +865,7 @@ function buildDayBlock(day, phaseColor){
   var acts=document.createElement('div');
   acts.className='day-activities';
   acts.id='acts-'+day.id;
+  acts.setAttribute('data-day-id',day.id);
   el.appendChild(acts);
 
   // add form
@@ -1242,25 +1243,9 @@ function initDragDrop(){
       onEnd:function(evt){
         var itemId=evt.item.getAttribute('data-id');
         var newZone=evt.to;
-        var newBlock=newZone.closest('.day-block');
-        var newDayId=newBlock?newBlock.getAttribute('data-day-id'):null;
-        var item=allItems.find(function(x){return x.id===itemId;});
-        if(!item||!newDayId)return;
-        if(newDayId!==item.day_id){
-          item.day_id=newDayId;
-          sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
-        }
-        var rows=Array.from(newZone.children).filter(function(el){return el.getAttribute('data-id');});
-        console.log('rows to save:',rows.length);
-        rows.forEach(function(r,i){
-          var id=r.getAttribute('data-id');
-          var it=allItems.find(function(x){return x.id===id;});
-          if(it){
-            it.sort_order=i+1;
-            sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id).then(function(res){console.log('sort save',id,res.error||'ok');});
-          }
-        });
-        renderHero();renderCalendar();showToast('Moved!');
+        var newDayId=newZone.getAttribute('data-day-id');
+        if(!newDayId)return;
+        saveDropOrder(itemId,newDayId,newZone);
       }
     });
   });
