@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vancouver Trip 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green:#2d6a4f;--green-light:#52b788;--green-pale:#d8f3dc;
+  --amber:#e76f00;--amber-pale:#fff3e0;
+  --purple:#5e35b1;--purple-pale:#ede7f6;
+  --blue:#1565c0;--blue-pale:#e3f2fd;
+  --red:#c62828;--red-pale:#ffebee;
+  --gray:#6b7280;--gray-light:#f3f4f6;--gray-border:#e5e7eb;
+  --text:#1a1a2e;--text-muted:#6b7280;
+  --white:#ffffff;--surface:#f9fafb;
+  --shadow:0 1px 3px rgba(0,0,0,0.1);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.12);
+  --radius:12px;--radius-sm:8px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);min-height:100vh;}
+h1,h2,h3{font-family:'Funnel Display',sans-serif;}
+
+/* NAV */
+nav{background:var(--white);border-bottom:1px solid var(--gray-border);position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+.nav-inner{max-width:900px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:8px;height:56px;overflow-x:auto;scrollbar-width:none;}
+.nav-inner::-webkit-scrollbar{display:none;}
+.nav-brand{font-family:'Funnel Display',sans-serif;font-weight:700;font-size:17px;color:var(--green);white-space:nowrap;margin-right:8px;}
+.nav-tab{padding:6px 14px;border-radius:20px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;white-space:nowrap;transition:all .15s;background:transparent;color:var(--text-muted);}
+.nav-tab:hover{background:var(--gray-light);}
+.nav-tab.active{background:var(--green);color:var(--white);}
+.nav-tab.active.amber{background:var(--amber);}
+.nav-tab.active.purple{background:var(--purple);}
+
+/* MAIN */
+main{max-width:900px;margin:0 auto;padding:20px 16px 100px;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--green) 0%,#1b4332 100%);border-radius:var(--radius);padding:28px 24px;margin-bottom:20px;color:var(--white);position:relative;overflow:hidden;}
+.hero::after{content:'🍁';position:absolute;right:24px;top:50%;transform:translateY(-50%);font-size:64px;opacity:0.2;}
+.hero h1{font-size:26px;font-weight:700;margin-bottom:6px;}
+.hero p{opacity:0.85;font-size:14px;margin-bottom:16px;}
+.hero-stats{display:flex;gap:16px;flex-wrap:wrap;}
+.hero-stat{background:rgba(255,255,255,0.15);border-radius:var(--radius-sm);padding:10px 16px;min-width:110px;}
+.hero-stat .label{font-size:11px;opacity:0.75;margin-bottom:2px;}
+.hero-stat .value{font-weight:700;font-size:18px;}
+.hero-stat .value.green{color:#95f7c4;}
+
+/* TABS content */
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* SECTION HEADER */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.section-title{font-size:18px;font-weight:700;color:var(--text);}
+.btn{padding:8px 16px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .15s;}
+.btn-primary{background:var(--green);color:var(--white);}
+.btn-primary:hover{background:#1b4332;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.btn-ghost{background:transparent;color:var(--gray);border:1px solid var(--gray-border);}
+.btn-ghost:hover{background:var(--gray-light);}
+.btn-danger{background:var(--red-pale);color:var(--red);border:none;}
+.btn-danger:hover{background:#ffcdd2;}
+
+/* PHASE BANNER */
+.phase-banner{border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;font-size:13px;line-height:1.5;}
+.phase-banner.surrey{background:var(--green-pale);color:#1b4332;border-left:4px solid var(--green);}
+.phase-banner.whistler{background:var(--purple-pale);color:var(--purple);border-left:4px solid var(--purple);}
+.phase-banner.bday{background:var(--amber-pale);color:var(--amber);border-left:4px solid var(--amber);}
+.phase-banner strong{display:block;font-size:14px;margin-bottom:2px;}
+
+/* DAY CARDS */
+.day-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray-border);margin-bottom:10px;overflow:hidden;transition:box-shadow .15s;}
+.day-card:hover{box-shadow:var(--shadow-md);}
+.day-header{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none;}
+.day-num{background:var(--green);color:var(--white);border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.day-num.amber{background:var(--amber);}
+.day-num.purple{background:var(--purple);}
+.day-date{font-size:11px;color:var(--text-muted);margin-bottom:2px;}
+.day-title-text{font-weight:600;font-size:15px;flex:1;}
+.day-badge{font-size:11px;padding:3px 8px;border-radius:10px;font-weight:600;white-space:nowrap;}
+.badge-free{background:var(--green-pale);color:var(--green);}
+.badge-paid{background:var(--blue-pale);color:var(--blue);}
+.badge-bday{background:var(--amber-pale);color:var(--amber);}
+.badge-whistler{background:var(--purple-pale);color:var(--purple);}
+.day-chevron{color:var(--text-muted);font-size:18px;transition:transform .2s;flex-shrink:0;}
+.day-card.open .day-chevron{transform:rotate(180deg);}
+.day-body{display:none;padding:0 16px 16px;border-top:1px solid var(--gray-border);}
+.day-card.open .day-body{display:block;}
+.day-notes-input{width:100%;border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:56px;margin:10px 0 12px;color:var(--text);background:var(--gray-light);}
+.day-notes-input:focus{outline:none;border-color:var(--green);background:var(--white);}
+
+/* ITEMS TABLE */
+.items-list{margin-bottom:10px;}
+.item-row{display:grid;grid-template-columns:70px 1fr 90px 80px 30px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--gray-border);font-size:13px;}
+.item-row:last-child{border-bottom:none;}
+.item-row.header{font-size:11px;font-weight:600;color:var(--text-muted);padding-bottom:4px;}
+.item-input{border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);width:100%;padding:2px 4px;border-radius:4px;}
+.item-input:focus{outline:none;background:var(--gray-light);}
+.item-cost{text-align:right;font-weight:500;}
+.category-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;}
+.confirmed-check{display:flex;align-items:center;justify-content:center;}
+.confirmed-check input{width:16px;height:16px;accent-color:var(--green);cursor:pointer;}
+.add-item-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.add-item-row input,.add-item-row select{border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:6px 10px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--white);}
+.add-item-row input:focus,.add-item-row select:focus{outline:none;border-color:var(--green);}
+.input-time{width:90px;}
+.input-activity{flex:1;min-width:120px;}
+.input-location{width:110px;}
+.input-cost{width:80px;}
+.input-cat{width:100px;}
+.delete-btn{background:none;border:none;cursor:pointer;color:var(--gray);font-size:16px;padding:2px;border-radius:4px;line-height:1;}
+.delete-btn:hover{color:var(--red);background:var(--red-pale);}
+
+/* BUDGET TAB */
+.budget-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px;}
+.budget-card{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);padding:16px;}
+.budget-card .label{font-size:12px;color:var(--text-muted);margin-bottom:4px;}
+.budget-card .amount{font-family:'Funnel Display',sans-serif;font-size:24px;font-weight:700;}
+.budget-card .sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.budget-card.highlight{border-color:var(--green);background:var(--green-pale);}
+.budget-card.highlight .amount{color:var(--green);}
+.budget-card.warn{border-color:var(--amber);background:var(--amber-pale);}
+.budget-card.warn .amount{color:var(--amber);}
+.category-breakdown{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;}
+.cat-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--gray-border);font-size:14px;}
+.cat-row:last-child{border-bottom:none;}
+.cat-bar-wrap{flex:1;height:8px;background:var(--gray-light);border-radius:4px;overflow:hidden;}
+.cat-bar{height:100%;border-radius:4px;transition:width .4s;}
+.cat-amount{font-weight:600;min-width:60px;text-align:right;font-size:13px;}
+
+/* PACKING LIST */
+.pack-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:16px;}
+.pack-item{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:10px 12px;display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;transition:all .15s;}
+.pack-item:hover{border-color:var(--green);}
+.pack-item.packed{opacity:0.5;text-decoration:line-through;background:var(--gray-light);}
+.pack-item input{width:16px;height:16px;accent-color:var(--green);cursor:pointer;flex-shrink:0;}
+.pack-cat-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 6px;}
+.add-pack-row{display:flex;gap:8px;margin-top:12px;}
+.add-pack-row input,.add-pack-row select{border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;flex:1;}
+.add-pack-row input:focus,.add-pack-row select:focus{outline:none;border-color:var(--green);}
+
+/* CHAT */
+.chat-fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:var(--green);color:var(--white);border:none;cursor:pointer;font-size:24px;box-shadow:var(--shadow-md);z-index:200;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+.chat-fab:hover{transform:scale(1.08);background:#1b4332;}
+.chat-panel{position:fixed;bottom:0;right:0;width:100%;max-width:400px;height:72vh;max-height:600px;background:var(--white);border-top-left-radius:var(--radius);border-top-right-radius:var(--radius);box-shadow:0 -4px 32px rgba(0,0,0,0.15);z-index:201;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .25s ease;}
+.chat-panel.open{transform:translateY(0);}
+@media(min-width:640px){
+  .chat-panel{bottom:90px;right:24px;border-radius:var(--radius);height:520px;box-shadow:var(--shadow-md);}
+  .chat-panel.open{transform:translateY(0);}
+}
+.chat-header{background:var(--green);color:var(--white);padding:14px 16px;border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;justify-content:space-between;}
+.chat-header h3{font-size:15px;font-weight:700;}
+.chat-header p{font-size:12px;opacity:0.8;}
+.chat-close{background:none;border:none;color:var(--white);font-size:22px;cursor:pointer;line-height:1;padding:0 4px;}
+.chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:85%;border-radius:var(--radius);padding:10px 14px;font-size:13px;line-height:1.6;}
+.msg.user{background:var(--green);color:var(--white);align-self:flex-end;border-bottom-right-radius:4px;}
+.msg.assistant{background:var(--gray-light);color:var(--text);align-self:flex-start;border-bottom-left-radius:4px;}
+.msg.assistant ul{padding-left:16px;}
+.msg.assistant li{margin-bottom:2px;}
+.typing-dots{display:flex;gap:4px;align-items:center;padding:4px 0;}
+.typing-dots span{width:7px;height:7px;background:var(--gray);border-radius:50%;animation:bounce .8s infinite;}
+.typing-dots span:nth-child(2){animation-delay:.15s;}
+.typing-dots span:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-6px);}}
+.chat-chips{padding:8px 12px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--gray-border);}
+.chat-chips::-webkit-scrollbar{display:none;}
+.chip{white-space:nowrap;background:var(--gray-light);border:none;border-radius:14px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--text-muted);transition:all .15s;}
+.chip:hover{background:var(--green-pale);color:var(--green);}
+.chat-input-row{padding:10px 12px;display:flex;gap:8px;border-top:1px solid var(--gray-border);}
+.chat-input-row input{flex:1;border:1px solid var(--gray-border);border-radius:20px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:13px;}
+.chat-input-row input:focus{outline:none;border-color:var(--green);}
+.chat-send{background:var(--green);color:var(--white);border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.chat-send:hover{background:#1b4332;}
+.chat-send:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--white);padding:10px 20px;border-radius:20px;font-size:13px;opacity:0;transition:all .3s;z-index:300;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* RESPONSIVE */
+@media(max-width:640px){
+  .item-row{grid-template-columns:60px 1fr 70px 26px;}
+  .item-row .item-location{display:none;}
+  .hero h1{font-size:21px;}
+}
+.empty-state{text-align:center;padding:32px;color:var(--text-muted);font-size:14px;}
+.pill-count{display:inline-block;background:rgba(255,255,255,0.25);border-radius:10px;padding:0 7px;font-size:11px;margin-left:4px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <span class="nav-brand">&#128329; Vancouver 2026</span>
+    <button class="nav-tab active" onclick="switchTab('itinerary',this)">Itinerary</button>
+    <button class="nav-tab" onclick="switchTab('budget',this)">Budget</button>
+    <button class="nav-tab" onclick="switchTab('packing',this)">Packing</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ITINERARY TAB -->
+  <div id="tab-itinerary" class="tab-content active">
+    <div class="hero">
+      <h1 id="hero-title">Loading trip...</h1>
+      <p id="hero-subtitle">Vancouver, BC, Canada</p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="label">Departure</div>
+          <div class="value" id="stat-start">--</div>
+        </div>
+        <div class="hero-stat">
+          <div class="label">Return</div>
+          <div class="value" id="stat-end">--</div>
+        </div>
+        <div class="hero-stat">
+          <div class="label">Days</div>
+          <div class="value" id="stat-days">--</div>
+        </div>
+        <div class="hero-stat">
+          <div class="label">Budget left</div>
+          <div class="value green" id="stat-budget">--</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-banner surrey">
+      <strong>Phase 1: Surrey base camp (Jun 15-24)</strong>
+      Staying free at Ines and Ben house in Surrey. Day trips to Vancouver, Richmond, North Shore.
+    </div>
+    <div id="days-surrey"></div>
+
+    <div class="phase-banner whistler" style="margin-top:8px;">
+      <strong>Phase 2: Whistler escape (Jun 25-28)</strong>
+      Andy family flies in June 25. Everyone heads up Sea to Sky Highway to group Airbnb. Book a 5-7 bedroom house - splits to about CA$700-900 per family for 3 nights.
+    </div>
+    <div id="days-whistler"></div>
+
+    <div class="phase-banner bday" style="margin-top:8px;">
+      <strong>Phase 3: Birthday week + Canada Day (Jun 29 - Jul 1)</strong>
+      Happy 4th birthday Pia! Playland, UBC, and Canada Day fireworks to close it out.
+    </div>
+    <div id="days-bday"></div>
+  </div>
+
+  <!-- BUDGET TAB -->
+  <div id="tab-budget" class="tab-content">
+    <div class="section-header">
+      <h2 class="section-title">Budget tracker</h2>
+    </div>
+    <div class="budget-grid">
+      <div class="budget-card highlight">
+        <div class="label">Total budget</div>
+        <div class="amount" id="b-total">CA$0</div>
+        <div class="sub">approx PHP 500,000</div>
+      </div>
+      <div class="budget-card" id="b-spent-card">
+        <div class="label">Estimated spend</div>
+        <div class="amount" id="b-spent">CA$0</div>
+        <div class="sub">from itinerary items</div>
+      </div>
+      <div class="budget-card" id="b-left-card">
+        <div class="label">Remaining</div>
+        <div class="amount" id="b-left">CA$0</div>
+        <div class="sub" id="b-left-sub">buffer</div>
+      </div>
+    </div>
+    <h3 style="font-size:15px;margin-bottom:10px;color:var(--text-muted);">By category</h3>
+    <div class="category-breakdown" id="cat-breakdown">
+      <div class="empty-state">Loading...</div>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">Costs pulled from itinerary items. Add or confirm items on the Itinerary tab.</p>
+  </div>
+
+  <!-- PACKING TAB -->
+  <div id="tab-packing" class="tab-content">
+    <div class="section-header">
+      <h2 class="section-title">Packing list</h2>
+      <span id="pack-progress" style="font-size:13px;color:var(--text-muted);"></span>
+    </div>
+    <div id="packing-list"></div>
+    <div class="add-pack-row">
+      <input type="text" id="pack-item-input" placeholder="Add item..." onkeydown="if(event.key==='Enter')addPackItem()"/>
+      <select id="pack-cat-input">
+        <option value="documents">Documents</option>
+        <option value="clothing">Clothing</option>
+        <option value="health">Health</option>
+        <option value="gear">Gear</option>
+        <option value="tech">Tech</option>
+        <option value="food">Food</option>
+        <option value="other">Other</option>
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="addPackItem()">Add</button>
+    </div>
+  </div>
+</main>
+
+<!-- CHAT -->
+<button class="chat-fab" id="chat-fab" onclick="toggleChat()" title="Trip assistant">&#127757;</button>
+
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-header">
+    <div>
+      <h3>Trip assistant</h3>
+      <p>Ask anything or make changes</p>
+    </div>
+    <button class="chat-close" onclick="toggleChat()">&#10005;</button>
+  </div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <div class="chat-chips" id="chat-chips"></div>
+  <div class="chat-input-row">
+    <input type="text" id="chat-input" placeholder="Ask something or make a change..." onkeydown="if(event.key==='Enter')sendChat()"/>
+    <button class="chat-send" id="chat-send" onclick="sendChat()">&#10148;</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// CONFIG - replace with your actual values in Vercel env, or hardcode here for testing
+const SUPABASE_URL = window.SUPABASE_URL || 'PASTE_YOUR_SUPABASE_URL_HERE';
+const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'PASTE_YOUR_SUPABASE_ANON_KEY_HERE';
+const TRIP_ID = 'a1b2c3d4-0000-0000-0000-000000000001';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ---- STATE ----
+let tripData = null;
+let allDays = [];
+let allItems = [];
+let allPacking = [];
+let chatHistory = [];
+let chatOpen = false;
+
+const CAT_COLORS = {
+  activity:'#5e35b1', hotel:'#1565c0', food:'#e76f00',
+  flight:'#c62828', transport:'#2d6a4f', other:'#6b7280'
+};
+const CAT_LABELS = {
+  activity:'Activity', hotel:'Hotel', food:'Food',
+  flight:'Flight', transport:'Transport', other:'Other'
+};
+
+// ---- UTILS ----
+function fmtDate(d){
+  if(!d) return '--';
+  const dt = new Date(d + 'T12:00:00');
+  return dt.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'});
+}
+function fmtShort(d){
+  if(!d) return '';
+  const dt = new Date(d + 'T12:00:00');
+  return dt.toLocaleDateString('en-CA',{month:'short',day:'numeric'});
+}
+function fmtCAD(n){return 'CA$' + (Number(n)||0).toLocaleString('en-CA',{minimumFractionDigits:0,maximumFractionDigits:0});}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function debounce(fn,ms){let t; return function(...a){clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms);};}
+
+// ---- TABS ----
+function switchTab(name, btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='budget') renderBudget();
+  if(name==='packing') renderPacking();
+}
+
+// ---- LOAD DATA ----
+async function loadAll(){
+  const [tripRes, daysRes, itemsRes, packRes] = await Promise.all([
+    sb.from('trip').select('*').eq('id',TRIP_ID).single(),
+    sb.from('itinerary_days').select('*').eq('trip_id',TRIP_ID).order('day_number'),
+    sb.from('itinerary_items').select('*').order('sort_order'),
+    sb.from('packing_items').select('*').eq('trip_id',TRIP_ID)
+  ]);
+  tripData = tripRes.data;
+  allDays = daysRes.data || [];
+  allItems = itemsRes.data || [];
+  allPacking = packRes.data || [];
+  renderHero();
+  renderDays();
+  renderPacking();
+}
+
+// ---- HERO ----
+function renderHero(){
+  if(!tripData) return;
+  document.getElementById('hero-title').textContent = tripData.title || 'Our Trip';
+  document.getElementById('hero-subtitle').textContent = tripData.destination || '';
+  document.getElementById('stat-start').textContent = fmtShort(tripData.start_date);
+  document.getElementById('stat-end').textContent = fmtShort(tripData.end_date);
+  const days = tripData.start_date && tripData.end_date
+    ? Math.round((new Date(tripData.end_date)-new Date(tripData.start_date))/(1000*60*60*24))+1
+    : '--';
+  document.getElementById('stat-days').textContent = days;
+  const spent = allItems.reduce((s,i)=>s+(Number(i.cost)||0),0);
+  const left = (Number(tripData.total_budget)||0) - spent;
+  document.getElementById('stat-budget').textContent = fmtCAD(left);
+}
+
+// ---- DAYS ----
+function getPhase(dayNum){
+  if(dayNum <= 10) return 'surrey';
+  if(dayNum <= 14) return 'whistler';
+  return 'bday';
+}
+function getDayNumColor(phase){
+  if(phase==='whistler') return 'purple';
+  if(phase==='bday') return 'amber';
+  return '';
+}
+function getBadge(day){
+  const phase = getPhase(day.day_number);
+  if(day.day_number===15) return ['bday','Birthday!'];
+  if(phase==='whistler') return ['whistler','Whistler'];
+  // estimate cost for this day
+  const dayItems = allItems.filter(i=>i.day_id===day.id);
+  const total = dayItems.reduce((s,i)=>s+(Number(i.cost)||0),0);
+  if(total===0) return ['free','Free'];
+  if(total < 100) return ['free','Low cost'];
+  if(total < 300) return ['paid','Moderate'];
+  return ['paid','Higher spend'];
+}
+
+function renderDays(){
+  const containers = {surrey:'days-surrey', whistler:'days-whistler', bday:'days-bday'};
+  Object.values(containers).forEach(id=>document.getElementById(id).innerHTML='');
+  allDays.forEach(day=>{
+    const phase = getPhase(day.day_number);
+    const container = document.getElementById(containers[phase]);
+    if(!container) return;
+    const [badgeClass, badgeLabel] = getBadge(day);
+    const numColor = getDayNumColor(phase);
+    const dayItems = allItems.filter(i=>i.day_id===day.id);
+    const el = document.createElement('div');
+    el.className = 'day-card';
+    el.id = 'day-' + day.id;
+    el.innerHTML =
+      '<div class="day-header" onclick="toggleDay(\''+day.id+'\')">' +
+        '<div class="day-num' + (numColor?' '+numColor:'') + '">' + day.day_number + '</div>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div class="day-date">' + fmtShort(day.date) + ' &nbsp;&#183;&nbsp; Day ' + day.day_number + '</div>' +
+          '<div class="day-title-text">' + escHtml(day.title) + '</div>' +
+        '</div>' +
+        '<span class="day-badge badge-'+badgeClass+'">' + badgeLabel + '</span>' +
+        (dayItems.length ? '<span style="font-size:11px;color:var(--text-muted);margin-left:4px;">' + dayItems.length + ' item' + (dayItems.length!==1?'s':'') + '</span>' : '') +
+        '<span class="day-chevron">&#8964;</span>' +
+      '</div>' +
+      '<div class="day-body">' +
+        '<textarea class="day-notes-input" placeholder="Add notes for this day..." onchange="saveDayNotes(\''+day.id+'\',this.value)" onblur="saveDayNotes(\''+day.id+'\',this.value)">' + escHtml(day.notes||'') + '</textarea>' +
+        '<div id="items-'+day.id+'"></div>' +
+        '<div class="add-item-row">' +
+          '<input class="input-time" type="text" placeholder="10:00 AM" id="ai-time-'+day.id+'"/>' +
+          '<input class="input-activity" type="text" placeholder="Activity..." id="ai-act-'+day.id+'" onkeydown="if(event.key===\'Enter\')addItem(\''+day.id+'\')"/>' +
+          '<input class="input-location" type="text" placeholder="Location" id="ai-loc-'+day.id+'"/>' +
+          '<input class="input-cost" type="number" placeholder="CA$" id="ai-cost-'+day.id+'"/>' +
+          '<select class="input-cat" id="ai-cat-'+day.id+'">' +
+            '<option value="activity">Activity</option><option value="food">Food</option><option value="hotel">Hotel</option>' +
+            '<option value="transport">Transport</option><option value="flight">Flight</option><option value="other">Other</option>' +
+          '</select>' +
+          '<button class="btn btn-primary btn-sm" onclick="addItem(\''+day.id+'\')">+ Add</button>' +
+        '</div>' +
+      '</div>';
+    container.appendChild(el);
+    renderItems(day.id);
+  });
+}
+
+function toggleDay(dayId){
+  const card = document.getElementById('day-'+dayId);
+  card.classList.toggle('open');
+}
+
+function escHtml(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderItems(dayId){
+  const container = document.getElementById('items-'+dayId);
+  if(!container) return;
+  const items = allItems.filter(i=>i.day_id===dayId).sort((a,b)=>a.sort_order-b.sort_order);
+  if(items.length===0){container.innerHTML='';return;}
+  let html = '<div class="items-list">';
+  html += '<div class="item-row header"><span>Time</span><span>Activity</span><span class="item-location">Location</span><span class="item-cost">Cost</span><span></span></div>';
+  items.forEach(item=>{
+    const col = CAT_COLORS[item.category]||CAT_COLORS.other;
+    html += '<div class="item-row" id="item-'+item.id+'">' +
+      '<input class="item-input" value="'+escHtml(item.time||'')+'" placeholder="--:--" onblur="updateItem(\''+item.id+'\',\'time\',this.value)"/>' +
+      '<span><span class="category-dot" style="background:'+col+'"></span><input class="item-input" value="'+escHtml(item.activity||'')+'" style="width:calc(100% - 16px)" onblur="updateItem(\''+item.id+'\',\'activity\',this.value)"/' + '></span>' +
+      '<input class="item-input item-location" value="'+escHtml(item.location||'')+'" placeholder="location" onblur="updateItem(\''+item.id+'\',\'location\',this.value)"/>' +
+      '<input class="item-input item-cost" type="number" value="'+escHtml(item.cost||'')+'" style="text-align:right" onblur="updateItem(\''+item.id+'\',\'cost\',this.value)"/>' +
+      '<button class="delete-btn" onclick="deleteItem(\''+item.id+'\')" title="Remove">&#215;</button>' +
+    '</div>';
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+const saveDayNotes = debounce(async(dayId, notes)=>{
+  await sb.from('itinerary_days').update({notes, updated_at: new Date().toISOString()}).eq('id',dayId);
+  const day = allDays.find(d=>d.id===dayId);
+  if(day) day.notes = notes;
+  showToast('Notes saved');
+}, 800);
+
+async function updateItem(itemId, field, value){
+  const update = {};
+  update[field] = (field==='cost') ? (parseFloat(value)||0) : value;
+  await sb.from('itinerary_items').update(update).eq('id',itemId);
+  const item = allItems.find(i=>i.id===itemId);
+  if(item) item[field] = update[field];
+  renderHero();
+  showToast('Saved');
+}
+
+async function addItem(dayId){
+  const time = document.getElementById('ai-time-'+dayId).value.trim();
+  const activity = document.getElementById('ai-act-'+dayId).value.trim();
+  const location = document.getElementById('ai-loc-'+dayId).value.trim();
+  const cost = parseFloat(document.getElementById('ai-cost-'+dayId).value)||0;
+  const category = document.getElementById('ai-cat-'+dayId).value;
+  if(!activity) return;
+  const existing = allItems.filter(i=>i.day_id===dayId);
+  const sort_order = existing.length ? Math.max(...existing.map(i=>i.sort_order))+1 : 1;
+  const {data, error} = await sb.from('itinerary_items').insert({day_id:dayId, time, activity, location, cost, category, sort_order}).select().single();
+  if(error){showToast('Error saving');return;}
+  allItems.push(data);
+  ['time','act','loc','cost'].forEach(f=>document.getElementById('ai-'+f+'-'+dayId).value='');
+  renderItems(dayId);
+  renderHero();
+  showToast('Activity added!');
+}
+
+async function deleteItem(itemId){
+  await sb.from('itinerary_items').delete().eq('id',itemId);
+  allItems = allItems.filter(i=>i.id!==itemId);
+  // re-render affected day
+  const item = document.getElementById('item-'+itemId);
+  if(item){
+    const row = item.closest('.day-body');
+    if(row){
+      const dayCard = row.closest('.day-card');
+      const dayId = dayCard.id.replace('day-','');
+      renderItems(dayId);
+    }
+  }
+  renderHero();
+  showToast('Removed');
+}
+
+// ---- BUDGET ----
+function renderBudget(){
+  if(!tripData) return;
+  const total = Number(tripData.total_budget)||0;
+  const spent = allItems.reduce((s,i)=>s+(Number(i.cost)||0),0);
+  const left = total - spent;
+  document.getElementById('b-total').textContent = fmtCAD(total);
+  document.getElementById('b-spent').textContent = fmtCAD(spent);
+  document.getElementById('b-left').textContent = fmtCAD(Math.abs(left));
+  const leftCard = document.getElementById('b-left-card');
+  const leftSub = document.getElementById('b-left-sub');
+  leftCard.className = 'budget-card ' + (left >= 0 ? 'highlight' : 'warn');
+  leftSub.textContent = left >= 0 ? 'remaining buffer' : 'over budget';
+  // category breakdown
+  const cats = {};
+  allItems.forEach(i=>{
+    const c = i.category||'other';
+    cats[c] = (cats[c]||0) + (Number(i.cost)||0);
+  });
+  const catEl = document.getElementById('cat-breakdown');
+  if(Object.keys(cats).length===0){catEl.innerHTML='<div class="empty-state">No items added yet. Add activities on the Itinerary tab.</div>';return;}
+  const maxVal = Math.max(...Object.values(cats),1);
+  catEl.innerHTML = Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>{
+    const pct = Math.round((amt/maxVal)*100);
+    const col = CAT_COLORS[cat]||CAT_COLORS.other;
+    const budgetPct = total > 0 ? Math.round((amt/total)*100) : 0;
+    return '<div class="cat-row">' +
+      '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+col+';margin-right:8px;flex-shrink:0;"></span>' +
+      '<span style="width:80px;font-size:13px;font-weight:500;">'+(CAT_LABELS[cat]||cat)+'</span>' +
+      '<div class="cat-bar-wrap"><div class="cat-bar" style="width:'+pct+'%;background:'+col+';opacity:0.7;"></div></div>' +
+      '<span class="cat-amount">'+fmtCAD(amt)+'</span>' +
+      '<span style="font-size:11px;color:var(--text-muted);margin-left:6px;min-width:30px;">'+budgetPct+'%</span>' +
+    '</div>';
+  }).join('');
+}
+
+// ---- PACKING ----
+function renderPacking(){
+  const cats = {};
+  allPacking.forEach(item=>{
+    const c = item.category||'other';
+    if(!cats[c]) cats[c]=[];
+    cats[c].push(item);
+  });
+  const packed = allPacking.filter(i=>i.packed).length;
+  document.getElementById('pack-progress').textContent = packed + ' / ' + allPacking.length + ' packed';
+  const container = document.getElementById('packing-list');
+  container.innerHTML = '';
+  const catOrder = ['documents','clothing','health','gear','tech','food','other'];
+  catOrder.filter(c=>cats[c]).forEach(c=>{
+    const label = document.createElement('div');
+    label.className = 'pack-cat-label';
+    label.textContent = c.charAt(0).toUpperCase()+c.slice(1);
+    container.appendChild(label);
+    const grid = document.createElement('div');
+    grid.className = 'pack-grid';
+    cats[c].forEach(item=>{
+      const el = document.createElement('label');
+      el.className = 'pack-item' + (item.packed?' packed':'');
+      el.innerHTML = '<input type="checkbox"'+(item.packed?' checked':'') +' onchange="togglePack(\''+item.id+'\',this.checked)"/> ' + escHtml(item.item);
+      grid.appendChild(el);
+    });
+    container.appendChild(grid);
+  });
+}
+
+async function togglePack(id, packed){
+  await sb.from('packing_items').update({packed}).eq('id',id);
+  const item = allPacking.find(i=>i.id===id);
+  if(item) item.packed = packed;
+  renderPacking();
+}
+
+async function addPackItem(){
+  const item = document.getElementById('pack-item-input').value.trim();
+  const category = document.getElementById('pack-cat-input').value;
+  if(!item) return;
+  const {data,error} = await sb.from('packing_items').insert({trip_id:TRIP_ID, item, category, packed:false}).select().single();
+  if(error){showToast('Error');return;}
+  allPacking.push(data);
+  document.getElementById('pack-item-input').value='';
+  renderPacking();
+  showToast('Added to packing list!');
+}
+
+// ---- CHAT ----
+const CHIPS = [
+  'Best restaurants near Surrey?',
+  'What should we book in advance?',
+  'Swap Day 3 and Day 5?',
+  'Tips for Whistler with young kids',
+  'What is free in Vancouver?',
+  'Add a packing reminder for adapters',
+];
+
+function renderChips(){
+  const el = document.getElementById('chat-chips');
+  el.innerHTML = '';
+  CHIPS.forEach(c=>{
+    const btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.textContent = c;
+    btn.onclick = ()=>{document.getElementById('chat-input').value=c; sendChat();};
+    el.appendChild(btn);
+  });
+}
+
+function toggleChat(){
+  chatOpen = !chatOpen;
+  document.getElementById('chat-panel').classList.toggle('open', chatOpen);
+  if(chatOpen){
+    document.getElementById('chat-input').focus();
+    if(chatHistory.length===0) appendMsg('assistant', 'Hi! I am your Vancouver trip assistant. I can suggest restaurants, help rearrange days, answer questions about Whistler with kids, flag things to book ahead - anything to make your trip amazing. What would you like to know?');
+    renderChips();
+  }
+}
+
+function appendMsg(role, text){
+  chatHistory.push({role, content: text});
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = text.replace(/\n/g,'<br/>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/^- (.+)$/gm,'<li>$1</li>').replace(/(<li>.*<\/li>)/s,'<ul>$1</ul>');
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+async function sendChat(){
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  document.getElementById('chat-send').disabled = true;
+  appendMsg('user', text);
+
+  // typing indicator
+  const container = document.getElementById('chat-messages');
+  const typing = document.createElement('div');
+  typing.className = 'msg assistant';
+  typing.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  container.appendChild(typing);
+  container.scrollTop = container.scrollHeight;
+
+  // build trip context
+  const spent = allItems.reduce((s,i)=>s+(Number(i.cost)||0),0);
+  const left = (Number(tripData?.total_budget)||0)-spent;
+  const context = [
+    'Trip: ' + (tripData?.title||'Vancouver 2026'),
+    'Dates: ' + fmtDate(tripData?.start_date) + ' to ' + fmtDate(tripData?.end_date),
+    'Budget: CA$' + (tripData?.total_budget||0) + ' total, CA$' + spent + ' estimated spend, CA$' + left + ' remaining',
+    '',
+    'Days summary:',
+    allDays.map(d=>{
+      const items = allItems.filter(i=>i.day_id===d.id);
+      const itemList = items.map(i=>i.activity + (i.location?' at '+i.location:'') + (i.cost?' (CA$'+i.cost+')':'')).join(', ');
+      return 'Day ' + d.day_number + ' (' + (d.date||'') + '): ' + d.title + (itemList ? ' - Items: ' + itemList : '') + (d.notes ? ' - Notes: ' + d.notes : '');
+    }).join('\n'),
+    '',
+    'Family: Pia + Pach (adults), Joaquin (8), Alba (6). Extended family joins later.'
+  ].join('\n');
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        messages: chatHistory.filter(m=>m.role!=='system').map(m=>({role:m.role, content:m.content})),
+        tripContext: context
+      })
+    });
+    const {reply, error} = await res.json();
+    typing.remove();
+    appendMsg('assistant', error ? 'Sorry, something went wrong. Try again!' : reply);
+  } catch(e){
+    typing.remove();
+    appendMsg('assistant', 'Connection error. Check your internet and try again.');
+  }
+  document.getElementById('chat-send').disabled = false;
+  container.scrollTop = container.scrollHeight;
+}
+
+// ---- INIT ----
+loadAll();
+</script>
+</body>
+</html>
