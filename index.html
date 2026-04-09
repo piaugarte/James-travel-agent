@@ -715,17 +715,84 @@ function buildDayCard(day, phase){
 }
 
 function renderDays(){
-  ['surrey','whistler','bday'].forEach(function(phase){
-    var container=document.getElementById('days-'+phase);
-    if(!container)return;
-    container.innerHTML='';
-    allDays.filter(function(d){return getPhase(d.day_number)===phase;}).forEach(function(day){
-      var el=buildDayCard(day,phase);
-      container.appendChild(el);
+  var container=document.getElementById('phases-container');
+  if(!container)return;
+  container.innerHTML='';
+
+  var phases=allPhases.length>0
+    ? allPhases.slice().sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);})
+    : [
+        {id:'_s',title:'Surrey base camp',subtitle:'Jun 15-24',color:'green',sort_order:1},
+        {id:'_w',title:'Whistler escape',subtitle:'Jun 25-28',color:'purple',sort_order:2},
+        {id:'_b',title:'Birthday week + Canada Day',subtitle:'Jun 29 - Jul 1',color:'amber',sort_order:3}
+      ];
+
+  phases.forEach(function(phase){
+    var phaseEl=document.createElement('div');
+    phaseEl.className='phase-block';
+
+    var hdr=document.createElement('div');
+    hdr.className='phase-header '+(phase.color||'green');
+    var textWrap=document.createElement('div');textWrap.style.flex='1';textWrap.style.minWidth='0';
+    var titleIn=document.createElement('input');
+    titleIn.className='phase-title-input';titleIn.value=phase.title||'';titleIn.placeholder='Phase title...';
+    titleIn.onclick=function(e){e.stopPropagation();};
+    titleIn.onblur=function(){var v=titleIn.value.trim();if(v&&v!==phase.title){phase.title=v;if(!phase.id.startsWith('_'))sb.from('phases').update({title:v}).eq('id',phase.id);showToast('Saved!');}};
+    titleIn.onkeydown=function(e){if(e.key==='Enter')titleIn.blur();};
+    var subIn=document.createElement('input');
+    subIn.className='phase-subtitle-input';subIn.value=phase.subtitle||'';subIn.placeholder='Dates / description...';
+    subIn.onclick=function(e){e.stopPropagation();};
+    subIn.onblur=function(){if(subIn.value!==phase.subtitle){phase.subtitle=subIn.value;if(!phase.id.startsWith('_'))sb.from('phases').update({subtitle:subIn.value}).eq('id',phase.id);}};
+    textWrap.appendChild(titleIn);textWrap.appendChild(subIn);
+    hdr.appendChild(textWrap);
+
+    var colorWrap=document.createElement('div');colorWrap.className='phase-color-picker';
+    [{c:'green',bg:'#2d6a4f'},{c:'purple',bg:'#5e35b1'},{c:'amber',bg:'#e76f00'},{c:'blue',bg:'#1565c0'},{c:'red',bg:'#c62828'}].forEach(function(col){
+      var dot=document.createElement('div');
+      dot.className='phase-color-dot'+(phase.color===col.c?' active':'');
+      dot.style.background=col.bg;dot.title=col.c;
+      dot.onclick=function(){phase.color=col.c;hdr.className='phase-header '+col.c;colorWrap.querySelectorAll('.phase-color-dot').forEach(function(d){d.classList.remove('active');});dot.classList.add('active');if(!phase.id.startsWith('_'))sb.from('phases').update({color:col.c}).eq('id',phase.id);};
+      colorWrap.appendChild(dot);
+    });
+    hdr.appendChild(colorWrap);
+
+    var delBtn=document.createElement('button');delBtn.className='phase-del-btn';delBtn.innerHTML='&#128465;';
+    delBtn.onclick=function(){if(!phase.id.startsWith('_'))deletePhase(phase.id);};
+    hdr.appendChild(delBtn);
+    phaseEl.appendChild(hdr);
+
+    var daysDiv=document.createElement('div');
+    var phaseDays=allDays.filter(function(d){
+      if(phase.id==='_s')return d.day_number<=10;
+      if(phase.id==='_w')return d.day_number>10&&d.day_number<=14;
+      if(phase.id==='_b')return d.day_number>14;
+      return d.phase_id===phase.id;
+    }).sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0)||(a.day_number||0)-(b.day_number||0);});
+
+    phaseDays.forEach(function(day){
+      var card=buildDayCard(day,phase.color||'green');
+      daysDiv.appendChild(card);
       renderItems(day.id);
     });
-
+    phaseEl.appendChild(daysDiv);
+    container.appendChild(phaseEl);
   });
+  initActivitySortable();
+}
+
+async function addPhase(){
+  var maxSort=allPhases.length?Math.max.apply(null,allPhases.map(function(p){return p.sort_order||0;})):0;
+  var res=await sb.from('phases').insert({trip_id:TRIP_ID,title:'New phase',subtitle:'',color:'blue',sort_order:maxSort+1}).select().single();
+  if(res.error){showToast('Error: '+res.error.message);return;}
+  allPhases.push(res.data);renderDays();showToast('Phase added!');
+}
+
+async function deletePhase(phaseId){
+  var cnt=allDays.filter(function(d){return d.phase_id===phaseId;}).length;
+  if(cnt>0&&!confirm('Delete this phase? '+cnt+' day(s) will become unassigned.'))return;
+  await sb.from('phases').delete().eq('id',phaseId);
+  allPhases=allPhases.filter(function(p){return p.id!==phaseId;});
+  renderDays();showToast('Phase deleted');
 }
 
 function toggleDay(id){document.getElementById('day-'+id).classList.toggle('open');}
@@ -1361,6 +1428,39 @@ async function sendChat(){
 }
 
 document.getElementById('person-modal').addEventListener('click',function(e){if(e.target===this)closePersonModal();});
+function initActivitySortable(){
+  if(typeof Sortable==='undefined')return;
+  document.querySelectorAll('.items-list').forEach(function(list){
+    if(list._sortable){list._sortable.destroy();list._sortable=null;}
+    list._sortable=Sortable.create(list,{
+      group:'activities',
+      handle:'.drag-handle',
+      animation:150,
+      ghostClass:'sortable-ghost',
+      filter:'.item-row.header',
+      onEnd:function(evt){
+        var itemId=evt.item.getAttribute('data-id');
+        var newList=evt.to;
+        var dayCard=newList.closest('.day-card');
+        var newDayId=dayCard?dayCard.id.replace('day-',''):null;
+        var item=allItems.find(function(x){return x.id===itemId;});
+        if(!item)return;
+        if(newDayId&&newDayId!==item.day_id){
+          item.day_id=newDayId;
+          sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
+        }
+        var rows=newList.querySelectorAll('[data-id]');
+        rows.forEach(function(r,i){
+          var id=r.getAttribute('data-id');
+          var it=allItems.find(function(x){return x.id===id;});
+          if(it&&it.sort_order!==i+1){it.sort_order=i+1;sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id);}
+        });
+        showToast('Saved!');
+      }
+    });
+  });
+}
+
 loadAll();
 </script>
 </body>
