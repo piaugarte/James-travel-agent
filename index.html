@@ -26,13 +26,13 @@
 body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);min-height:100vh;}
 h1,h2,h3,h4{font-family:'Funnel Display',sans-serif;}
 nav{background:var(--white);border-bottom:1px solid var(--gray-border);position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
-.nav-inner{max-width:960px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:6px;height:56px;overflow-x:auto;scrollbar-width:none;}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:6px;height:56px;overflow-x:auto;scrollbar-width:none;}
 .nav-inner::-webkit-scrollbar{display:none;}
 .nav-brand{font-family:'Funnel Display',sans-serif;font-weight:700;font-size:17px;color:var(--green);white-space:nowrap;margin-right:8px;}
 .nav-tab{padding:6px 13px;border-radius:20px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;white-space:nowrap;transition:all .15s;background:transparent;color:var(--text-muted);}
 .nav-tab:hover{background:var(--gray-light);}
-.nav-tab.active{background:var(--green);color:var(--white);}
-main{max-width:960px;margin:0 auto;padding:20px 16px 100px;}
+.nav-tab.active{background:var(--green);color:var(--white);}.nav-spacer{flex:1;}.nav-tab.private{}.nav-tab.private.active{background:#374151;}
+main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .tab-content{display:none;}
 .tab-content.active{display:block;}
 .btn{padding:8px 16px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .15s;}
@@ -251,9 +251,11 @@ main{max-width:960px;margin:0 auto;padding:20px 16px 100px;}
   <div class="nav-inner">
     <span class="nav-brand">&#128329; Vancouver 2026</span>
     <button class="nav-tab active" onclick="switchTab('itinerary',this)">Itinerary</button>
-    <button class="nav-tab" onclick="switchTab('budget',this)">Budget</button>
     <button class="nav-tab" onclick="switchTab('people',this)">People</button>
-    <button class="nav-tab" onclick="switchTab('packing',this)">Packing</button>
+    <button class="nav-tab" onclick="switchTab('costs',this)">Costs</button>
+    <span class="nav-spacer"></span>
+    <button class="nav-tab private" onclick="switchTab('packing',this)">&#127876; Packing</button>
+    <button class="nav-tab private" onclick="switchTab('budget',this)">&#128274; Budget</button>
   </div>
 </nav>
 
@@ -268,7 +270,7 @@ main{max-width:960px;margin:0 auto;padding:20px 16px 100px;}
         <div class="hero-stat"><div class="label">Departure</div><div class="value" id="stat-start">--</div></div>
         <div class="hero-stat"><div class="label">Return</div><div class="value" id="stat-end">--</div></div>
         <div class="hero-stat"><div class="label">Days</div><div class="value" id="stat-days">--</div></div>
-        <div class="hero-stat"><div class="label">Budget left</div><div class="value green" id="stat-budget">--</div></div>
+        
       </div>
     </div>
     <div class="cal-toggle">
@@ -284,6 +286,22 @@ main{max-width:960px;margin:0 auto;padding:20px 16px 100px;}
       <div id="days-bday"></div>
     </div>
     <div id="itin-calendar" style="display:none;"></div>
+  </div>
+
+  <!-- COSTS TAB (public) -->
+  <div id="tab-costs" class="tab-content">
+    <div class="section-header">
+      <h2 class="section-title">Trip costs</h2>
+      <span style="font-size:13px;color:var(--text-muted);">Excludes flights. All prices in CA$.</span>
+    </div>
+    <div class="budget-grid" id="costs-summary-cards"></div>
+    <div style="margin-bottom:12px;">
+      <h3 style="font-size:15px;font-weight:700;margin-bottom:12px;">By day</h3>
+      <div id="costs-by-day"></div>
+    </div>
+    <h3 style="font-size:15px;font-weight:700;margin:20px 0 12px;">By category</h3>
+    <div class="category-breakdown" id="costs-by-cat"></div>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:12px;">Costs shown are estimates from planned activities. Actual spend may vary.</p>
   </div>
 
   <!-- BUDGET TAB -->
@@ -464,6 +482,7 @@ function switchTab(name,btn){
   btn.classList.add('active');
   if(name==='budget')renderBudget();
   if(name==='packing')renderPacking();
+  if(name==='costs')renderCosts();
   if(name==='people'){renderPeople();buildAvatarPicker('add-avatar-picker','p-avatar','🧑');}
 }
 
@@ -523,8 +542,7 @@ function renderHero(){
   document.getElementById('stat-end').textContent=fmtShort(tripData.end_date);
   const days=tripData.start_date&&tripData.end_date?Math.round((new Date(tripData.end_date)-new Date(tripData.start_date))/86400000)+1:'--';
   document.getElementById('stat-days').textContent=days;
-  const spent=allItems.reduce((s,i)=>s+(Number(i.cost)||0),0);
-  document.getElementById('stat-budget').textContent=fmtCAD((Number(tripData.total_budget)||0)-spent);
+  // budget stat removed from hero
 }
 
 // ITINERARY VIEW TOGGLE
@@ -690,6 +708,74 @@ async function deleteItem(itemId){
   if(el){const body=el.closest('.day-body');if(body){const dayId=body.closest('.day-card').id.replace('day-','');allItems=allItems.filter(i=>i.id!==itemId);renderItems(dayId);}}
   else{allItems=allItems.filter(i=>i.id!==itemId);}
   renderHero(); showToast('Removed');
+}
+
+// PUBLIC COSTS
+function renderCosts(){
+  const nonFlight=allItems.filter(i=>i.category!=='flight');
+  const totalCost=nonFlight.reduce((s,i)=>s+(Number(i.cost)||0),0);
+  const cats={};
+  nonFlight.forEach(i=>{const c=i.category||'other';cats[c]=(cats[c]||0)+(Number(i.cost)||0);});
+
+  // summary cards
+  const perPerson=allPeople.length?Math.round(totalCost/allPeople.length):0;
+  const perFamily=Math.round(totalCost/3);
+  document.getElementById('costs-summary-cards').innerHTML=
+    '<div class="budget-card highlight"><div class="label">Total estimated</div><div class="amount">'+fmtCAD(totalCost)+'</div><div class="sub">excl. flights</div></div>'+
+    '<div class="budget-card"><div class="label">Per person (est.)</div><div class="amount">'+fmtCAD(perPerson)+'</div><div class="sub">'+allPeople.length+' people total</div></div>'+
+    '<div class="budget-card"><div class="label">Per family (est.)</div><div class="amount">'+fmtCAD(perFamily)+'</div><div class="sub">split 3 families</div></div>';
+
+  // by day
+  const byDay=document.getElementById('costs-by-day');
+  const daysWithCosts=allDays.map(d=>{
+    const items=nonFlight.filter(i=>i.day_id===d.id);
+    const total=items.reduce((s,i)=>s+(Number(i.cost)||0),0);
+    return{day:d,items,total};
+  }).filter(x=>x.total>0);
+
+  if(!daysWithCosts.length){byDay.innerHTML='<div class="empty-state">No costs added yet. Add activities on the Itinerary tab.</div>';return;}
+  const maxDay=Math.max(...daysWithCosts.map(x=>x.total),1);
+
+  byDay.innerHTML=daysWithCosts.map(({day,items,total})=>{
+    const phase=getPhase(day.day_number);
+    const barColor=phase==='whistler'?'var(--purple)':phase==='bday'?'var(--amber)':'var(--green)';
+    const pct=Math.round((total/maxDay)*100);
+    const itemList=items.map(i=>
+      '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--gray-light);border-radius:6px;padding:2px 8px;font-size:11px;margin:2px;">'+
+        '<span style="width:6px;height:6px;border-radius:50%;background:'+(CAT_COLORS[i.category]||CAT_COLORS.other)+';display:inline-block;"></span>'+
+        escHtml(i.activity)+(i.cost?' - '+fmtCAD(i.cost):'')+
+      '</span>'
+    ).join('');
+    return '<div style="background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);padding:14px 16px;margin-bottom:8px;">'+
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">'+
+        '<div style="background:'+barColor+';color:white;border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">'+day.day_number+'</div>'+
+        '<div style="flex:1;min-width:0;">'+
+          '<div style="font-size:11px;color:var(--text-muted);">'+fmtShort(day.date)+'</div>'+
+          '<div style="font-weight:600;font-size:14px;">'+escHtml(day.title)+'</div>'+
+        '</div>'+
+        '<div style="font-weight:700;font-size:15px;color:'+barColor+';">'+fmtCAD(total)+'</div>'+
+      '</div>'+
+      '<div style="height:6px;background:var(--gray-light);border-radius:3px;overflow:hidden;margin-bottom:8px;">'+
+        '<div style="height:100%;width:'+pct+'%;background:'+barColor+';border-radius:3px;transition:width .4s;"></div>'+
+      '</div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:2px;">'+itemList+'</div>'+
+    '</div>';
+  }).join('');
+
+  // by category
+  const catEl=document.getElementById('costs-by-cat');
+  if(!Object.keys(cats).length){catEl.innerHTML='<div class="empty-state">No items yet.</div>';return;}
+  const maxCat=Math.max(...Object.values(cats),1);
+  catEl.innerHTML=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>{
+    const pct=Math.round((amt/maxCat)*100);
+    const col=CAT_COLORS[cat]||CAT_COLORS.other;
+    return '<div class="cat-row">'+
+      '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+col+';margin-right:8px;flex-shrink:0;"></span>'+
+      '<span style="width:90px;font-size:13px;font-weight:500;">'+(CAT_LABELS[cat]||cat)+'</span>'+
+      '<div class="cat-bar-wrap"><div class="cat-bar" style="width:'+pct+'%;background:'+col+';opacity:0.75;"></div></div>'+
+      '<span class="cat-amount">'+fmtCAD(amt)+'</span>'+
+    '</div>';
+  }).join('');
 }
 
 // BUDGET PASSWORD
