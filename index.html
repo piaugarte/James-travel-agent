@@ -1216,6 +1216,26 @@ async function addActivity(dayId){
   renderHero();showToast('Added!');
 }
 
+function saveDropOrder(itemId, newDayId, zoneEl){
+  var item=allItems.find(function(x){return x.id===itemId;});
+  if(!item)return;
+  var dayChanged=newDayId&&newDayId!==item.day_id;
+  if(dayChanged)item.day_id=newDayId;
+
+  // get all items in this zone in their current visual order
+  var rows=Array.from(zoneEl.children).filter(function(el){return el.getAttribute('data-id');});
+  var updates=[];
+  if(dayChanged)updates.push(sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId));
+  rows.forEach(function(r,i){
+    var id=r.getAttribute('data-id');
+    var it=allItems.find(function(x){return x.id===id;});
+    if(it){
+      it.sort_order=i+1;
+      updates.push(sb.from('itinerary_items').update({sort_order:i+1,day_id:it.day_id}).eq('id',id));
+    }
+  });
+  Promise.all(updates).then(function(){showToast('Moved!');renderHero();});
+}
 function initDragDrop(){
   if(typeof Sortable==='undefined')return;
   document.querySelectorAll('.day-activities').forEach(function(zone){
