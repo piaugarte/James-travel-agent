@@ -170,12 +170,38 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .who-grid-chip .chip-avatar{font-size:20px;line-height:1;}
 .who-pp-tag{font-size:11px;color:var(--amber);font-weight:600;margin-top:2px;}
 /* cal */
+.cal-act-card{position:relative;}
+.cal-act-card:hover::after{
+  content:attr(data-tooltip);
+  position:absolute;
+  bottom:calc(100% + 6px);
+  left:0;
+  background:var(--text);
+  color:white;
+  padding:5px 9px;
+  border-radius:6px;
+  font-size:11px;
+  white-space:nowrap;
+  z-index:999;
+  pointer-events:none;
+  box-shadow:var(--shadow-md);
+}
+.cal-act-card:hover::before{
+  content:'';
+  position:absolute;
+  bottom:calc(100% + 1px);
+  left:10px;
+  border:5px solid transparent;
+  border-top-color:var(--text);
+  z-index:999;
+  pointer-events:none;
+}
 .cal-toggle{display:flex;gap:8px;margin-bottom:16px;}
 .cal-toggle button{padding:6px 16px;border-radius:20px;border:1px solid var(--gray-border);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;background:var(--white);color:var(--text-muted);transition:all .15s;}
 .cal-toggle button.active{background:var(--green);color:var(--white);border-color:var(--green);}
 .calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:20px;}
 .cal-header-cell{text-align:center;font-size:11px;font-weight:600;color:var(--text-muted);padding:4px 0;}
-.cal-cell{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:6px;min-height:72px;cursor:pointer;transition:all .15s;}
+.cal-cell{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:6px;height:110px;overflow:hidden;cursor:pointer;transition:all .15s;}
 .cal-cell:hover{border-color:var(--green);box-shadow:var(--shadow);}
 .cal-cell.empty{background:transparent;border-color:transparent;cursor:default;}
 .cal-cell.empty:hover{border-color:transparent;box-shadow:none;}
@@ -589,33 +615,144 @@ function setItinView(view,btn){
 
 function renderCalendar(){
   var el=document.getElementById('itin-calendar');
-  var months=[[2026,5],[2026,6]];
-  var html='';
+  if(!el)return;
+  el.innerHTML='';
+
+  var colorMap={green:'var(--green)',purple:'var(--purple)',amber:'var(--amber)',blue:'var(--blue)',red:'var(--red)'};
+  var paleMap={green:'var(--green-pale)',purple:'var(--purple-pale)',amber:'var(--amber-pale)',blue:'var(--blue-pale)',red:'var(--red-pale)'};
+
+  var startDate=tripData&&tripData.start_date?new Date(tripData.start_date+'T12:00:00'):new Date('2026-06-15');
+  var endDate=tripData&&tripData.end_date?new Date(tripData.end_date+'T12:00:00'):new Date('2026-07-01');
+  var months=[];
+  var cur=new Date(startDate.getFullYear(),startDate.getMonth(),1);
+  var last=new Date(endDate.getFullYear(),endDate.getMonth(),1);
+  while(cur<=last){months.push([cur.getFullYear(),cur.getMonth()]);cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);}
+
   months.forEach(function(ym){
     var year=ym[0],month=ym[1];
     var monthLabel=new Date(year,month,1).toLocaleString('en-CA',{month:'long',year:'numeric'});
     var firstDay=new Date(year,month,1).getDay();
     var daysInMonth=new Date(year,month+1,0).getDate();
-    html+='<div style="margin-bottom:24px;"><div style="font-family:Funnel Display,sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;">'+monthLabel+'</div><div class="calendar-grid">';
-    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(d){html+='<div class="cal-header-cell">'+d+'</div>';});
-    for(var i=0;i<firstDay;i++)html+='<div class="cal-cell empty"></div>';
+
+    var wrap=document.createElement('div');wrap.style.marginBottom='28px';
+    var title=document.createElement('div');
+    title.style.cssText='font-family:Funnel Display,sans-serif;font-size:17px;font-weight:700;margin-bottom:10px;';
+    title.textContent=monthLabel;
+    wrap.appendChild(title);
+
+    var grid=document.createElement('div');grid.className='calendar-grid';
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(d){
+      var h=document.createElement('div');h.className='cal-header-cell';h.textContent=d;grid.appendChild(h);
+    });
+
+    for(var i=0;i<firstDay;i++){
+      var e=document.createElement('div');e.className='cal-cell empty';grid.appendChild(e);
+    }
+
     for(var d=1;d<=daysInMonth;d++){
       var dateStr=year+'-'+(String(month+1).padStart(2,'0'))+'-'+(String(d).padStart(2,'0'));
       var day=allDays.find(function(dy){return dy.date===dateStr;});
+      var cell=document.createElement('div');
+
       if(day){
-        var phase=getPhase(day.day_number);
-        var cost=allItems.filter(function(i){return i.day_id===day.id;}).reduce(function(s,i){return s+(Number(i.cost)||0);},0);
-        html+='<div class="cal-cell has-day '+phase+'" onclick="jumpToDay(\''+day.id+'\')" title="'+escHtml(day.title)+'">';
-        html+='<div class="cal-day-num">'+d+'</div><div class="cal-day-title">'+escHtml(day.title)+'</div>';
-        if(cost>0)html+='<div class="cal-day-cost">'+fmtMoney(cost)+'</div>';
-        html+='</div>';
+        var phase=allPhases.find(function(p){return p.id===day.phase_id;})||null;
+        var phaseColor=(phase&&phase.color)||'green';
+        var dayItems=allItems.filter(function(i){return i.day_id===day.id;})
+          .sort(function(a,b){if(a.time&&b.time)return a.time.localeCompare(b.time);return (a.sort_order||0)-(b.sort_order||0);});
+        var totalCost=dayItems.reduce(function(s,i){return s+(Number(i.cost)||0);},0);
+
+        cell.className='cal-cell has-day';
+        cell.style.cssText='border-left:3px solid '+(colorMap[phaseColor]||'var(--green)')+';background:'+(paleMap[phaseColor]||'var(--green-pale)')+';cursor:pointer;padding:6px;height:110px;overflow:hidden;border-radius:var(--radius-sm);border-top:1px solid var(--gray-border);border-right:1px solid var(--gray-border);border-bottom:1px solid var(--gray-border);position:relative;vertical-align:top;';
+
+        // day number + badge
+        var topRow=document.createElement('div');topRow.style.cssText='display:flex;align-items:center;gap:4px;margin-bottom:4px;';
+        var numEl=document.createElement('div');numEl.className='cal-day-num';numEl.textContent=d;
+        var badge=document.createElement('span');
+        badge.style.cssText='font-size:10px;font-weight:700;padding:1px 5px;border-radius:6px;background:'+(colorMap[phaseColor]||'var(--green)')+';color:white;';
+        badge.textContent='D'+day.day_number;
+        topRow.appendChild(numEl);topRow.appendChild(badge);
+        cell.appendChild(topRow);
+
+        // activities
+        var actsZone=document.createElement('div');
+        actsZone.className='cal-acts-zone';
+        actsZone.id='cal-acts-'+day.id;
+        actsZone.setAttribute('data-day-id',day.id);
+        actsZone.style.cssText='min-height:20px;';
+
+        dayItems.slice(0,4).forEach(function(item){
+          var actEl=buildCalCard(item);
+          actsZone.appendChild(actEl);
+        });
+        if(dayItems.length>4){
+          var more=document.createElement('div');
+          more.style.cssText='font-size:10px;color:var(--text-muted);margin-top:2px;text-align:center;';
+          more.textContent='+'+(dayItems.length-4)+' more';
+          actsZone.appendChild(more);
+        }
+        cell.appendChild(actsZone);
+
+        if(totalCost>0){
+          var costEl=document.createElement('div');
+          costEl.style.cssText='font-size:10px;font-weight:700;color:'+(colorMap[phaseColor]||'var(--green)')+';margin-top:4px;';
+          costEl.textContent=fmtCAD(totalCost);
+          cell.appendChild(costEl);
+        }
+
+        // click empty area to jump to list
+        cell.onclick=function(id){return function(e){if(e.target.closest('.cal-act-card'))return;jumpToDay(id);};}(day.id);
+
       }else{
-        html+='<div class="cal-cell"><div class="cal-day-num" style="color:var(--gray);">'+d+'</div></div>';
+        cell.className='cal-cell';cell.style.height='110px';
+        var n=document.createElement('div');n.className='cal-day-num';n.style.color='var(--gray)';n.textContent=d;
+        cell.appendChild(n);
       }
+      grid.appendChild(cell);
     }
-    html+='</div></div>';
+    wrap.appendChild(grid);
+    el.appendChild(wrap);
   });
-  el.innerHTML=html;
+
+  // init sortable on cal activity zones
+  initCalSortable();
+}
+
+function buildCalCard(item){
+  var el=document.createElement('div');
+  el.className='cal-act-card';
+  el.setAttribute('data-id',item.id);
+  var label=(item.time?fmt12h(item.time)+' · ':'')+item.activity;
+  el.setAttribute('data-tooltip',label);
+  el.style.cssText='font-size:10px;background:white;border:1px solid var(--gray-border);border-left:3px solid '+(CAT_COLORS[item.category]||CAT_COLORS.other)+';border-radius:4px;padding:2px 5px;margin-bottom:2px;cursor:grab;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:100%;';
+  el.textContent=label;
+  return el;
+}
+
+function initCalSortable(){
+  if(typeof Sortable==='undefined')return;
+  document.querySelectorAll('.cal-acts-zone').forEach(function(zone){
+    if(zone._sortable){zone._sortable.destroy();zone._sortable=null;}
+    zone._sortable=Sortable.create(zone,{
+      group:'cal-activities',
+      animation:150,
+      ghostClass:'sortable-ghost',
+      onEnd:function(evt){
+        var itemId=evt.item.getAttribute('data-id');
+        var newZone=evt.to;
+        var newDayId=newZone.getAttribute('data-day-id');
+        var item=allItems.find(function(x){return x.id===itemId;});
+        if(!item||!newDayId)return;
+        if(newDayId!==item.day_id){
+          item.day_id=newDayId;
+          sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
+        }
+        // also update list view
+        renderDays();
+        renderCalendar();
+        showToast('Moved!');
+      }
+    });
+  });
 }
 
 function jumpToDay(dayId){
@@ -623,9 +760,10 @@ function jumpToDay(dayId){
   setItinView('list',document.querySelector('.cal-toggle button'));
   setTimeout(function(){
     var card=document.getElementById('day-'+dayId);
-    if(card){card.scrollIntoView({behavior:'smooth',block:'center'});card.classList.add('open');}
+    if(card)card.scrollIntoView({behavior:'smooth',block:'start'});
   },100);
 }
+
 
 function getPhase(n){if(n<=10)return 'surrey';if(n<=14)return 'whistler';return 'bday';}
 function getBadge(day){
