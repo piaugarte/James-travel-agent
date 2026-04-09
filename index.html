@@ -1244,8 +1244,26 @@ function initDragDrop(){
         var itemId=evt.item.getAttribute('data-id');
         var newZone=evt.to;
         var newDayId=newZone.getAttribute('data-day-id');
-        if(!newDayId)return;
-        saveDropOrder(itemId,newDayId,newZone);
+        if(!itemId||!newDayId)return;
+        // update day_id if changed
+        var item=allItems.find(function(x){return x.id===itemId;});
+        if(item&&newDayId!==item.day_id){
+          item.day_id=newDayId;
+          sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
+        }
+        // save every item's sort_order in this zone
+        var children=newZone.children;
+        for(var i=0;i<children.length;i++){
+          var id=children[i].getAttribute('data-id');
+          if(!id)continue;
+          var it=allItems.find(function(x){return x.id===id;});
+          if(it){
+            it.sort_order=i+1;
+            sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id);
+          }
+        }
+        renderHero();
+        showToast('Saved!');
       }
     });
   });
