@@ -716,11 +716,11 @@ function renderItems(dayId){
     const perPerson=item.cost?Math.round((Number(item.cost)||0)/pCount):0;
     const row=document.createElement('div'); row.className='item-row'; row.id='item-'+item.id;
     row.innerHTML=
-      '<input class="item-input" value="'+escHtml(item.time||'')+'" placeholder="--:--" onblur="updateItem(''+item.id+'','time',this.value)"/>'+
-      '<span><span class="category-dot" style="background:'+col+'"></span><input class="item-input" value="'+escHtml(item.activity||'')+'" style="width:calc(100% - 16px)" onblur="updateItem(''+item.id+'','activity',this.value)"/></span>'+
-      '<input class="item-input item-location" value="'+escHtml(item.location||'')+'" placeholder="location" onblur="updateItem(''+item.id+'','location',this.value)"/>'+
-      '<input class="item-input item-cost" type="number" value="'+escHtml(item.cost||'')+'" style="text-align:right" onblur="updateItem(''+item.id+'','cost',this.value)"/>'+
-      '<button class="delete-btn" onclick="deleteItem(''+item.id+'')" title="Remove">&#215;</button>';
+      '<input class="item-input" value="'+escHtml(item.time||'')+'" placeholder="--:--" onblur="updateItem(\'' +item.id+ '\',\'time\',this.value)"/>'+
+      '<span><span class="category-dot" style="background:'+col+'"></span><input class="item-input" value="'+escHtml(item.activity||'')+'" style="width:calc(100% - 16px)" onblur="updateItem(\'' +item.id+ '\',\'activity\',this.value)"/></span>'+
+      '<input class="item-input item-location" value="'+escHtml(item.location||'')+'" placeholder="location" onblur="updateItem(\'' +item.id+ '\',\'location\',this.value)"/>'+
+      '<input class="item-input item-cost" type="number" value="'+escHtml(item.cost||'')+'" style="text-align:right" onblur="updateItem(\'' +item.id+ '\',\'cost\',this.value)"/>'+
+      '<button class="delete-btn" onclick="deleteItem(\'' +item.id+ '\')" title="Remove">&#215;</button>';
     wrap.appendChild(row);
     const det=document.createElement('div'); det.className='item-detail-row';
     const transDiv=document.createElement('div');
