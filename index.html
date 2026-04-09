@@ -955,7 +955,7 @@ function renderActivities(dayId){
       var eff=cnt>0?cnt:1;
       var total=Number(item.cost)||0;
       var pp=Math.round(total/eff);
-      costSpan.textContent=total?('CA$'+total+' · CA$'+pp+' ea'):'';
+      costSpan.textContent=total?(fmtCAD(total)+' · '+fmtCAD(pp)+' ea'):'';
     }
     refreshCostSpan();
     rightSide.appendChild(costSpan);
@@ -1238,13 +1238,16 @@ function initDragDrop(){
           item.day_id=newDayId;
           sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
         }
-        var rows=newZone.querySelectorAll('[data-id]');
+        // update sort orders - use direct children only
+        var rows=Array.from(newZone.children).filter(function(el){return el.getAttribute('data-id');});
+        var saves=[];
         rows.forEach(function(r,i){
           var id=r.getAttribute('data-id');
           var it=allItems.find(function(x){return x.id===id;});
-          if(it&&it.sort_order!==i+1){it.sort_order=i+1;sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id);}
+          if(it){it.sort_order=i+1;saves.push(sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id));}
         });
-        renderHero();renderCalendar();showToast('Moved!');
+        Promise.all(saves).then(function(){showToast('Moved!');});
+        renderHero();renderCalendar();
       }
     });
   });
