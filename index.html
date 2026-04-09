@@ -640,6 +640,12 @@ function renderDays(){
     ];
   }
 
+  // DEBUG - visible on screen
+  var dbg=document.createElement('div');
+  dbg.style.cssText='background:#ffeb3b;padding:8px;font-size:12px;margin-bottom:8px;border-radius:4px;';
+  dbg.textContent='phases:'+phases.length+' days:'+allDays.length+' phase0id:'+(phases[0]?phases[0].id:'none')+' day0phase:'+(allDays[0]?allDays[0].phase_id:'none');
+  container.appendChild(dbg);
+
   phases.forEach(function(phase){
     var phaseEl=document.createElement('div');
     phaseEl.className='phase-block';
