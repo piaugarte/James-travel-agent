@@ -743,16 +743,18 @@ function initCalSortable(){
         var newDayId=newZone.getAttribute('data-day-id');
         var item=allItems.find(function(x){return x.id===itemId;});
         if(!item||!newDayId)return;
+        console.log('CAL drag - itemId:',itemId,'newDayId:',newDayId,'item:',item?'found':'NOT FOUND');
+        console.log('CAL newZone children:',newZone.children.length,'className:',newZone.className);
         if(newDayId!==item.day_id){
           item.day_id=newDayId;
-          sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
+          sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId).then(function(r){console.log('CAL day_id save:',r.error||'ok');});
         }
-        // save sort_order for all items in destination zone
         var rows=Array.from(newZone.children).filter(function(el){return el.getAttribute('data-id');});
+        console.log('CAL rows with data-id:',rows.length);
         rows.forEach(function(r,i){
           var id=r.getAttribute('data-id');
           var it=allItems.find(function(x){return x.id===id;});
-          if(it){it.sort_order=i+1;sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id);}
+          if(it){it.sort_order=i+1;sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id).then(function(res){console.log('CAL sort save',i+1,res.error||'ok');});}
         });
         renderDays();
         renderCalendar();
