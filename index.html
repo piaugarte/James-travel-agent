@@ -46,6 +46,18 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
 .section-title{font-size:18px;font-weight:700;}
 .empty-state{text-align:center;padding:32px;color:var(--text-muted);font-size:14px;}
+.cur-switcher{display:flex;gap:4px;align-items:center;}
+.cur-btn{padding:4px 10px;border-radius:12px;border:1px solid var(--gray-border);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;background:var(--white);color:var(--text-muted);transition:all .15s;}
+.cur-btn:hover{border-color:var(--green);}
+.cur-btn.active{background:var(--green);color:var(--white);border-color:var(--green);}
+.transport-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 6px;border-radius:8px;font-weight:600;}
+.transport-car{background:#e0f2fe;color:#0369a1;}
+.transport-public{background:#dcfce7;color:#15803d;}
+.transport-uber{background:#fef9c3;color:#854d0e;}
+.item-detail-row{background:var(--gray-light);border-radius:var(--radius-sm);padding:8px 10px;margin:4px 0 6px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;}
+.participant-chip{display:inline-flex;align-items:center;gap:4px;background:var(--white);border:1px solid var(--gray-border);border-radius:12px;padding:3px 8px;font-size:12px;cursor:pointer;transition:all .15s;}
+.participant-chip.selected{background:var(--green-pale);border-color:var(--green);color:var(--green);font-weight:600;}
+.person-cost-tag{display:inline-block;background:var(--amber-pale);color:var(--amber);font-size:11px;font-weight:600;padding:2px 7px;border-radius:8px;margin-top:4px;}
 
 /* HERO */
 .hero{background:linear-gradient(135deg,var(--green) 0%,#1b4332 100%);border-radius:var(--radius);padding:28px 24px;margin-bottom:20px;color:var(--white);position:relative;overflow:hidden;}
@@ -256,6 +268,11 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
     <span class="nav-spacer"></span>
     <button class="nav-tab private" onclick="switchTab('packing',this)">&#127876; Packing</button>
     <button class="nav-tab private" onclick="switchTab('budget',this)">&#128274; Budget</button>
+    <div class="cur-switcher" style="margin-left:8px;">
+      <button class="cur-btn active" data-cur="USD" onclick="setCurrency('USD')">USD</button>
+      <button class="cur-btn" data-cur="CAD" onclick="setCurrency('CAD')">CAD</button>
+      <button class="cur-btn" data-cur="PHP" onclick="setCurrency('PHP')">PHP</button>
+    </div>
   </div>
 </nav>
 
@@ -463,8 +480,34 @@ const GROUP_EMOJI = {'Pia family':'🏡','Andy family':'✈️','Ines family':'�
 const AVATAR_BG = ['#2d6a4f','#5e35b1','#1565c0','#c62828','#e76f00','#00695c','#ad1457','#00838f'];
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let tripData=null, allDays=[], allItems=[], allPacking=[], allPeople=[], allBudgetItems=[];
+let tripData=null, allDays=[], allItems=[], allPacking=[], allPeople=[], allBudgetItems=[], allParticipants=[];
 let chatHistory=[], chatOpen=false, currentItinView='list', activeBudgetCat='all', editingPersonId=null;
+let activeCurrency='USD', fxRates={CAD:1, USD:0.72, PHP:41};
+
+async function loadFxRates(){
+  try{
+    const r=await fetch('https://open.er-api.com/v6/latest/CAD');
+    const d=await r.json();
+    if(d.rates){fxRates={CAD:1, USD:d.rates.USD||0.72, PHP:d.rates.PHP||41};}
+  }catch(e){console.log('FX fallback rates used');}
+}
+
+function fmtMoney(cadAmt){
+  const n=Number(cadAmt)||0;
+  if(activeCurrency==='CAD') return 'CA$'+Math.round(n).toLocaleString();
+  if(activeCurrency==='USD') return 'US$'+Math.round(n*fxRates.USD).toLocaleString();
+  if(activeCurrency==='PHP') return '₱'+Math.round(n*fxRates.PHP).toLocaleString();
+  return 'CA$'+Math.round(n).toLocaleString();
+}
+
+function setCurrency(cur){
+  activeCurrency=cur;
+  document.querySelectorAll('.cur-btn').forEach(b=>b.classList.toggle('active',b.dataset.cur===cur));
+  renderDays(); renderCalendar();
+  if(document.getElementById('tab-costs').classList.contains('active')) renderCosts();
+  if(document.getElementById('tab-people').classList.contains('active')) renderPeople();
+  if(localStorage.getItem('budget_unlocked')==='1') renderBudget();
+}
 
 function fmtDate(d){if(!d)return '--';const dt=new Date(d+'T12:00:00');return dt.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'});}
 function fmtShort(d){if(!d)return '';const dt=new Date(d+'T12:00:00');return dt.toLocaleDateString('en-CA',{month:'short',day:'numeric'});}
@@ -488,15 +531,17 @@ function switchTab(name,btn){
 
 // LOAD
 async function loadAll(){
-  const [tripRes,daysRes,itemsRes,packRes,peopleRes] = await Promise.all([
+  await loadFxRates();
+  const [tripRes,daysRes,itemsRes,packRes,peopleRes,partRes] = await Promise.all([
     sb.from('trip').select('*').eq('id',TRIP_ID).single(),
     sb.from('itinerary_days').select('*').eq('trip_id',TRIP_ID).order('day_number'),
     sb.from('itinerary_items').select('*').order('sort_order'),
     sb.from('packing_items').select('*').eq('trip_id',TRIP_ID),
-    sb.from('travelers').select('*').eq('trip_id',TRIP_ID).order('sort_order')
+    sb.from('travelers').select('*').eq('trip_id',TRIP_ID).order('sort_order'),
+    sb.from('item_participants').select('*')
   ]);
   tripData=tripRes.data; allDays=daysRes.data||[]; allItems=itemsRes.data||[]; allPacking=packRes.data||[];
-  allPeople=peopleRes.data||[];
+  allPeople=peopleRes.data||[]; allParticipants=partRes.data||[];
   allBudgetItems=JSON.parse(localStorage.getItem('trip_budget_items')||'[]');
 
   if(allPeople.length===0) await seedPeople();
@@ -578,7 +623,7 @@ function renderCalendar(){
         html+='<div class="cal-cell has-day '+phase+'" onclick="jumpToDay(\''+day.id+'\')" title="'+escHtml(day.title)+'">';
         html+='<div class="cal-day-num">'+d+'</div>';
         html+='<div class="cal-day-title">'+escHtml(day.title)+'</div>';
-        if(cost>0) html+='<div class="cal-day-cost">'+fmtCAD(cost)+'</div>';
+        if(cost>0) html+='<div class="cal-day-cost">'+fmtMoney(cost)+'</div>';
         html+='</div>';
       } else {
         html+='<div class="cal-cell"><div class="cal-day-num" style="color:var(--gray);">'+d+'</div></div>';
@@ -660,20 +705,73 @@ function renderItems(dayId){
   const container=document.getElementById('items-'+dayId); if(!container)return;
   const items=allItems.filter(i=>i.day_id===dayId).sort((a,b)=>a.sort_order-b.sort_order);
   if(!items.length){container.innerHTML='';return;}
-  let html='<div class="items-list"><div class="item-row header"><span>Time</span><span>Activity</span><span class="item-location">Location</span><span class="item-cost">Cost</span><span></span></div>';
+  const wrap=document.createElement('div'); wrap.className='items-list';
+  const hdr=document.createElement('div'); hdr.className='item-row header';
+  hdr.innerHTML='<span>Time</span><span>Activity</span><span class="item-location">Location</span><span>Cost (CAD)</span><span></span>';
+  wrap.appendChild(hdr);
   items.forEach(item=>{
     const col=CAT_COLORS[item.category]||CAT_COLORS.other;
-    html+='<div class="item-row" id="item-'+item.id+'">'+
-      '<input class="item-input" value="'+escHtml(item.time||'')+'" placeholder="--:--" onblur="updateItem(\''+item.id+'\',\'time\',this.value)"/>'+
-      '<span><span class="category-dot" style="background:'+col+'"></span><input class="item-input" value="'+escHtml(item.activity||'')+'" style="width:calc(100% - 16px)" onblur="updateItem(\''+item.id+'\',\'activity\',this.value)"/></span>'+
-      '<input class="item-input item-location" value="'+escHtml(item.location||'')+'" placeholder="location" onblur="updateItem(\''+item.id+'\',\'location\',this.value)"/>'+
-      '<input class="item-input item-cost" type="number" value="'+escHtml(item.cost||'')+'" style="text-align:right" onblur="updateItem(\''+item.id+'\',\'cost\',this.value)"/>'+
-      '<button class="delete-btn" onclick="deleteItem(\''+item.id+'\')" title="Remove">&#215;</button>'+
-    '</div>';
+    const itemParts=allParticipants.filter(p=>p.item_id===item.id);
+    const pCount=itemParts.length||1;
+    const perPerson=item.cost?Math.round((Number(item.cost)||0)/pCount):0;
+    const row=document.createElement('div'); row.className='item-row'; row.id='item-'+item.id;
+    row.innerHTML=
+      '<input class="item-input" value="'+escHtml(item.time||'')+'" placeholder="--:--" onblur="updateItem(''+item.id+'','time',this.value)"/>'+
+      '<span><span class="category-dot" style="background:'+col+'"></span><input class="item-input" value="'+escHtml(item.activity||'')+'" style="width:calc(100% - 16px)" onblur="updateItem(''+item.id+'','activity',this.value)"/></span>'+
+      '<input class="item-input item-location" value="'+escHtml(item.location||'')+'" placeholder="location" onblur="updateItem(''+item.id+'','location',this.value)"/>'+
+      '<input class="item-input item-cost" type="number" value="'+escHtml(item.cost||'')+'" style="text-align:right" onblur="updateItem(''+item.id+'','cost',this.value)"/>'+
+      '<button class="delete-btn" onclick="deleteItem(''+item.id+'')" title="Remove">&#215;</button>';
+    wrap.appendChild(row);
+    const det=document.createElement('div'); det.className='item-detail-row';
+    const transDiv=document.createElement('div');
+    transDiv.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap;';
+    transDiv.innerHTML='<span style="font-size:11px;color:var(--text-muted);font-weight:500;">Transport:</span>';
+    [['','None'],['car','&#128664; Car'],['public','&#128652; Public'],['uber','&#128663; Uber']].forEach(function(pair){
+      var t=pair[0]; var lbl=pair[1];
+      const b=document.createElement('button');
+      b.className='cur-btn'+((item.transport||'')=== t?' active':'');
+      b.style.padding='3px 8px';
+      b.innerHTML=lbl;
+      b.onclick=(function(id,val){return function(){updateItem(id,'transport',val);};})(item.id,t);
+      transDiv.appendChild(b);
+    });
+    det.appendChild(transDiv);
+    const pDiv=document.createElement('div');
+    pDiv.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;width:100%;';
+    pDiv.innerHTML='<span style="font-size:11px;color:var(--text-muted);font-weight:500;">Who is joining:</span>';
+    allPeople.forEach(function(person){
+      const joined=itemParts.some(function(p){return p.traveler_id===person.id;});
+      const chip=document.createElement('span');
+      chip.className='participant-chip'+(joined?' selected':'');
+      chip.innerHTML=escHtml(person.avatar||'?')+' '+escHtml(person.name);
+      chip.onclick=(function(iId,pId,dId){return function(){toggleParticipant(iId,pId,dId);};})(item.id,person.id,dayId);
+      pDiv.appendChild(chip);
+    });
+    if(item.cost&&itemParts.length){
+      const pp=document.createElement('span');
+      pp.style.cssText='font-size:11px;color:var(--text-muted);margin-left:4px;font-weight:500;';
+      pp.textContent=fmtMoney(perPerson)+' / person ('+itemParts.length+' joined)';
+      pDiv.appendChild(pp);
+    }
+    det.appendChild(pDiv);
+    wrap.appendChild(det);
   });
-  html+='</div>'; container.innerHTML=html;
+  container.innerHTML='';
+  container.appendChild(wrap);
 }
 
+async function toggleParticipant(itemId, travelerId, dayId){
+  const existing=allParticipants.find(function(p){return p.item_id===itemId&&p.traveler_id===travelerId;});
+  if(existing){
+    await sb.from('item_participants').delete().eq('id',existing.id);
+    allParticipants=allParticipants.filter(function(p){return p.id!==existing.id;});
+  } else {
+    const res=await sb.from('item_participants').insert({item_id:itemId,traveler_id:travelerId}).select().single();
+    if(!res.error&&res.data) allParticipants.push(res.data);
+  }
+  renderItems(dayId);
+  if(document.getElementById('tab-people').classList.contains('active')) renderPeople();
+}
 const saveDayNotes=debounce(async(dayId,notes)=>{
   await sb.from('itinerary_days').update({notes,updated_at:new Date().toISOString()}).eq('id',dayId);
   const day=allDays.find(d=>d.id===dayId); if(day)day.notes=notes; showToast('Notes saved');
@@ -721,9 +819,9 @@ function renderCosts(){
   const perPerson=allPeople.length?Math.round(totalCost/allPeople.length):0;
   const perFamily=Math.round(totalCost/3);
   document.getElementById('costs-summary-cards').innerHTML=
-    '<div class="budget-card highlight"><div class="label">Total estimated</div><div class="amount">'+fmtCAD(totalCost)+'</div><div class="sub">excl. flights</div></div>'+
-    '<div class="budget-card"><div class="label">Per person (est.)</div><div class="amount">'+fmtCAD(perPerson)+'</div><div class="sub">'+allPeople.length+' people total</div></div>'+
-    '<div class="budget-card"><div class="label">Per family (est.)</div><div class="amount">'+fmtCAD(perFamily)+'</div><div class="sub">split 3 families</div></div>';
+    '<div class="budget-card highlight"><div class="label">Total estimated</div><div class="amount">'+fmtMoney(totalCost)+'</div><div class="sub">excl. flights</div></div>'+
+    '<div class="budget-card"><div class="label">Per person (est.)</div><div class="amount">'+fmtMoney(perPerson)+'</div><div class="sub">'+allPeople.length+' people total</div></div>'+
+    '<div class="budget-card"><div class="label">Per family (est.)</div><div class="amount">'+fmtMoney(perFamily)+'</div><div class="sub">split 3 families</div></div>';
 
   // by day
   const byDay=document.getElementById('costs-by-day');
@@ -743,7 +841,7 @@ function renderCosts(){
     const itemList=items.map(i=>
       '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--gray-light);border-radius:6px;padding:2px 8px;font-size:11px;margin:2px;">'+
         '<span style="width:6px;height:6px;border-radius:50%;background:'+(CAT_COLORS[i.category]||CAT_COLORS.other)+';display:inline-block;"></span>'+
-        escHtml(i.activity)+(i.cost?' - '+fmtCAD(i.cost):'')+
+        escHtml(i.activity)+(i.cost?' - '+fmtMoney(i.cost):'')+
       '</span>'
     ).join('');
     return '<div style="background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);padding:14px 16px;margin-bottom:8px;">'+
@@ -753,7 +851,7 @@ function renderCosts(){
           '<div style="font-size:11px;color:var(--text-muted);">'+fmtShort(day.date)+'</div>'+
           '<div style="font-weight:600;font-size:14px;">'+escHtml(day.title)+'</div>'+
         '</div>'+
-        '<div style="font-weight:700;font-size:15px;color:'+barColor+';">'+fmtCAD(total)+'</div>'+
+        '<div style="font-weight:700;font-size:15px;color:'+barColor+';">'+fmtMoney(total)+'</div>'+
       '</div>'+
       '<div style="height:6px;background:var(--gray-light);border-radius:3px;overflow:hidden;margin-bottom:8px;">'+
         '<div style="height:100%;width:'+pct+'%;background:'+barColor+';border-radius:3px;transition:width .4s;"></div>'+
@@ -773,7 +871,7 @@ function renderCosts(){
       '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+col+';margin-right:8px;flex-shrink:0;"></span>'+
       '<span style="width:90px;font-size:13px;font-weight:500;">'+(CAT_LABELS[cat]||cat)+'</span>'+
       '<div class="cat-bar-wrap"><div class="cat-bar" style="width:'+pct+'%;background:'+col+';opacity:0.75;"></div></div>'+
-      '<span class="cat-amount">'+fmtCAD(amt)+'</span>'+
+      '<span class="cat-amount">'+fmtMoney(amt)+'</span>'+
     '</div>';
   }).join('');
 }
@@ -909,7 +1007,22 @@ function renderPeople(){
   if(!allPeople.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1;">No crew added yet!</div>';return;}
   const groups={};
   allPeople.forEach(p=>{const g=p.group_name||'Other';if(!groups[g])groups[g]=[];groups[g].push(p);});
+  // group cost totals
+  const groupTotalDiv=document.createElement('div');
+  groupTotalDiv.style.cssText='grid-column:1/-1;margin-top:16px;';
   const groupOrder=['Pia family','Andy family','Ines family','Relatives','Other'];
+
+  // pre-compute per-person costs
+  const personCosts={};
+  allPeople.forEach(p=>{
+    let total=0;
+    allParticipants.filter(pt=>pt.traveler_id===p.id).forEach(pt=>{
+      const item=allItems.find(i=>i.id===pt.item_id);
+      if(item&&item.cost){const cnt=allParticipants.filter(x=>x.item_id===pt.item_id).length||1;total+=Math.round((Number(item.cost)||0)/cnt);}
+    });
+    personCosts[p.id]=total;
+  });
+
   groupOrder.filter(g=>groups[g]).forEach(group=>{
     const header=document.createElement('div');
     header.className='group-header';
@@ -937,6 +1050,14 @@ function renderPeople(){
         (daysCount?'<div class="person-days-badge">'+daysCount+' days on trip</div>':'');
       grid.appendChild(card);
     });
+    // group total card
+    const groupTotal=groups[group].reduce((s,p)=>s+(personCosts[p.id]||0),0);
+    if(groupTotal>0){
+      const tot=document.createElement('div');
+      tot.style.cssText='grid-column:1/-1;display:flex;align-items:center;justify-content:flex-end;padding:4px 0 12px;border-bottom:1px solid var(--gray-border);margin-bottom:8px;';
+      tot.innerHTML='<span style="font-size:13px;color:var(--text-muted);">'+group+' estimated total:</span><span style="font-weight:700;font-size:15px;color:var(--green);margin-left:8px;">'+fmtMoney(groupTotal)+'</span>';
+      grid.appendChild(tot);
+    }
   });
 }
 
