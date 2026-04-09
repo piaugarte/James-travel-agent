@@ -791,21 +791,22 @@ function renderActivities(dayId){
 
     if(item.time){var t=document.createElement('span');t.className='act-time';t.textContent=item.time+(item.end_time?' - '+item.end_time:'');rightSide.appendChild(t);}
 
-    var joinedCnt=allParticipants.filter(function(p){return p.item_id===item.id;}).length;
-    var effCnt=joinedCnt>0?joinedCnt:1;
-    var costSpan=null;
-    if(item.cost){
-      costSpan=document.createElement('span');costSpan.className='act-cost';
-      costSpan.textContent=fmtMoney(item.cost)+' · '+fmtMoney(Math.round((Number(item.cost)||0)/effCnt))+' ea';
-      rightSide.appendChild(costSpan);
+    var costSpan=document.createElement('span');costSpan.className='act-cost';
+    function refreshCostSpan(){
+      var cnt=allParticipants.filter(function(p){return p.item_id===item.id;}).length;
+      var eff=cnt>0?cnt:1;
+      costSpan.textContent=item.cost?(fmtMoney(item.cost)+' · '+fmtMoney(Math.round((Number(item.cost)||0)/eff))+' ea'):'';
     }
+    refreshCostSpan();
+    rightSide.appendChild(costSpan);
     collapsed.appendChild(rightSide);
 
     var del=document.createElement('button');del.className='act-del';del.innerHTML='&#215;';del.title='Remove';
     del.onclick=function(e){e.stopPropagation();deleteItem(item.id);};
     collapsed.appendChild(del);
 
-    collapsed.onclick=function(){row.classList.toggle('open');};
+    leftSide.onclick=function(){row.classList.toggle('open');};
+    leftSide.style.cursor='pointer';
     row.appendChild(collapsed);
 
     // ── EXPANDED PANEL ──
@@ -821,57 +822,50 @@ function renderActivities(dayId){
 
     // Activity name
     var nameIn=document.createElement('input');nameIn.className='act-field-input';nameIn.value=item.activity||'';nameIn.placeholder='Activity name';
-    nameIn.onblur=function(){if(nameIn.value.trim()!==item.activity){item.activity=nameIn.value.trim();nameSpan.textContent=item.activity;sb.from('itinerary_items').update({activity:item.activity}).eq('id',item.id);showToast('Saved!');}};
+    nameIn.onblur=function(){nameSpan.textContent=nameIn.value.trim()||'Untitled';};
     nameIn.onkeydown=function(e){if(e.key==='Enter')nameIn.blur();};
     expanded.appendChild(makeField('Activity', nameIn));
 
     // Time
     var timeWrap=document.createElement('div');timeWrap.style.cssText='display:flex;align-items:center;gap:8px;flex:1;';
     var timeIn=document.createElement('input');timeIn.className='act-field-input';timeIn.value=item.time||'';timeIn.placeholder='Start (e.g. 10:00 AM)';
-    timeIn.onblur=function(){item.time=timeIn.value;sb.from('itinerary_items').update({time:item.time}).eq('id',item.id);renderActivities(dayId);};
+    timeIn.onblur=function(){};
     timeIn.onkeydown=function(e){if(e.key==='Enter')timeIn.blur();};
     var timeSep=document.createElement('span');timeSep.style.cssText='font-size:12px;color:var(--text-muted);flex-shrink:0;';timeSep.textContent='to';
     var endTimeIn=document.createElement('input');endTimeIn.className='act-field-input';endTimeIn.value=item.end_time||'';endTimeIn.placeholder='End (e.g. 12:00 PM)';
-    endTimeIn.onblur=function(){item.end_time=endTimeIn.value;sb.from('itinerary_items').update({end_time:item.end_time}).eq('id',item.id);renderActivities(dayId);};
+    endTimeIn.onblur=function(){};
     endTimeIn.onkeydown=function(e){if(e.key==='Enter')endTimeIn.blur();};
     timeWrap.appendChild(timeIn);timeWrap.appendChild(timeSep);timeWrap.appendChild(endTimeIn);
     expanded.appendChild(makeField('Time', timeWrap));
 
     // Cost - total + per person, auto-calc each other
-    function getParticipantCount(){
-      var cnt=allParticipants.filter(function(p){return p.item_id===item.id;}).length;
-      return cnt>0?cnt:1;
-    }
+    // track count locally so it's always in sync with chip clicks
+    var localJoinedCount=allParticipants.filter(function(p){return p.item_id===item.id;}).length;
+    function getJoinedCount(){return localJoinedCount>0?localJoinedCount:1;}
     var costWrap=document.createElement('div');costWrap.style.cssText='display:flex;align-items:center;gap:8px;flex:1;';
     var totalIn=document.createElement('input');totalIn.className='act-field-input';totalIn.type='number';totalIn.placeholder='Total CA$';
     totalIn.value=item.cost||'';
     var costSep=document.createElement('span');costSep.style.cssText='font-size:12px;color:var(--text-muted);flex-shrink:0;';costSep.textContent='=';
     var ppIn=document.createElement('input');ppIn.className='act-field-input';ppIn.type='number';ppIn.placeholder='Per person';
-    ppIn.value=item.cost?Math.round((Number(item.cost)||0)/getParticipantCount()):'';
 
-    totalIn.oninput=function(){
+    function syncPpFromTotal(){
       var total=parseFloat(totalIn.value)||0;
-      var cnt=getParticipantCount();
+      var cnt=getJoinedCount();
       ppIn.value=total>0?Math.round(total/cnt):'';
-    };
-    totalIn.onblur=function(){
-      item.cost=parseFloat(totalIn.value)||0;
-      sb.from('itinerary_items').update({cost:item.cost}).eq('id',item.id);
-      renderActivities(dayId);renderHero();
-    };
-    ppIn.oninput=function(){
+    }
+    function syncTotalFromPp(){
       var pp=parseFloat(ppIn.value)||0;
-      var cnt=getParticipantCount();
+      var cnt=getJoinedCount();
       totalIn.value=pp>0?Math.round(pp*cnt):'';
-    };
-    ppIn.onblur=function(){
-      var pp=parseFloat(ppIn.value)||0;
-      var cnt=getParticipantCount();
-      item.cost=Math.round(pp*cnt);
-      totalIn.value=item.cost||'';
-      sb.from('itinerary_items').update({cost:item.cost}).eq('id',item.id);
-      renderActivities(dayId);renderHero();
-    };
+    }
+
+    // init pp from current cost + participants
+    syncPpFromTotal();
+
+    totalIn.oninput=syncPpFromTotal;
+    totalIn.onblur=function(){syncPpFromTotal();};
+    ppIn.oninput=syncTotalFromPp;
+    ppIn.onblur=function(){syncTotalFromPp();};
     totalIn.onkeydown=function(e){if(e.key==='Enter')totalIn.blur();};
     ppIn.onkeydown=function(e){if(e.key==='Enter')ppIn.blur();};
 
@@ -884,12 +878,11 @@ function renderActivities(dayId){
     costWrap.appendChild(totalWrap);costWrap.appendChild(costSep);costWrap.appendChild(ppWrap);
     expanded.appendChild(makeField('Cost (CA$)', costWrap));
 
-    // when participants change, recalc pp field
+    // when participants toggle, recalc both fields
     var origRefreshPp=refreshPp;
     refreshPp=function(){
       origRefreshPp();
-      var cnt=getParticipantCount();
-      if(item.cost)ppIn.value=Math.round((Number(item.cost)||0)/cnt);
+      syncPpFromTotal();
     };
 
     // Transport
@@ -929,10 +922,12 @@ function renderActivities(dayId){
         var isJoined=chip.classList.contains('joined');
         if(isJoined){
           chip.classList.remove('joined');
+          localJoinedCount=Math.max(0,localJoinedCount-1);
           var ex=allParticipants.find(function(p){return p.item_id===item.id&&p.traveler_id===person.id;});
           if(ex){allParticipants=allParticipants.filter(function(p){return p.id!==ex.id;});sb.from('item_participants').delete().eq('id',ex.id);}
         }else{
           chip.classList.add('joined');
+          localJoinedCount=localJoinedCount+1;
           sb.from('item_participants').insert({item_id:item.id,traveler_id:person.id}).select().single().then(function(res){if(!res.error&&res.data)allParticipants.push(res.data);});
         }
         refreshPp();
@@ -946,13 +941,72 @@ function renderActivities(dayId){
         });
         // update cost display
         var jc=allParticipants.filter(function(p){return p.item_id===item.id;}).length;
-        var ec=jc>0?jc:1;
-        if(costSpan){costSpan.textContent=item.cost?fmtMoney(item.cost)+' · '+fmtMoney(Math.round((Number(item.cost)||0)/ec))+' ea':'';}
+        refreshCostSpan();
       };
       chipsWrap.appendChild(chip);
     });
     whoRow.appendChild(chipsWrap);
     expanded.appendChild(whoRow);
+
+    // Save button
+    var saveRow=document.createElement('div');
+    saveRow.style.cssText='display:flex;justify-content:flex-end;margin-top:12px;';
+    var saveBtn=document.createElement('button');
+    saveBtn.className='btn btn-primary btn-sm';
+    saveBtn.textContent='Save';
+    saveBtn.onclick=function(){
+      var newCost=parseFloat(totalIn.value)||0;
+      var cnt=getJoinedCount();
+      var updates={
+        activity:nameIn.value.trim(),
+        time:timeIn.value.trim(),
+        end_time:endTimeIn.value.trim(),
+        cost:newCost,
+        transport:currentT
+      };
+      // update allItems reference immediately
+      Object.assign(item, updates);
+      saveBtn.textContent='Saving...';
+      saveBtn.disabled=true;
+      sb.from('itinerary_items').update(updates).eq('id',item.id).then(function(){
+        showToast('✓ Saved!');
+        saveBtn.textContent='✓ Saved!';
+        saveBtn.style.background='#52b788';
+        saveBtn.disabled=false;
+        // update collapsed display directly with values we know are correct
+        nameSpan.textContent=item.activity||'Untitled';
+        var tEl=collapsed.querySelector('.act-time');
+        var timeStr=item.time+(item.end_time?' - '+item.end_time:'');
+        if(tEl){tEl.textContent=timeStr;}
+        else if(item.time){
+          var newT=document.createElement('span');newT.className='act-time';newT.textContent=timeStr;
+          rightSide.insertBefore(newT,rightSide.firstChild);
+        }
+        // rebuild avatar row
+        avatarWrap.innerHTML='';
+        allPeople.forEach(function(p){
+          var joined=allParticipants.some(function(pt){return pt.item_id===item.id&&pt.traveler_id===p.id;});
+          if(!joined)return;
+          var av=document.createElement('span');av.className='act-mini-avatar joined';av.textContent=p.avatar||'?';
+          avatarWrap.appendChild(av);
+        });
+        // update cost display using cnt from THIS save context
+        if(costSpan){
+          costSpan.textContent=newCost?(fmtMoney(newCost)+' · '+fmtMoney(Math.round(newCost/cnt))+' ea'):'';
+        } else if(newCost){
+          var cs=document.createElement('span');cs.className='act-cost';
+          cs.textContent=fmtMoney(newCost)+' · '+fmtMoney(Math.round(newCost/cnt))+' ea';
+          rightSide.appendChild(cs);
+        }
+        renderHero();
+        setTimeout(function(){
+          saveBtn.textContent='Save';
+          saveBtn.style.background='';
+        },1800);
+      });
+    };
+    saveRow.appendChild(saveBtn);
+    expanded.appendChild(saveRow);
 
     row.appendChild(expanded);
     container.appendChild(row);
