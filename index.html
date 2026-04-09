@@ -629,59 +629,20 @@ function renderDays(){
   if(!container)return;
   container.innerHTML='';
 
-  // If phases didn't load, build synthetic ones from days
-  var phasesToRender=allPhases.slice().sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);});
-  if(phasesToRender.length===0){
-    // fallback: group by day_number ranges
-    var synth=[
-      {id:'__surrey',title:'Surrey base camp',subtitle:'Jun 15-24',color:'green',sort_order:1,_synth:true},
-      {id:'__whistler',title:'Whistler escape',subtitle:'Jun 25-28',color:'purple',sort_order:2,_synth:true},
-      {id:'__bday',title:'Birthday week + Canada Day',subtitle:'Jun 29 - Jul 1',color:'amber',sort_order:3,_synth:true}
+  var phases=allPhases.slice().sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);});
+
+  // If no phases loaded, use hardcoded fallback groups
+  if(!phases.length){
+    phases=[
+      {id:'_s',title:'Surrey base camp',subtitle:'Jun 15-24',color:'green',sort_order:1},
+      {id:'_w',title:'Whistler escape',subtitle:'Jun 25-28',color:'purple',sort_order:2},
+      {id:'_b',title:'Birthday week + Canada Day',subtitle:'Jun 29 - Jul 1',color:'amber',sort_order:3}
     ];
-    // assign days to synth phases by day_number
-    allDays.forEach(function(d){
-      if(!d.phase_id){
-        if(d.day_number<=10)d._synthPhase='__surrey';
-        else if(d.day_number<=14)d._synthPhase='__whistler';
-        else d._synthPhase='__bday';
-      }
-    });
-    // render synth phases
-    synth.forEach(function(phase){
-      var phaseEl=document.createElement('div');
-      phaseEl.className='phase-block';
-      var hdr=document.createElement('div');
-      hdr.className='phase-header '+phase.color;
-      hdr.innerHTML='<div style="flex:1;"><div style="font-family:Funnel Display,sans-serif;font-weight:700;font-size:15px;">'+escHtml(phase.title)+'</div><div style="font-size:12px;opacity:0.8;">'+escHtml(phase.subtitle)+'</div></div>';
-      phaseEl.appendChild(hdr);
-      var daysDiv=document.createElement('div');
-      daysDiv.className='days-container';
-      daysDiv.id='days-phase-'+phase.id;
-      var phaseDays=allDays.filter(function(d){
-        if(d.phase_id){
-          // match by position
-          if(phase.id==='__surrey')return d.day_number<=10;
-          if(phase.id==='__whistler')return d.day_number>10&&d.day_number<=14;
-          return d.day_number>14;
-        }
-        return d._synthPhase===phase.id;
-      }).sort(function(a,b){return (a.sort_order||a.day_number||0)-(b.sort_order||b.day_number||0);});
-      phaseDays.forEach(function(day){
-        var card=buildDayCard(day,phase);
-        daysDiv.appendChild(card);
-        renderItems(day.id);
-      });
-      phaseEl.appendChild(daysDiv);
-      container.appendChild(phaseEl);
-    });
-    initActivitySortable();
-    return;
   }
 
-  phasesToRender.forEach(function(phase){
+  phases.forEach(function(phase){
     var phaseEl=document.createElement('div');
     phaseEl.className='phase-block';
-    phaseEl.setAttribute('data-phase-id',phase.id);
 
     // phase header
     var hdr=document.createElement('div');
@@ -690,90 +651,75 @@ function renderDays(){
     var textWrap=document.createElement('div');textWrap.style.flex='1';
     var titleIn=document.createElement('input');
     titleIn.className='phase-title-input';titleIn.value=phase.title||'';titleIn.placeholder='Phase title...';
-    titleIn.onblur=function(){if(titleIn.value.trim()!==phase.title){phase.title=titleIn.value.trim();sb.from('phases').update({title:phase.title}).eq('id',phase.id);showToast('Phase updated!');}};
+    titleIn.onclick=function(e){e.stopPropagation();};
+    titleIn.onblur=function(){
+      if(titleIn.value.trim()&&titleIn.value.trim()!==phase.title){
+        phase.title=titleIn.value.trim();
+        if(!phase.id.startsWith('_'))sb.from('phases').update({title:phase.title}).eq('id',phase.id);
+        showToast('Phase updated!');
+      }
+    };
     titleIn.onkeydown=function(e){if(e.key==='Enter')titleIn.blur();};
     var subIn=document.createElement('input');
     subIn.className='phase-subtitle-input';subIn.value=phase.subtitle||'';subIn.placeholder='Subtitle / dates...';
-    subIn.onblur=function(){if(subIn.value!==phase.subtitle){phase.subtitle=subIn.value;sb.from('phases').update({subtitle:phase.subtitle}).eq('id',phase.id);}};
+    subIn.onclick=function(e){e.stopPropagation();};
+    subIn.onblur=function(){
+      if(subIn.value!==phase.subtitle){
+        phase.subtitle=subIn.value;
+        if(!phase.id.startsWith('_'))sb.from('phases').update({subtitle:phase.subtitle}).eq('id',phase.id);
+      }
+    };
     textWrap.appendChild(titleIn);textWrap.appendChild(subIn);
     hdr.appendChild(textWrap);
 
     // color picker
     var colorWrap=document.createElement('div');colorWrap.className='phase-color-picker';
-    ['green','purple','amber','blue','red'].forEach(function(col){
-      var dot=document.createElement('div');dot.className='phase-color-dot'+(phase.color===col?' active':'');
-      dot.style.background={green:'#2d6a4f',purple:'#5e35b1',amber:'#e76f00',blue:'#1565c0',red:'#c62828'}[col];
-      dot.title=col;
+    [{c:'green',bg:'#2d6a4f'},{c:'purple',bg:'#5e35b1'},{c:'amber',bg:'#e76f00'},{c:'blue',bg:'#1565c0'},{c:'red',bg:'#c62828'}].forEach(function(col){
+      var dot=document.createElement('div');
+      dot.className='phase-color-dot'+(phase.color===col.c?' active':'');
+      dot.style.background=col.bg;dot.title=col.c;
       dot.onclick=function(){
-        phase.color=col;
-        hdr.className='phase-header '+col;
+        phase.color=col.c;
+        hdr.className='phase-header '+col.c;
         colorWrap.querySelectorAll('.phase-color-dot').forEach(function(d){d.classList.remove('active');});
         dot.classList.add('active');
-        sb.from('phases').update({color:col}).eq('id',phase.id);
+        if(!phase.id.startsWith('_'))sb.from('phases').update({color:col.c}).eq('id',phase.id);
       };
       colorWrap.appendChild(dot);
     });
     hdr.appendChild(colorWrap);
 
-    // delete phase button
+    // delete button
     var delBtn=document.createElement('button');delBtn.className='phase-del-btn';delBtn.innerHTML='&#128465;';delBtn.title='Delete phase';
-    delBtn.onclick=function(){deletePhase(phase.id);};
+    delBtn.onclick=function(){if(!phase.id.startsWith('_'))deletePhase(phase.id);};
     hdr.appendChild(delBtn);
     phaseEl.appendChild(hdr);
 
-    // days container (cross-sortable)
+    // days in this phase
     var daysDiv=document.createElement('div');
     daysDiv.className='days-container';
     daysDiv.id='days-phase-'+phase.id;
-    daysDiv.setAttribute('data-phase-id',phase.id);
 
-    var phaseDays=allDays.filter(function(d){return d.phase_id===phase.id;}).sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);});
+    // match days: by phase_id if real phase, by day_number range if fallback
+    var phaseDays=allDays.filter(function(d){
+      if(phase.id==='_s') return d.day_number<=10;
+      if(phase.id==='_w') return d.day_number>10&&d.day_number<=14;
+      if(phase.id==='_b') return d.day_number>14;
+      return d.phase_id===phase.id;
+    }).sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0)||(a.day_number||0)-(b.day_number||0);});
+
     phaseDays.forEach(function(day){
       var card=buildDayCard(day,phase);
       daysDiv.appendChild(card);
-      renderItems(day.id);
     });
     phaseEl.appendChild(daysDiv);
     container.appendChild(phaseEl);
   });
 
-  // Init cross-day Sortable AFTER all renderItems calls
+  // render all items AFTER cards are in DOM
+  allDays.forEach(function(day){renderItems(day.id);});
   initActivitySortable();
 }
-
-function initActivitySortable(){
-  if(typeof Sortable==='undefined')return;
-  document.querySelectorAll('.items-list').forEach(function(list){
-    if(list._sortable){list._sortable.destroy();list._sortable=null;}
-    list._sortable=Sortable.create(list,{
-      group:'activities',
-      handle:'.drag-handle',
-      animation:150,
-      ghostClass:'sortable-ghost',
-      filter:'.item-row.header',
-      onEnd:function(evt){
-        var itemId=evt.item.getAttribute('data-id');
-        var newList=evt.to;
-        var dayCard=newList.closest('.day-card');
-        var newDayId=dayCard?dayCard.id.replace('day-',''):null;
-        var item=allItems.find(function(x){return x.id===itemId;});
-        if(!item)return;
-        if(newDayId&&newDayId!==item.day_id){
-          item.day_id=newDayId;
-          sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
-        }
-        var rows=newList.querySelectorAll('[data-id]');
-        rows.forEach(function(r,i){
-          var id=r.getAttribute('data-id');
-          var it=allItems.find(function(x){return x.id===id;});
-          if(it&&it.sort_order!==i+1){it.sort_order=i+1;sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id);}
-        });
-        showToast('Saved!');
-      }
-    });
-  });
-}
-
 async function addPhase(){
   var maxSort=allPhases.length?Math.max.apply(null,allPhases.map(function(p){return p.sort_order||0;})):0;
   var res=await sb.from('phases').insert({trip_id:TRIP_ID,title:'New phase',subtitle:'',color:'blue',sort_order:maxSort+1}).select().single();
