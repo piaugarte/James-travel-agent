@@ -64,6 +64,23 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .hero-stat .value{font-weight:700;font-size:18px;}
 /* phase banners */
 .phase-banner{border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;font-size:13px;line-height:1.5;}
+.phase-block{margin-bottom:20px;}
+.phase-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:12px 16px;border-radius:var(--radius);position:relative;}
+.phase-header.green{background:var(--green-pale);border-left:4px solid var(--green);}
+.phase-header.purple{background:var(--purple-pale);border-left:4px solid var(--purple);}
+.phase-header.amber{background:var(--amber-pale);border-left:4px solid var(--amber);}
+.phase-header.blue{background:var(--blue-pale);border-left:4px solid var(--blue);}
+.phase-header.red{background:var(--red-pale);border-left:4px solid var(--red);}
+.phase-title-input{font-family:"Funnel Display",sans-serif;font-weight:700;font-size:15px;border:none;background:transparent;color:inherit;flex:1;padding:0;min-width:0;}
+.phase-title-input:focus{outline:none;border-bottom:1px dashed currentColor;}
+.phase-subtitle-input{font-size:12px;border:none;background:transparent;color:inherit;opacity:0.8;width:100%;padding:0;margin-top:2px;}
+.phase-subtitle-input:focus{outline:none;border-bottom:1px dashed currentColor;}
+.phase-del-btn{background:none;border:none;cursor:pointer;opacity:0.4;font-size:14px;padding:2px 4px;border-radius:4px;color:inherit;flex-shrink:0;}
+.phase-del-btn:hover{opacity:1;}
+.phase-color-picker{display:flex;gap:4px;align-items:center;}
+.phase-color-dot{width:16px;height:16px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;}
+.phase-color-dot:hover,.phase-color-dot.active{border-color:rgba(0,0,0,0.3);transform:scale(1.2);}
+.days-container{min-height:40px;}
 .phase-banner.surrey{background:var(--green-pale);color:#1b4332;border-left:4px solid var(--green);}
 .phase-banner.whistler{background:var(--purple-pale);color:var(--purple);border-left:4px solid var(--purple);}
 .phase-banner.bday{background:var(--amber-pale);color:var(--amber);border-left:4px solid var(--amber);}
@@ -75,7 +92,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .day-num{background:var(--green);color:var(--white);border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
 .day-num.amber{background:var(--amber);}
 .day-num.purple{background:var(--purple);}
-.day-date{font-size:11px;color:var(--text-muted);margin-bottom:2px;}
+.day-date{font-size:12px;color:var(--text-muted);margin-bottom:3px;font-weight:600;letter-spacing:0.02em;}
 .day-title-text{font-weight:600;font-size:15px;flex:1;}
 .day-badge{font-size:11px;padding:3px 8px;border-radius:10px;font-weight:600;white-space:nowrap;}
 .badge-free{background:var(--green-pale);color:var(--green);}
@@ -110,6 +127,8 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .drag-handle{cursor:grab;color:var(--gray);padding:2px 4px;font-size:14px;line-height:1;display:flex;align-items:center;opacity:0.5;}
 .drag-handle:hover{opacity:1;}
 .sortable-ghost{opacity:0.35;background:var(--green-pale);}
+.day-title-input{font-weight:600;font-size:15px;width:100%;border:none;background:transparent;font-family:'DM Sans',sans-serif;color:var(--text);padding:2px 4px;border-radius:4px;min-width:0;display:block;}
+.day-title-input:focus{outline:none;background:var(--gray-light);border-radius:4px;}
 /* who joins - collapsible */
 .who-summary{display:flex;align-items:center;gap:6px;cursor:pointer;padding:3px 0;user-select:none;}
 .who-summary-avatars{display:flex;gap:2px;flex-wrap:wrap;}
@@ -286,12 +305,8 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
       <button onclick="setItinView('calendar',this)">&#128197; Calendar</button>
     </div>
     <div id="itin-list">
-      <div class="phase-banner surrey"><strong>Phase 1: Surrey base camp (Jun 15-24)</strong>Staying free at Ines and Ben house in Surrey. Day trips to Vancouver, Richmond, North Shore.</div>
-      <div id="days-surrey"></div>
-      <div class="phase-banner whistler" style="margin-top:8px;"><strong>Phase 2: Whistler escape (Jun 25-28)</strong>Andy family flies in June 25. Everyone drives Sea to Sky Highway to group Airbnb.</div>
-      <div id="days-whistler"></div>
-      <div class="phase-banner bday" style="margin-top:8px;"><strong>Phase 3: Birthday week + Canada Day (Jun 29 - Jul 1)</strong>Happy 4th birthday Pia! Playland, UBC, and Canada Day fireworks.</div>
-      <div id="days-bday"></div>
+      <div id="phases-container"></div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="addPhase()">+ Add phase</button>
     </div>
     <div id="itin-calendar" style="display:none;"></div>
   </div>
@@ -421,7 +436,7 @@ const CAT_LABELS = {activity:'Activity',hotel:'Hotel',food:'Food',flight:'Flight
 const GROUP_EMOJI = {'Pia family':'🏡','Andy family':'✈️','Ines family':'🏡','Relatives':'👥'};
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let tripData=null,allDays=[],allItems=[],allPacking=[],allPeople=[],allBudgetItems=[],allParticipants=[];
+let tripData=null,allDays=[],allItems=[],allPacking=[],allPeople=[],allBudgetItems=[],allParticipants=[],allPhases=[];
 let chatHistory=[],chatOpen=false,currentItinView='list',activeBudgetCat='all',editingPersonId=null;
 let activeCurrency='USD',fxRates={CAD:1,USD:0.72,PHP:41};
 
@@ -473,6 +488,7 @@ async function loadAll(){
   await loadFxRates();
   var results=await Promise.all([
     sb.from('trip').select('*').eq('id',TRIP_ID).single(),
+    sb.from('phases').select('*').eq('trip_id',TRIP_ID).order('sort_order'),
     sb.from('itinerary_days').select('*').eq('trip_id',TRIP_ID).order('day_number'),
     sb.from('itinerary_items').select('*').order('sort_order'),
     sb.from('packing_items').select('*').eq('trip_id',TRIP_ID),
@@ -480,15 +496,39 @@ async function loadAll(){
     sb.from('item_participants').select('*')
   ]);
   tripData=results[0].data;
-  allDays=results[1].data||[];
-  allItems=results[2].data||[];
-  allPacking=results[3].data||[];
-  allPeople=results[4].data||[];
-  allParticipants=results[5].data||[];
+  allPhases=results[1].data||[];
+  allDays=results[2].data||[];
+  allItems=results[3].data||[];
+  allPacking=results[4].data||[];
+  allPeople=results[5].data||[];
+  allParticipants=results[6].data||[];
   allBudgetItems=JSON.parse(localStorage.getItem('trip_budget_items')||'[]');
+  // If days have no phase_id, assign them to phases by day_number (legacy)
+  if(allPhases.length>0&&allDays.some(function(d){return !d.phase_id;})){
+    await assignLegacyPhases();
+  }
   if(allPeople.length===0)await seedPeople();
   renderHero();renderDays();renderCalendar();
   if(document.getElementById('tab-people').classList.contains('active'))renderPeople();
+}
+
+async function assignLegacyPhases(){
+  // Map old hardcoded phases to new phase rows by sort_order
+  var p1=allPhases.find(function(p){return p.sort_order===1;});
+  var p2=allPhases.find(function(p){return p.sort_order===2;});
+  var p3=allPhases.find(function(p){return p.sort_order===3;});
+  var updates=[];
+  allDays.forEach(function(d){
+    if(d.phase_id)return;
+    var phaseId=null;
+    if(d.day_number<=10&&p1)phaseId=p1.id;
+    else if(d.day_number<=14&&p2)phaseId=p2.id;
+    else if(p3)phaseId=p3.id;
+    if(phaseId){d.phase_id=phaseId;updates.push({id:d.id,phase_id:phaseId});}
+  });
+  for(var i=0;i<updates.length;i++){
+    await sb.from('itinerary_days').update({phase_id:updates[i].phase_id}).eq('id',updates[i].id);
+  }
 }
 
 async function seedPeople(){
@@ -575,14 +615,248 @@ function jumpToDay(dayId){
 
 function getPhase(n){if(n<=10)return 'surrey';if(n<=14)return 'whistler';return 'bday';}
 function getBadge(day){
-  var phase=getPhase(day.day_number);
-  if(day.day_number===15)return['bday','Birthday!'];
-  if(phase==='whistler')return['whistler','Whistler'];
   var total=allItems.filter(function(i){return i.day_id===day.id;}).reduce(function(s,i){return s+(Number(i.cost)||0);},0);
   if(total===0)return['free','Free'];
   if(total<100)return['free','Low cost'];
   if(total<300)return['paid','Moderate'];
   return['paid','Higher spend'];
+}
+
+function getPhaseColor(phase){return phase?phase.color||'green':'green';}
+
+function renderDays(){
+  var container=document.getElementById('phases-container');
+  if(!container)return;
+  container.innerHTML='';
+
+  allPhases.sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);}).forEach(function(phase){
+    var phaseEl=document.createElement('div');
+    phaseEl.className='phase-block';
+    phaseEl.setAttribute('data-phase-id',phase.id);
+
+    // phase header
+    var hdr=document.createElement('div');
+    hdr.className='phase-header '+getPhaseColor(phase);
+
+    var textWrap=document.createElement('div');textWrap.style.flex='1';
+    var titleIn=document.createElement('input');
+    titleIn.className='phase-title-input';titleIn.value=phase.title||'';titleIn.placeholder='Phase title...';
+    titleIn.onblur=function(){if(titleIn.value.trim()!==phase.title){phase.title=titleIn.value.trim();sb.from('phases').update({title:phase.title}).eq('id',phase.id);showToast('Phase updated!');}};
+    titleIn.onkeydown=function(e){if(e.key==='Enter')titleIn.blur();};
+    var subIn=document.createElement('input');
+    subIn.className='phase-subtitle-input';subIn.value=phase.subtitle||'';subIn.placeholder='Subtitle / dates...';
+    subIn.onblur=function(){if(subIn.value!==phase.subtitle){phase.subtitle=subIn.value;sb.from('phases').update({subtitle:phase.subtitle}).eq('id',phase.id);}};
+    textWrap.appendChild(titleIn);textWrap.appendChild(subIn);
+    hdr.appendChild(textWrap);
+
+    // color picker
+    var colorWrap=document.createElement('div');colorWrap.className='phase-color-picker';
+    ['green','purple','amber','blue','red'].forEach(function(col){
+      var dot=document.createElement('div');dot.className='phase-color-dot'+(phase.color===col?' active':'');
+      dot.style.background={green:'#2d6a4f',purple:'#5e35b1',amber:'#e76f00',blue:'#1565c0',red:'#c62828'}[col];
+      dot.title=col;
+      dot.onclick=function(){
+        phase.color=col;
+        hdr.className='phase-header '+col;
+        colorWrap.querySelectorAll('.phase-color-dot').forEach(function(d){d.classList.remove('active');});
+        dot.classList.add('active');
+        sb.from('phases').update({color:col}).eq('id',phase.id);
+      };
+      colorWrap.appendChild(dot);
+    });
+    hdr.appendChild(colorWrap);
+
+    // delete phase button
+    var delBtn=document.createElement('button');delBtn.className='phase-del-btn';delBtn.innerHTML='&#128465;';delBtn.title='Delete phase';
+    delBtn.onclick=function(){deletePhase(phase.id);};
+    hdr.appendChild(delBtn);
+    phaseEl.appendChild(hdr);
+
+    // days container (cross-sortable)
+    var daysDiv=document.createElement('div');
+    daysDiv.className='days-container';
+    daysDiv.id='days-phase-'+phase.id;
+    daysDiv.setAttribute('data-phase-id',phase.id);
+
+    var phaseDays=allDays.filter(function(d){return d.phase_id===phase.id;}).sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);});
+    phaseDays.forEach(function(day){
+      var card=buildDayCard(day,phase);
+      daysDiv.appendChild(card);
+      renderItems(day.id);
+    });
+    phaseEl.appendChild(daysDiv);
+    container.appendChild(phaseEl);
+  });
+
+  // Sortable for activities CROSS-DAY drag
+  // Re-init Sortable on all items-lists with shared group
+  document.querySelectorAll('.items-list').forEach(function(list){
+    if(list._sortable)list._sortable.destroy();
+    if(typeof Sortable!=='undefined'){
+      list._sortable=Sortable.create(list,{
+        group:'activities',
+        handle:'.drag-handle',
+        animation:150,
+        ghostClass:'sortable-ghost',
+        filter:'.item-row.header',
+        onEnd:function(evt){
+          var itemId=evt.item.getAttribute('data-id');
+          var newList=evt.to;
+          var dayCard=newList.closest('.day-card');
+          var newDayId=dayCard?dayCard.id.replace('day-',''):null;
+          var item=allItems.find(function(x){return x.id===itemId;});
+          if(!item)return;
+          // update day_id if moved to different day
+          if(newDayId&&newDayId!==item.day_id){
+            item.day_id=newDayId;
+            sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
+          }
+          // update sort orders in new list
+          var rows=newList.querySelectorAll('[data-id]');
+          rows.forEach(function(r,i){
+            var id=r.getAttribute('data-id');
+            var it=allItems.find(function(x){return x.id===id;});
+            if(it&&it.sort_order!==i+1){it.sort_order=i+1;sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id);}
+          });
+          showToast('Saved!');
+        }
+      });
+    }
+  });
+}
+
+async function addPhase(){
+  var maxSort=allPhases.length?Math.max.apply(null,allPhases.map(function(p){return p.sort_order||0;})):0;
+  var res=await sb.from('phases').insert({trip_id:TRIP_ID,title:'New phase',subtitle:'',color:'blue',sort_order:maxSort+1}).select().single();
+  if(res.error){showToast('Error: '+res.error.message);return;}
+  allPhases.push(res.data);
+  renderDays();
+  showToast('Phase added!');
+}
+
+async function deletePhase(phaseId){
+  var phaseDays=allDays.filter(function(d){return d.phase_id===phaseId;});
+  if(phaseDays.length>0){
+    if(!confirm('This phase has '+phaseDays.length+' day(s). Delete the phase? Days will become unassigned.'))return;
+  }
+  await sb.from('phases').delete().eq('id',phaseId);
+  allPhases=allPhases.filter(function(p){return p.id!==phaseId;});
+  allDays.forEach(function(d){if(d.phase_id===phaseId)d.phase_id=null;});
+  renderDays();showToast('Phase deleted');
+}
+
+function buildDayCard(day, phase){
+  var badge=getBadge(day);
+  var badgeClass=badge[0],badgeLabel=badge[1];
+  var phaseColor=phase?getPhaseColor(phase):'green';
+  var numColor=phaseColor==='green'?'':phaseColor==='purple'?'purple':phaseColor==='amber'?'amber':'';
+  var dayItems=allItems.filter(function(i){return i.day_id===day.id;});
+
+  var el=document.createElement('div');
+  el.className='day-card';el.id='day-'+day.id;
+  el.setAttribute('data-id',day.id);
+
+  // ── header ──
+  var header=document.createElement('div');
+  header.className='day-header';
+  header.style.cssText='cursor:default;';
+
+  var numBadge=document.createElement('div');
+  numBadge.className='day-num'+(numColor?' '+numColor:'');
+  numBadge.textContent=day.day_number;
+  header.appendChild(numBadge);
+
+  var titleWrap=document.createElement('div');
+  titleWrap.style.cssText='flex:1;min-width:0;overflow:visible;';
+  var dateEl=document.createElement('div');
+  dateEl.className='day-date';
+  dateEl.textContent=fmtShort(day.date)+' · Day '+day.day_number;
+  // editable title
+  var titleIn=document.createElement('input');
+  titleIn.className='day-title-input';
+  titleIn.value=day.title||'';
+  titleIn.placeholder='Day title...';
+  // clicking title should not toggle the card
+  titleIn.onclick=function(e){e.stopPropagation();};
+  titleIn.onblur=function(){
+    if(titleIn.value.trim()&&titleIn.value.trim()!==day.title){
+      day.title=titleIn.value.trim();
+      sb.from('itinerary_days').update({title:day.title}).eq('id',day.id);
+      showToast('Day updated!');
+    }
+  };
+  titleIn.onkeydown=function(e){if(e.key==='Enter')titleIn.blur();};
+  titleWrap.appendChild(dateEl);
+  titleWrap.appendChild(titleIn);
+  header.appendChild(titleWrap);
+
+  header.appendChild(document.createTextNode(''));
+  var badgeEl=document.createElement('span');
+  badgeEl.className='day-badge badge-'+badgeClass;
+  badgeEl.textContent=badgeLabel;
+  header.appendChild(badgeEl);
+
+  if(dayItems.length){
+    var countEl=document.createElement('span');
+    countEl.style.cssText='font-size:11px;color:var(--text-muted);margin-left:4px;';
+    countEl.textContent=dayItems.length+' item'+(dayItems.length!==1?'s':'');
+    header.appendChild(countEl);
+  }
+
+  // chevron toggles body
+  var chev=document.createElement('span');
+  chev.className='day-chevron';chev.innerHTML='&#8964;';
+  chev.style.cursor='pointer';
+  chev.onclick=function(){el.classList.toggle('open');};
+  header.appendChild(chev);
+
+  // clicking the number also toggles
+  numBadge.style.cursor='pointer';
+  numBadge.onclick=function(){el.classList.toggle('open');};
+
+  el.appendChild(header);
+
+  // ── body ──
+  var body=document.createElement('div');
+  body.className='day-body';
+
+  var notes=document.createElement('textarea');
+  notes.className='day-notes-input';
+  notes.placeholder='Add notes for this day...';
+  notes.value=day.notes||'';
+  notes.onchange=function(){saveDayNotes(day.id,notes.value);};
+  body.appendChild(notes);
+
+  var itemsDiv=document.createElement('div');
+  itemsDiv.id='items-'+day.id;
+  body.appendChild(itemsDiv);
+
+  // delete day button (only if no items)
+  var footerRow=document.createElement('div');
+  footerRow.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;';
+
+  var addRow=document.createElement('div');
+  addRow.className='add-item-row';
+  addRow.style.flex='1';
+  addRow.innerHTML=
+    '<input class="input-time" type="text" placeholder="10:00 AM" id="ai-time-'+day.id+'"/>'+
+    '<input class="input-activity" type="text" placeholder="Activity..." id="ai-act-'+day.id+'"/>'+
+    '<input class="input-location" type="text" placeholder="Location" id="ai-loc-'+day.id+'"/>'+
+    '<input class="input-cost" type="number" placeholder="CA$" id="ai-cost-'+day.id+'"/>'+
+    '<select class="input-cat" id="ai-cat-'+day.id+'">'+
+      '<option value="activity">Activity</option><option value="food">Food</option>'+
+      '<option value="hotel">Hotel</option><option value="transport">Transport</option>'+
+      '<option value="flight">Flight</option><option value="other">Other</option>'+
+    '</select>';
+  var addBtn=document.createElement('button');
+  addBtn.className='btn btn-primary btn-sm';addBtn.textContent='+ Add';
+  addBtn.onclick=function(){addItem(day.id);};
+  addRow.appendChild(addBtn);
+  body.appendChild(addRow);
+
+
+  el.appendChild(body);
+  return el;
 }
 
 function renderDays(){
@@ -591,66 +865,16 @@ function renderDays(){
     if(!container)return;
     container.innerHTML='';
     allDays.filter(function(d){return getPhase(d.day_number)===phase;}).forEach(function(day){
-      var badge=getBadge(day);
-      var badgeClass=badge[0],badgeLabel=badge[1];
-      var numColor=phase==='whistler'?'purple':phase==='bday'?'amber':'';
-      var dayItems=allItems.filter(function(i){return i.day_id===day.id;});
-      var el=document.createElement('div');
-      el.className='day-card';el.id='day-'+day.id;
-
-      var header=document.createElement('div');
-      header.className='day-header';
-      header.onclick=function(){toggleDay(day.id);};
-      header.innerHTML=
-        '<div class="day-num'+(numColor?' '+numColor:'')+'">'+day.day_number+'</div>'+
-        '<div style="flex:1;min-width:0;"><div class="day-date">'+fmtShort(day.date)+' &nbsp;&middot;&nbsp; Day '+day.day_number+'</div>'+
-        '<div class="day-title-text">'+escHtml(day.title)+'</div></div>'+
-        '<span class="day-badge badge-'+badgeClass+'">'+badgeLabel+'</span>'+
-        (dayItems.length?'<span style="font-size:11px;color:var(--text-muted);margin-left:4px;">'+dayItems.length+' item'+(dayItems.length!==1?'s':'')+'</span>':'')+
-        '<span class="day-chevron">&#8964;</span>';
-      el.appendChild(header);
-
-      var body=document.createElement('div');
-      body.className='day-body';
-
-      var notes=document.createElement('textarea');
-      notes.className='day-notes-input';
-      notes.placeholder='Add notes for this day...';
-      notes.value=day.notes||'';
-      notes.onchange=function(){saveDayNotes(day.id,notes.value);};
-      body.appendChild(notes);
-
-      var itemsDiv=document.createElement('div');
-      itemsDiv.id='items-'+day.id;
-      body.appendChild(itemsDiv);
-
-      // add item row
-      var addRow=document.createElement('div');
-      addRow.className='add-item-row';
-      addRow.innerHTML=
-        '<input class="input-time" type="text" placeholder="10:00 AM" id="ai-time-'+day.id+'"/>'+
-        '<input class="input-activity" type="text" placeholder="Activity..." id="ai-act-'+day.id+'"/>'+
-        '<input class="input-location" type="text" placeholder="Location" id="ai-loc-'+day.id+'"/>'+
-        '<input class="input-cost" type="number" placeholder="CA$" id="ai-cost-'+day.id+'"/>'+
-        '<select class="input-cat" id="ai-cat-'+day.id+'">'+
-          '<option value="activity">Activity</option><option value="food">Food</option>'+
-          '<option value="hotel">Hotel</option><option value="transport">Transport</option>'+
-          '<option value="flight">Flight</option><option value="other">Other</option>'+
-        '</select>';
-      var addBtn=document.createElement('button');
-      addBtn.className='btn btn-primary btn-sm';
-      addBtn.textContent='+ Add';
-      addBtn.onclick=function(){addItem(day.id);};
-      addRow.appendChild(addBtn);
-      body.appendChild(addRow);
-      el.appendChild(body);
+      var el=buildDayCard(day,phase);
       container.appendChild(el);
       renderItems(day.id);
     });
+
   });
 }
 
 function toggleDay(id){document.getElementById('day-'+id).classList.toggle('open');}
+
 
 function renderItems(dayId){
   var container=document.getElementById('items-'+dayId);
@@ -670,12 +894,17 @@ function renderItems(dayId){
     var col=CAT_COLORS[item.category]||CAT_COLORS.other;
     var itemParts=allParticipants.filter(function(p){return p.item_id===item.id;});
 
+    // ── wrapper: sortable unit (row + detail together) ──
+    var itemWrap=document.createElement('div');
+    itemWrap.setAttribute('data-id',item.id);
+    itemWrap.style.cssText='border-bottom:1px solid var(--gray-border);';
+
     // ── main row ──
     var row=document.createElement('div');
     row.className='item-row';row.id='item-'+item.id;
-    row.setAttribute('data-id',item.id);
+    row.style.borderBottom='none';
 
-    // drag handle (replaces time field in grid)
+    // drag handle
     var handle=document.createElement('span');
     handle.className='drag-handle';handle.innerHTML='&#8801;';handle.title='Drag to reorder';
     row.appendChild(handle);
@@ -704,7 +933,7 @@ function renderItems(dayId){
     delBtn.className='delete-btn';delBtn.title='Remove';delBtn.innerHTML='&#215;';
     delBtn.onclick=function(){deleteItem(item.id);};
     row.appendChild(delBtn);
-    wrap.appendChild(row);
+    itemWrap.appendChild(row);
 
     // ── detail row ──
     var det=document.createElement('div');det.className='item-detail-row';
@@ -811,32 +1040,13 @@ function renderItems(dayId){
     whoInner.appendChild(grid);
     whoSec.appendChild(whoInner);
     det.appendChild(whoSec);
-    wrap.appendChild(det);
+    itemWrap.appendChild(det);
+    wrap.appendChild(itemWrap);
   });
   container.appendChild(wrap);
 
-  // ── Sortable drag-to-reorder ──
-  if(typeof Sortable!=='undefined'){
-    Sortable.create(wrap,{
-      handle:'.drag-handle',
-      animation:150,
-      ghostClass:'sortable-ghost',
-      filter:'.item-row.header',
-      onEnd:function(evt){
-        // rebuild sort_order from current DOM order, skip header
-        var rows=wrap.querySelectorAll('.item-row[data-id]');
-        var updates=[];
-        rows.forEach(function(r,i){
-          var id=r.getAttribute('data-id');
-          var item=allItems.find(function(x){return x.id===id;});
-          if(item&&item.sort_order!==i+1){item.sort_order=i+1;updates.push({id:id,sort_order:i+1});}
-        });
-        updates.forEach(function(u){sb.from('itinerary_items').update({sort_order:u.sort_order}).eq('id',u.id);});
-        if(updates.length)showToast('Order saved!');
-      }
-    });
-  }
 }
+
 var saveDayNotes=debounce(function(dayId,notes){
   sb.from('itinerary_days').update({notes:notes,updated_at:new Date().toISOString()}).eq('id',dayId);
   var day=allDays.find(function(d){return d.id===dayId;});
