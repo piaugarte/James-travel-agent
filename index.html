@@ -29,9 +29,10 @@ nav{background:var(--white);border-bottom:1px solid var(--gray-border);position:
 .nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:6px;height:56px;overflow-x:auto;scrollbar-width:none;}
 .nav-inner::-webkit-scrollbar{display:none;}
 .nav-brand{font-family:'Funnel Display',sans-serif;font-weight:700;font-size:17px;color:var(--green);white-space:nowrap;margin-right:8px;}
+.nav-spacer{flex:1;}
 .nav-tab{padding:6px 13px;border-radius:20px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;white-space:nowrap;transition:all .15s;background:transparent;color:var(--text-muted);}
 .nav-tab:hover{background:var(--gray-light);}
-.nav-tab.active{background:var(--green);color:var(--white);}.nav-spacer{flex:1;}.nav-tab.private{}.nav-tab.private.active{background:#374151;}
+.nav-tab.active{background:var(--green);color:var(--white);}
 main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .tab-content{display:none;}
 .tab-content.active{display:block;}
@@ -46,20 +47,12 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
 .section-title{font-size:18px;font-weight:700;}
 .empty-state{text-align:center;padding:32px;color:var(--text-muted);font-size:14px;}
-.cur-switcher{display:flex;gap:4px;align-items:center;}
+/* currency */
+.cur-switcher{display:flex;gap:4px;align-items:center;margin-left:8px;}
 .cur-btn{padding:4px 10px;border-radius:12px;border:1px solid var(--gray-border);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;background:var(--white);color:var(--text-muted);transition:all .15s;}
 .cur-btn:hover{border-color:var(--green);}
 .cur-btn.active{background:var(--green);color:var(--white);border-color:var(--green);}
-.transport-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 6px;border-radius:8px;font-weight:600;}
-.transport-car{background:#e0f2fe;color:#0369a1;}
-.transport-public{background:#dcfce7;color:#15803d;}
-.transport-uber{background:#fef9c3;color:#854d0e;}
-.item-detail-row{background:var(--gray-light);border-radius:var(--radius-sm);padding:8px 10px;margin:4px 0 6px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;}
-.participant-chip{display:inline-flex;align-items:center;gap:4px;background:var(--white);border:1px solid var(--gray-border);border-radius:12px;padding:3px 8px;font-size:12px;cursor:pointer;transition:all .15s;}
-.participant-chip.selected{background:var(--green-pale);border-color:var(--green);color:var(--green);font-weight:600;}
-.person-cost-tag{display:inline-block;background:var(--amber-pale);color:var(--amber);font-size:11px;font-weight:600;padding:2px 7px;border-radius:8px;margin-top:4px;}
-
-/* HERO */
+/* hero */
 .hero{background:linear-gradient(135deg,var(--green) 0%,#1b4332 100%);border-radius:var(--radius);padding:28px 24px;margin-bottom:20px;color:var(--white);position:relative;overflow:hidden;}
 .hero::after{content:'🍁';position:absolute;right:24px;top:50%;transform:translateY(-50%);font-size:64px;opacity:0.2;}
 .hero h1{font-size:26px;font-weight:700;margin-bottom:6px;}
@@ -68,16 +61,13 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .hero-stat{background:rgba(255,255,255,0.15);border-radius:var(--radius-sm);padding:10px 16px;min-width:100px;}
 .hero-stat .label{font-size:11px;opacity:0.75;margin-bottom:2px;}
 .hero-stat .value{font-weight:700;font-size:18px;}
-.hero-stat .value.green{color:#95f7c4;}
-
-/* PHASE BANNERS */
+/* phase banners */
 .phase-banner{border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;font-size:13px;line-height:1.5;}
 .phase-banner.surrey{background:var(--green-pale);color:#1b4332;border-left:4px solid var(--green);}
 .phase-banner.whistler{background:var(--purple-pale);color:var(--purple);border-left:4px solid var(--purple);}
 .phase-banner.bday{background:var(--amber-pale);color:var(--amber);border-left:4px solid var(--amber);}
 .phase-banner strong{display:block;font-size:14px;margin-bottom:2px;}
-
-/* DAY CARDS */
+/* day cards */
 .day-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray-border);margin-bottom:10px;overflow:hidden;transition:box-shadow .15s;}
 .day-card:hover{box-shadow:var(--shadow-md);}
 .day-header{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none;}
@@ -97,15 +87,13 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .day-card.open .day-body{display:block;}
 .day-notes-input{width:100%;border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:56px;margin:10px 0 12px;color:var(--text);background:var(--gray-light);}
 .day-notes-input:focus{outline:none;border-color:var(--green);background:var(--white);}
-
-/* ITEMS */
+/* items */
 .items-list{margin-bottom:10px;}
 .item-row{display:grid;grid-template-columns:70px 1fr 90px 80px 30px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--gray-border);font-size:13px;}
 .item-row:last-child{border-bottom:none;}
 .item-row.header{font-size:11px;font-weight:600;color:var(--text-muted);padding-bottom:4px;}
 .item-input{border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);width:100%;padding:2px 4px;border-radius:4px;}
 .item-input:focus{outline:none;background:var(--gray-light);}
-.item-cost{text-align:right;font-weight:500;}
 .category-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;}
 .delete-btn{background:none;border:none;cursor:pointer;color:var(--gray);font-size:16px;padding:2px;border-radius:4px;line-height:1;}
 .delete-btn:hover{color:var(--red);background:var(--red-pale);}
@@ -113,8 +101,12 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .add-item-row input,.add-item-row select{border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:6px 10px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--white);}
 .add-item-row input:focus,.add-item-row select:focus{outline:none;border-color:var(--green);}
 .input-time{width:90px;}.input-activity{flex:1;min-width:120px;}.input-location{width:110px;}.input-cost{width:80px;}.input-cat{width:100px;}
-
-/* CALENDAR */
+/* item detail row */
+.item-detail-row{background:var(--gray-light);border-radius:var(--radius-sm);padding:8px 12px;margin:2px 0 6px;display:flex;flex-wrap:wrap;gap:4px;align-items:flex-start;}
+.participant-chip{display:inline-flex;align-items:center;gap:4px;background:var(--white);border:1px solid var(--gray-border);border-radius:12px;padding:3px 9px;font-size:12px;cursor:pointer;transition:all .15s;user-select:none;}
+.participant-chip:hover{border-color:var(--green);}
+.participant-chip.selected{background:var(--green-pale);border-color:var(--green);color:var(--green);font-weight:600;}
+/* cal */
 .cal-toggle{display:flex;gap:8px;margin-bottom:16px;}
 .cal-toggle button{padding:6px 16px;border-radius:20px;border:1px solid var(--gray-border);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;background:var(--white);color:var(--text-muted);transition:all .15s;}
 .cal-toggle button.active{background:var(--green);color:var(--white);border-color:var(--green);}
@@ -130,8 +122,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .cal-day-num{font-size:11px;color:var(--text-muted);margin-bottom:3px;}
 .cal-day-title{font-size:11px;font-weight:600;color:var(--text);line-height:1.3;}
 .cal-day-cost{font-size:10px;color:var(--text-muted);margin-top:3px;}
-
-/* PASSWORD GATE */
+/* password */
 .password-gate{display:flex;align-items:center;justify-content:center;min-height:300px;}
 .password-box{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);padding:32px;text-align:center;max-width:320px;width:100%;}
 .password-box h3{font-size:20px;margin-bottom:6px;}
@@ -139,8 +130,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .password-box input{width:100%;border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:15px;text-align:center;letter-spacing:3px;margin-bottom:12px;}
 .password-box input:focus{outline:none;border-color:var(--green);}
 .password-error{color:var(--red);font-size:12px;margin-top:8px;}
-
-/* BUDGET */
+/* budget */
 .budget-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
 .budget-card{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);padding:16px;}
 .budget-card .label{font-size:12px;color:var(--text-muted);margin-bottom:4px;}
@@ -153,12 +143,9 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .cat-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
 .cat-tab{padding:6px 14px;border-radius:20px;border:1px solid var(--gray-border);cursor:pointer;font-size:13px;font-weight:500;background:var(--white);color:var(--text-muted);transition:all .15s;font-family:'DM Sans',sans-serif;}
 .cat-tab.active{color:var(--white);border-color:transparent;}
-.cat-tab.active.transport{background:#1565c0;}
-.cat-tab.active.food{background:#e76f00;}
-.cat-tab.active.activity{background:#5e35b1;}
-.cat-tab.active.hotel{background:#00695c;}
-.cat-tab.active.flight{background:#c62828;}
-.cat-tab.active.all{background:var(--green);}
+.cat-tab.active.transport{background:#1565c0;}.cat-tab.active.food{background:#e76f00;}
+.cat-tab.active.activity{background:#5e35b1;}.cat-tab.active.hotel{background:#00695c;}
+.cat-tab.active.flight{background:#c62828;}.cat-tab.active.all{background:var(--green);}
 .category-breakdown{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;}
 .cat-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--gray-border);font-size:14px;}
 .cat-row:last-child{border-bottom:none;}
@@ -169,13 +156,9 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .budget-item-row{display:grid;grid-template-columns:1fr 80px 80px 30px;gap:8px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--gray-border);font-size:13px;}
 .budget-item-row:last-child{border-bottom:none;}
 .budget-item-row.header{font-size:11px;font-weight:600;color:var(--text-muted);background:var(--gray-light);}
-.budget-input{border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);width:100%;padding:2px 4px;border-radius:4px;}
-.budget-input:focus{outline:none;background:var(--gray-light);}
 .add-budget-row{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--gray-border);background:var(--gray-light);}
 .add-budget-row input,.add-budget-row select{border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:6px 10px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--white);}
-.add-budget-row input:focus,.add-budget-row select:focus{outline:none;border-color:var(--green);}
-
-/* PEOPLE */
+/* people */
 .people-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
 .person-card{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);padding:18px;position:relative;transition:box-shadow .15s;}
 .person-card:hover{box-shadow:var(--shadow-md);}
@@ -186,26 +169,24 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .person-meta{font-size:12px;color:var(--text-muted);line-height:1.9;}
 .person-meta span{display:flex;align-items:center;gap:5px;}
 .person-edit-btn{position:absolute;top:12px;right:12px;background:none;border:none;cursor:pointer;color:var(--gray);font-size:14px;padding:4px 6px;border-radius:4px;}
-.person-edit-btn:hover{background:var(--gray-light);color:var(--text);}
+.person-edit-btn:hover{background:var(--gray-light);}
 .person-days-badge{display:inline-block;background:var(--green-pale);color:var(--green);font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px;margin-top:6px;}
+.person-cost-tag{display:inline-block;background:var(--amber-pale);color:var(--amber);font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px;margin-top:4px;}
 .group-header{grid-column:1/-1;font-size:13px;font-weight:600;color:var(--text-muted);margin:10px 0 4px;display:flex;align-items:center;gap:6px;padding-bottom:6px;border-bottom:1px solid var(--gray-border);}
-
-/* AVATAR PICKER */
-.avatar-picker{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;}
+/* avatar picker */
+.avatar-picker{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
 .avatar-option{width:40px;height:40px;border-radius:50%;border:2px solid var(--gray-border);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:all .15s;}
 .avatar-option:hover{border-color:var(--green);transform:scale(1.1);}
 .avatar-option.selected{border-color:var(--green);border-width:3px;background:var(--green-pale);}
-
-/* FORMS */
-.add-person-form,.edit-form-box{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);padding:20px;margin-top:16px;}
-.add-person-form h3,.edit-form-box h3{font-size:16px;margin-bottom:14px;}
+/* forms */
+.add-person-form{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);padding:20px;margin-top:16px;}
+.add-person-form h3{font-size:16px;margin-bottom:14px;}
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px;}
 .form-group{display:flex;flex-direction:column;gap:4px;}
 .form-group label{font-size:12px;font-weight:500;color:var(--text-muted);}
-.form-group input,.form-group select,.form-group textarea{border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--green);}
-
-/* PACKING */
+.form-group input,.form-group select{border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--green);}
+/* packing */
 .pack-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:16px;}
 .pack-item{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:10px 12px;display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;transition:all .15s;}
 .pack-item:hover{border-color:var(--green);}
@@ -214,21 +195,18 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .pack-cat-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 6px;}
 .add-pack-row{display:flex;gap:8px;margin-top:12px;}
 .add-pack-row input,.add-pack-row select{border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;flex:1;}
-.add-pack-row input:focus,.add-pack-row select:focus{outline:none;border-color:var(--green);}
-
-/* MODAL */
+/* modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;}
 .modal-overlay.hidden{display:none;}
 .modal{background:var(--white);border-radius:var(--radius);padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
 .modal h3{font-size:18px;margin-bottom:16px;}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap;}
-
-/* CHAT */
+/* chat */
 .chat-fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:var(--green);color:var(--white);border:none;cursor:pointer;font-size:24px;box-shadow:var(--shadow-md);z-index:200;transition:all .15s;display:flex;align-items:center;justify-content:center;}
 .chat-fab:hover{transform:scale(1.08);background:#1b4332;}
 .chat-panel{position:fixed;bottom:0;right:0;width:100%;max-width:400px;height:72vh;max-height:600px;background:var(--white);border-top-left-radius:var(--radius);border-top-right-radius:var(--radius);box-shadow:0 -4px 32px rgba(0,0,0,0.15);z-index:201;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .25s ease;}
 .chat-panel.open{transform:translateY(0);}
-@media(min-width:640px){.chat-panel{bottom:90px;right:24px;border-radius:var(--radius);height:520px;box-shadow:var(--shadow-md);}.chat-panel.open{transform:translateY(0);}}
+@media(min-width:640px){.chat-panel{bottom:90px;right:24px;border-radius:var(--radius);height:520px;}.chat-panel.open{transform:translateY(0);}}
 .chat-header{background:var(--green);color:var(--white);padding:14px 16px;border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;justify-content:space-between;}
 .chat-header h3{font-size:15px;font-weight:700;}
 .chat-header p{font-size:12px;opacity:0.8;}
@@ -258,7 +236,6 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 </style>
 </head>
 <body>
-
 <nav>
   <div class="nav-inner">
     <span class="nav-brand">&#128329; Vancouver 2026</span>
@@ -266,19 +243,17 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
     <button class="nav-tab" onclick="switchTab('people',this)">People</button>
     <button class="nav-tab" onclick="switchTab('costs',this)">Costs</button>
     <span class="nav-spacer"></span>
-    <button class="nav-tab private" onclick="switchTab('packing',this)">&#127876; Packing</button>
-    <button class="nav-tab private" onclick="switchTab('budget',this)">&#128274; Budget</button>
-    <div class="cur-switcher" style="margin-left:8px;">
+    <button class="nav-tab" onclick="switchTab('packing',this)">&#127876; Packing</button>
+    <button class="nav-tab" onclick="switchTab('budget',this)">&#128274; Budget</button>
+    <div class="cur-switcher">
       <button class="cur-btn active" data-cur="USD" onclick="setCurrency('USD')">USD</button>
       <button class="cur-btn" data-cur="CAD" onclick="setCurrency('CAD')">CAD</button>
       <button class="cur-btn" data-cur="PHP" onclick="setCurrency('PHP')">PHP</button>
     </div>
   </div>
 </nav>
-
 <main>
-
-  <!-- ITINERARY TAB -->
+  <!-- ITINERARY -->
   <div id="tab-itinerary" class="tab-content active">
     <div class="hero">
       <h1 id="hero-title">Loading trip...</h1>
@@ -287,7 +262,6 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
         <div class="hero-stat"><div class="label">Departure</div><div class="value" id="stat-start">--</div></div>
         <div class="hero-stat"><div class="label">Return</div><div class="value" id="stat-end">--</div></div>
         <div class="hero-stat"><div class="label">Days</div><div class="value" id="stat-days">--</div></div>
-        
       </div>
     </div>
     <div class="cal-toggle">
@@ -297,7 +271,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
     <div id="itin-list">
       <div class="phase-banner surrey"><strong>Phase 1: Surrey base camp (Jun 15-24)</strong>Staying free at Ines and Ben house in Surrey. Day trips to Vancouver, Richmond, North Shore.</div>
       <div id="days-surrey"></div>
-      <div class="phase-banner whistler" style="margin-top:8px;"><strong>Phase 2: Whistler escape (Jun 25-28)</strong>Andy family flies in June 25. Everyone heads up Sea to Sky Highway to group Airbnb.</div>
+      <div class="phase-banner whistler" style="margin-top:8px;"><strong>Phase 2: Whistler escape (Jun 25-28)</strong>Andy family flies in June 25. Everyone drives Sea to Sky Highway to group Airbnb.</div>
       <div id="days-whistler"></div>
       <div class="phase-banner bday" style="margin-top:8px;"><strong>Phase 3: Birthday week + Canada Day (Jun 29 - Jul 1)</strong>Happy 4th birthday Pia! Playland, UBC, and Canada Day fireworks.</div>
       <div id="days-bday"></div>
@@ -305,23 +279,20 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
     <div id="itin-calendar" style="display:none;"></div>
   </div>
 
-  <!-- COSTS TAB (public) -->
+  <!-- COSTS (public) -->
   <div id="tab-costs" class="tab-content">
     <div class="section-header">
       <h2 class="section-title">Trip costs</h2>
-      <span style="font-size:13px;color:var(--text-muted);">Excludes flights. All prices in CA$.</span>
+      <span style="font-size:13px;color:var(--text-muted);">Excludes flights. Estimates only.</span>
     </div>
     <div class="budget-grid" id="costs-summary-cards"></div>
-    <div style="margin-bottom:12px;">
-      <h3 style="font-size:15px;font-weight:700;margin-bottom:12px;">By day</h3>
-      <div id="costs-by-day"></div>
-    </div>
+    <h3 style="font-size:15px;font-weight:700;margin:4px 0 12px;">By day</h3>
+    <div id="costs-by-day"></div>
     <h3 style="font-size:15px;font-weight:700;margin:20px 0 12px;">By category</h3>
     <div class="category-breakdown" id="costs-by-cat"></div>
-    <p style="font-size:12px;color:var(--text-muted);margin-top:12px;">Costs shown are estimates from planned activities. Actual spend may vary.</p>
   </div>
 
-  <!-- BUDGET TAB -->
+  <!-- BUDGET (private) -->
   <div id="tab-budget" class="tab-content">
     <div id="budget-gate" class="password-gate">
       <div class="password-box">
@@ -339,14 +310,12 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
       </div>
       <div class="budget-grid">
         <div class="budget-card highlight"><div class="label">Total budget</div><div class="amount" id="b-total">CA$0</div><div class="sub">approx PHP 500,000</div></div>
-        <div class="budget-card" id="b-spent-card"><div class="label">Estimated spend</div><div class="amount" id="b-spent">CA$0</div><div class="sub">from all items</div></div>
+        <div class="budget-card"><div class="label">Estimated spend</div><div class="amount" id="b-spent">CA$0</div><div class="sub">from all items</div></div>
         <div class="budget-card" id="b-left-card"><div class="label">Remaining</div><div class="amount" id="b-left">CA$0</div><div class="sub" id="b-left-sub">buffer</div></div>
       </div>
       <h3 style="font-size:15px;margin-bottom:10px;color:var(--text-muted);">By category</h3>
       <div class="category-breakdown" id="cat-breakdown"></div>
-      <div class="section-header" style="margin-top:20px;">
-        <h3 style="font-size:16px;font-weight:700;">All budget items</h3>
-      </div>
+      <div class="section-header" style="margin-top:20px;"><h3 style="font-size:16px;font-weight:700;">All items</h3></div>
       <div class="cat-tabs">
         <button class="cat-tab active all" onclick="filterBudgetCat('all',this)">All</button>
         <button class="cat-tab transport" onclick="filterBudgetCat('transport',this)">&#128652; Transport</button>
@@ -356,11 +325,10 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
         <button class="cat-tab flight" onclick="filterBudgetCat('flight',this)">&#9992; Flights</button>
       </div>
       <div class="budget-items-table" id="budget-items-table"></div>
-      <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">Costs pulled from itinerary activities. Add standalone budget items below.</p>
     </div>
   </div>
 
-  <!-- PEOPLE TAB -->
+  <!-- PEOPLE -->
   <div id="tab-people" class="tab-content">
     <div class="section-header">
       <h2 class="section-title">Travel crew</h2>
@@ -369,80 +337,43 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
     <div class="people-grid" id="people-grid"><div class="empty-state" style="grid-column:1/-1;">Loading crew...</div></div>
     <div class="add-person-form" id="add-person-form" style="display:none;">
       <h3>Add person</h3>
-      <div style="margin-bottom:14px;">
-        <div class="form-group"><label>Pick an avatar</label></div>
-        <div class="avatar-picker" id="add-avatar-picker"></div>
-        <input type="hidden" id="p-avatar" value="&#129489;"/>
-      </div>
+      <div style="margin-bottom:14px;"><div class="form-group" style="margin-bottom:6px;"><label>Pick an avatar</label></div><div class="avatar-picker" id="add-avatar-picker"></div><input type="hidden" id="p-avatar" value=""/></div>
       <div class="form-grid">
-        <div class="form-group"><label>Full name</label><input type="text" id="p-name" placeholder="e.g. Joaquin Santos"/></div>
+        <div class="form-group"><label>Full name</label><input type="text" id="p-name" placeholder="e.g. Joaquin"/></div>
         <div class="form-group"><label>Age</label><input type="number" id="p-age" placeholder="e.g. 8" min="0" max="120"/></div>
         <div class="form-group"><label>Arrives</label><input type="date" id="p-arrival"/></div>
         <div class="form-group"><label>Departs</label><input type="date" id="p-departure"/></div>
-        <div class="form-group"><label>Group</label>
-          <select id="p-group">
-            <option value="Pia family">Pia family</option>
-            <option value="Andy family">Andy family</option>
-            <option value="Ines family">Ines family</option>
-            <option value="Relatives">Relatives</option>
-          </select>
-        </div>
-        <div class="form-group"><label>Notes</label><input type="text" id="p-notes" placeholder="dietary needs, room etc"/></div>
+        <div class="form-group"><label>Group</label><select id="p-group"><option value="Pia family">Pia family</option><option value="Andy family">Andy family</option><option value="Ines family">Ines family</option><option value="Relatives">Relatives</option></select></div>
+        <div class="form-group"><label>Notes</label><input type="text" id="p-notes" placeholder="dietary needs, etc"/></div>
       </div>
-      <div style="display:flex;gap:8px;">
-        <button class="btn btn-primary btn-sm" onclick="savePerson()">Save person</button>
-        <button class="btn btn-ghost btn-sm" onclick="toggleAddPerson()">Cancel</button>
-      </div>
+      <div style="display:flex;gap:8px;"><button class="btn btn-primary btn-sm" onclick="savePerson()">Save</button><button class="btn btn-ghost btn-sm" onclick="toggleAddPerson()">Cancel</button></div>
     </div>
   </div>
 
-  <!-- PACKING TAB -->
+  <!-- PACKING -->
   <div id="tab-packing" class="tab-content">
-    <div class="section-header">
-      <h2 class="section-title">Packing list</h2>
-      <span id="pack-progress" style="font-size:13px;color:var(--text-muted);"></span>
-    </div>
+    <div class="section-header"><h2 class="section-title">Packing list</h2><span id="pack-progress" style="font-size:13px;color:var(--text-muted);"></span></div>
     <div id="packing-list"></div>
     <div class="add-pack-row">
       <input type="text" id="pack-item-input" placeholder="Add item..." onkeydown="if(event.key==='Enter')addPackItem()"/>
-      <select id="pack-cat-input">
-        <option value="documents">Documents</option>
-        <option value="clothing">Clothing</option>
-        <option value="health">Health</option>
-        <option value="gear">Gear</option>
-        <option value="tech">Tech</option>
-        <option value="food">Food</option>
-        <option value="other">Other</option>
-      </select>
+      <select id="pack-cat-input"><option value="documents">Documents</option><option value="clothing">Clothing</option><option value="health">Health</option><option value="gear">Gear</option><option value="tech">Tech</option><option value="food">Food</option><option value="other">Other</option></select>
       <button class="btn btn-primary btn-sm" onclick="addPackItem()">Add</button>
     </div>
   </div>
-
 </main>
 
-<!-- PERSON EDIT MODAL -->
+<!-- PERSON MODAL -->
 <div class="modal-overlay hidden" id="person-modal">
   <div class="modal">
     <h3>Edit person</h3>
-    <div style="margin-bottom:14px;">
-      <div class="form-group" style="margin-bottom:8px;"><label>Avatar</label></div>
-      <div class="avatar-picker" id="edit-avatar-picker"></div>
-      <input type="hidden" id="ep-avatar"/>
-    </div>
+    <div style="margin-bottom:14px;"><div class="form-group" style="margin-bottom:6px;"><label>Avatar</label></div><div class="avatar-picker" id="edit-avatar-picker"></div><input type="hidden" id="ep-avatar"/></div>
     <div class="form-grid">
       <div class="form-group"><label>Full name</label><input type="text" id="ep-name"/></div>
       <div class="form-group"><label>Age</label><input type="number" id="ep-age" min="0" max="120"/></div>
       <div class="form-group"><label>Arrives</label><input type="date" id="ep-arrival"/></div>
       <div class="form-group"><label>Departs</label><input type="date" id="ep-departure"/></div>
-      <div class="form-group"><label>Group</label>
-        <select id="ep-group">
-          <option value="Pia family">Pia family</option>
-          <option value="Andy family">Andy family</option>
-          <option value="Ines family">Ines family</option>
-          <option value="Relatives">Relatives</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Notes</label><input type="text" id="ep-notes" placeholder="dietary needs, room etc"/></div>
+      <div class="form-group"><label>Group</label><select id="ep-group"><option value="Pia family">Pia family</option><option value="Andy family">Andy family</option><option value="Ines family">Ines family</option><option value="Relatives">Relatives</option></select></div>
+      <div class="form-group"><label>Notes</label><input type="text" id="ep-notes"/></div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-danger btn-sm" onclick="deletePerson()">Delete</button>
@@ -454,16 +385,10 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 
 <button class="chat-fab" onclick="toggleChat()" title="Trip assistant">&#127757;</button>
 <div class="chat-panel" id="chat-panel">
-  <div class="chat-header">
-    <div><h3>Trip assistant</h3><p>Ask anything or make changes</p></div>
-    <button class="chat-close" onclick="toggleChat()">&#10005;</button>
-  </div>
+  <div class="chat-header"><div><h3>Trip assistant</h3><p>Ask anything or make changes</p></div><button class="chat-close" onclick="toggleChat()">&#10005;</button></div>
   <div class="chat-messages" id="chat-messages"></div>
   <div class="chat-chips" id="chat-chips"></div>
-  <div class="chat-input-row">
-    <input type="text" id="chat-input" placeholder="Ask something or make a change..." onkeydown="if(event.key==='Enter')sendChat()"/>
-    <button class="chat-send" id="chat-send" onclick="sendChat()">&#10148;</button>
-  </div>
+  <div class="chat-input-row"><input type="text" id="chat-input" placeholder="Ask something or make a change..." onkeydown="if(event.key==='Enter')sendChat()"/><button class="chat-send" id="chat-send" onclick="sendChat()">&#10148;</button></div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -473,66 +398,63 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const TRIP_ID = 'a1b2c3d4-0000-0000-0000-000000000001';
 const BUDGET_PASSWORD = 'pach2026';
 
-const AVATARS = ['🧑','👩','👨','👧','👦','🧒','👶','🧓','👴','👵','🧔','👩‍🦱','👨‍🦱','👩‍🦰','👨‍🦰','👱','🧕','🎅','🤶','🧑‍🎄','🦸','🧙','🧝','🧜','🧚','🤠','🥷','👮','🕵️','🧑‍🍳','🧑‍🎤','🧑‍🚀','🦊','🐻','🐼','🐨','🦁','🐯','🐸','🐙','🦋'];
+const AVATARS = ['🧑','👩','👨','👧','👦','🧒','👶','🧓','👴','👵','🧔','👱','🧕','🎅','🤶','🤠','🥷','👮','🕵','🧑‍🍳','🧑‍🎤','🦊','🐻','🐼','🐨','🦁','🐯','🐸','🐙','🦋'];
 const CAT_COLORS = {activity:'#5e35b1',hotel:'#00695c',food:'#e76f00',flight:'#c62828',transport:'#1565c0',other:'#6b7280'};
 const CAT_LABELS = {activity:'Activity',hotel:'Hotel',food:'Food',flight:'Flight',transport:'Transport',other:'Other'};
 const GROUP_EMOJI = {'Pia family':'🏡','Andy family':'✈️','Ines family':'🏡','Relatives':'👥'};
-const AVATAR_BG = ['#2d6a4f','#5e35b1','#1565c0','#c62828','#e76f00','#00695c','#ad1457','#00838f'];
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let tripData=null, allDays=[], allItems=[], allPacking=[], allPeople=[], allBudgetItems=[], allParticipants=[];
-let chatHistory=[], chatOpen=false, currentItinView='list', activeBudgetCat='all', editingPersonId=null;
-let activeCurrency='USD', fxRates={CAD:1, USD:0.72, PHP:41};
+let tripData=null,allDays=[],allItems=[],allPacking=[],allPeople=[],allBudgetItems=[],allParticipants=[];
+let chatHistory=[],chatOpen=false,currentItinView='list',activeBudgetCat='all',editingPersonId=null;
+let activeCurrency='USD',fxRates={CAD:1,USD:0.72,PHP:41};
 
 async function loadFxRates(){
   try{
     const r=await fetch('https://open.er-api.com/v6/latest/CAD');
     const d=await r.json();
-    if(d.rates){fxRates={CAD:1, USD:d.rates.USD||0.72, PHP:d.rates.PHP||41};}
-  }catch(e){console.log('FX fallback rates used');}
+    if(d&&d.rates){fxRates.USD=d.rates.USD||0.72;fxRates.PHP=d.rates.PHP||41;}
+  }catch(e){}
 }
 
 function fmtMoney(cadAmt){
   const n=Number(cadAmt)||0;
-  if(activeCurrency==='CAD') return 'CA$'+Math.round(n).toLocaleString();
-  if(activeCurrency==='USD') return 'US$'+Math.round(n*fxRates.USD).toLocaleString();
-  if(activeCurrency==='PHP') return '₱'+Math.round(n*fxRates.PHP).toLocaleString();
+  if(activeCurrency==='CAD')return 'CA$'+Math.round(n).toLocaleString();
+  if(activeCurrency==='USD')return 'US$'+Math.round(n*fxRates.USD).toLocaleString();
+  if(activeCurrency==='PHP')return '\u20b1'+Math.round(n*fxRates.PHP).toLocaleString();
   return 'CA$'+Math.round(n).toLocaleString();
 }
+function fmtCAD(n){return 'CA$'+(Number(n)||0).toLocaleString('en-CA',{minimumFractionDigits:0,maximumFractionDigits:0});}
 
 function setCurrency(cur){
   activeCurrency=cur;
-  document.querySelectorAll('.cur-btn').forEach(b=>b.classList.toggle('active',b.dataset.cur===cur));
-  renderDays(); renderCalendar();
-  if(document.getElementById('tab-costs').classList.contains('active')) renderCosts();
-  if(document.getElementById('tab-people').classList.contains('active')) renderPeople();
-  if(localStorage.getItem('budget_unlocked')==='1') renderBudget();
+  document.querySelectorAll('.cur-btn').forEach(function(b){b.classList.toggle('active',b.dataset.cur===cur);});
+  renderDays();renderCalendar();
+  if(document.getElementById('tab-costs').classList.contains('active'))renderCosts();
+  if(document.getElementById('tab-people').classList.contains('active'))renderPeople();
+  if(localStorage.getItem('budget_unlocked')==='1')renderBudget();
 }
 
-function fmtDate(d){if(!d)return '--';const dt=new Date(d+'T12:00:00');return dt.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'});}
-function fmtShort(d){if(!d)return '';const dt=new Date(d+'T12:00:00');return dt.toLocaleDateString('en-CA',{month:'short',day:'numeric'});}
-function fmtCAD(n){return 'CA$'+(Number(n)||0).toLocaleString('en-CA',{minimumFractionDigits:0,maximumFractionDigits:0});}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
-function debounce(fn,ms){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms);};}
+function fmtDate(d){if(!d)return '--';var dt=new Date(d+'T12:00:00');return dt.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'});}
+function fmtShort(d){if(!d)return '';var dt=new Date(d+'T12:00:00');return dt.toLocaleDateString('en-CA',{month:'short',day:'numeric'});}
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
+function debounce(fn,ms){var t;return function(){var a=arguments;clearTimeout(t);t=setTimeout(function(){fn.apply(null,a);},ms);};}
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function getInitials(name){return (name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);}
+function getInitials(n){return (n||'?').split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);}
 
-// TABS
 function switchTab(name,btn){
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
   document.getElementById('tab-'+name).classList.add('active');
   btn.classList.add('active');
   if(name==='budget')renderBudget();
   if(name==='packing')renderPacking();
   if(name==='costs')renderCosts();
-  if(name==='people'){renderPeople();buildAvatarPicker('add-avatar-picker','p-avatar','🧑');}
+  if(name==='people'){renderPeople();buildAvatarPicker('add-avatar-picker','p-avatar',AVATARS[0]);}
 }
 
-// LOAD
 async function loadAll(){
   await loadFxRates();
-  const [tripRes,daysRes,itemsRes,packRes,peopleRes,partRes] = await Promise.all([
+  var results=await Promise.all([
     sb.from('trip').select('*').eq('id',TRIP_ID).single(),
     sb.from('itinerary_days').select('*').eq('trip_id',TRIP_ID).order('day_number'),
     sb.from('itinerary_items').select('*').order('sort_order'),
@@ -540,92 +462,83 @@ async function loadAll(){
     sb.from('travelers').select('*').eq('trip_id',TRIP_ID).order('sort_order'),
     sb.from('item_participants').select('*')
   ]);
-  tripData=tripRes.data; allDays=daysRes.data||[]; allItems=itemsRes.data||[]; allPacking=packRes.data||[];
-  allPeople=peopleRes.data||[]; allParticipants=partRes.data||[];
+  tripData=results[0].data;
+  allDays=results[1].data||[];
+  allItems=results[2].data||[];
+  allPacking=results[3].data||[];
+  allPeople=results[4].data||[];
+  allParticipants=results[5].data||[];
   allBudgetItems=JSON.parse(localStorage.getItem('trip_budget_items')||'[]');
-
-  if(allPeople.length===0) await seedPeople();
-
-  renderHero(); renderDays(); renderCalendar();
-  if(document.getElementById('tab-people').classList.contains('active')) renderPeople();
+  if(allPeople.length===0)await seedPeople();
+  renderHero();renderDays();renderCalendar();
+  if(document.getElementById('tab-people').classList.contains('active'))renderPeople();
 }
 
 async function seedPeople(){
-  const defaults=[
-    {name:'Pia',age:40,avatar:'👩',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'Birthday Jun 29!',sort_order:1},
-    {name:'Pach',age:40,avatar:'👨',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'',sort_order:2},
-    {name:'Joaquin',age:8,avatar:'👦',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'',sort_order:3},
-    {name:'Alba',age:6,avatar:'👧',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'',sort_order:4},
-    {name:'Andy',age:null,avatar:'🧑',trip_start:'2026-06-25',trip_end:'2026-07-01',notes:'',sort_order:5},
-    {name:'Thea',age:null,avatar:'👩',trip_start:'2026-06-25',trip_end:'2026-07-01',notes:'',sort_order:6},
-    {name:'Sofia',age:6,avatar:'👧',trip_start:'2026-06-25',trip_end:'2026-07-01',notes:'',sort_order:7},
-    {name:'Isabella',age:4,avatar:'👶',trip_start:'2026-06-25',trip_end:'2026-07-01',notes:'',sort_order:8},
-    {name:'Ines',age:null,avatar:'👩',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'Our host!',sort_order:9},
-    {name:'Ben',age:null,avatar:'👨',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'Our host!',sort_order:10},
-    {name:'Emily',age:5,avatar:'👧',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'',sort_order:11},
-    {name:'Ana',age:66,avatar:'👵',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'Staying in Richmond',sort_order:12},
-    {name:'Millie',age:null,avatar:'🧓',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'',sort_order:13},
-    {name:'Jaime',age:null,avatar:'👴',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'',sort_order:14},
+  var defaults=[
+    {name:'Pia',age:40,avatar:'👩',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'Birthday Jun 29!',group_name:'Pia family',sort_order:1},
+    {name:'Pach',age:40,avatar:'👨',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'',group_name:'Pia family',sort_order:2},
+    {name:'Joaquin',age:8,avatar:'👦',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'',group_name:'Pia family',sort_order:3},
+    {name:'Alba',age:6,avatar:'👧',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'',group_name:'Pia family',sort_order:4},
+    {name:'Andy',age:null,avatar:'🧑',trip_start:'2026-06-25',trip_end:'2026-07-01',notes:'',group_name:'Andy family',sort_order:5},
+    {name:'Thea',age:null,avatar:'👩',trip_start:'2026-06-25',trip_end:'2026-07-01',notes:'',group_name:'Andy family',sort_order:6},
+    {name:'Sofia',age:6,avatar:'👧',trip_start:'2026-06-25',trip_end:'2026-07-01',notes:'',group_name:'Andy family',sort_order:7},
+    {name:'Isabella',age:4,avatar:'👶',trip_start:'2026-06-25',trip_end:'2026-07-01',notes:'',group_name:'Andy family',sort_order:8},
+    {name:'Ines',age:null,avatar:'👩',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'Our host!',group_name:'Ines family',sort_order:9},
+    {name:'Ben',age:null,avatar:'👨',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'Our host!',group_name:'Ines family',sort_order:10},
+    {name:'Emily',age:5,avatar:'👧',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'',group_name:'Ines family',sort_order:11},
+    {name:'Ana',age:66,avatar:'👵',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'Staying in Richmond',group_name:'Relatives',sort_order:12},
+    {name:'Millie',age:null,avatar:'🧓',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'',group_name:'Relatives',sort_order:13},
+    {name:'Jaime',age:null,avatar:'👴',trip_start:'2026-06-15',trip_end:'2026-07-01',notes:'',group_name:'Relatives',sort_order:14}
   ];
-  const groups={'Pia family':['Pia','Pach','Joaquin','Alba'],'Andy family':['Andy','Thea','Sofia','Isabella'],'Ines family':['Ines','Ben','Emily'],'Relatives':['Ana','Millie','Jaime']};
-  const withGroup=defaults.map(p=>{
-    const g=Object.entries(groups).find(([,names])=>names.includes(p.name));
-    return {...p,trip_id:TRIP_ID,group_name:g?g[0]:'Relatives'};
-  });
-  const {data}=await sb.from('travelers').insert(withGroup).select();
-  allPeople=data||[];
+  var toInsert=defaults.map(function(p){return Object.assign({},p,{trip_id:TRIP_ID});});
+  var res=await sb.from('travelers').insert(toInsert).select();
+  allPeople=res.data||[];
 }
 
 function saveBudgetItemsLocal(){localStorage.setItem('trip_budget_items',JSON.stringify(allBudgetItems));}
 
-// HERO
 function renderHero(){
   if(!tripData)return;
   document.getElementById('hero-title').textContent=tripData.title||'Our Trip';
   document.getElementById('hero-subtitle').textContent=tripData.destination||'';
   document.getElementById('stat-start').textContent=fmtShort(tripData.start_date);
   document.getElementById('stat-end').textContent=fmtShort(tripData.end_date);
-  const days=tripData.start_date&&tripData.end_date?Math.round((new Date(tripData.end_date)-new Date(tripData.start_date))/86400000)+1:'--';
+  var days=tripData.start_date&&tripData.end_date?Math.round((new Date(tripData.end_date)-new Date(tripData.start_date))/86400000)+1:'--';
   document.getElementById('stat-days').textContent=days;
-  // budget stat removed from hero
 }
 
-// ITINERARY VIEW TOGGLE
 function setItinView(view,btn){
   currentItinView=view;
-  document.querySelectorAll('.cal-toggle button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.cal-toggle button').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
   document.getElementById('itin-list').style.display=view==='list'?'block':'none';
   document.getElementById('itin-calendar').style.display=view==='calendar'?'block':'none';
 }
 
-// CALENDAR
 function renderCalendar(){
-  const el=document.getElementById('itin-calendar');
-  const months=[[2026,5],[2026,6]];
-  let html='';
-  months.forEach(([year,month])=>{
-    const monthLabel=new Date(year,month,1).toLocaleString('en-CA',{month:'long',year:'numeric'});
-    const firstDay=new Date(year,month,1).getDay();
-    const daysInMonth=new Date(year,month+1,0).getDate();
-    html+='<div style="margin-bottom:24px;">';
-    html+='<div style="font-family:Funnel Display,sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text);">'+monthLabel+'</div>';
-    html+='<div class="calendar-grid">';
-    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d=>{html+='<div class="cal-header-cell">'+d+'</div>';});
-    for(let i=0;i<firstDay;i++) html+='<div class="cal-cell empty"></div>';
-    for(let d=1;d<=daysInMonth;d++){
-      const dateStr=year+'-'+(String(month+1).padStart(2,'0'))+'-'+(String(d).padStart(2,'0'));
-      const day=allDays.find(dy=>dy.date===dateStr);
+  var el=document.getElementById('itin-calendar');
+  var months=[[2026,5],[2026,6]];
+  var html='';
+  months.forEach(function(ym){
+    var year=ym[0],month=ym[1];
+    var monthLabel=new Date(year,month,1).toLocaleString('en-CA',{month:'long',year:'numeric'});
+    var firstDay=new Date(year,month,1).getDay();
+    var daysInMonth=new Date(year,month+1,0).getDate();
+    html+='<div style="margin-bottom:24px;"><div style="font-family:Funnel Display,sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;">'+monthLabel+'</div><div class="calendar-grid">';
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(d){html+='<div class="cal-header-cell">'+d+'</div>';});
+    for(var i=0;i<firstDay;i++)html+='<div class="cal-cell empty"></div>';
+    for(var d=1;d<=daysInMonth;d++){
+      var dateStr=year+'-'+(String(month+1).padStart(2,'0'))+'-'+(String(d).padStart(2,'0'));
+      var day=allDays.find(function(dy){return dy.date===dateStr;});
       if(day){
-        const phase=getPhase(day.day_number);
-        const items=allItems.filter(i=>i.day_id===day.id);
-        const cost=items.reduce((s,i)=>s+(Number(i.cost)||0),0);
+        var phase=getPhase(day.day_number);
+        var cost=allItems.filter(function(i){return i.day_id===day.id;}).reduce(function(s,i){return s+(Number(i.cost)||0);},0);
         html+='<div class="cal-cell has-day '+phase+'" onclick="jumpToDay(\''+day.id+'\')" title="'+escHtml(day.title)+'">';
-        html+='<div class="cal-day-num">'+d+'</div>';
-        html+='<div class="cal-day-title">'+escHtml(day.title)+'</div>';
-        if(cost>0) html+='<div class="cal-day-cost">'+fmtMoney(cost)+'</div>';
+        html+='<div class="cal-day-num">'+d+'</div><div class="cal-day-title">'+escHtml(day.title)+'</div>';
+        if(cost>0)html+='<div class="cal-day-cost">'+fmtMoney(cost)+'</div>';
         html+='</div>';
-      } else {
+      }else{
         html+='<div class="cal-cell"><div class="cal-day-num" style="color:var(--gray);">'+d+'</div></div>';
       }
     }
@@ -635,21 +548,20 @@ function renderCalendar(){
 }
 
 function jumpToDay(dayId){
-  document.querySelectorAll('.cal-toggle button').forEach((b,i)=>{if(i===0)b.classList.add('active');else b.classList.remove('active');});
+  document.querySelectorAll('.cal-toggle button').forEach(function(b,i){if(i===0)b.classList.add('active');else b.classList.remove('active');});
   setItinView('list',document.querySelector('.cal-toggle button'));
-  setTimeout(()=>{
-    const card=document.getElementById('day-'+dayId);
+  setTimeout(function(){
+    var card=document.getElementById('day-'+dayId);
     if(card){card.scrollIntoView({behavior:'smooth',block:'center'});card.classList.add('open');}
   },100);
 }
 
-// DAYS LIST
 function getPhase(n){if(n<=10)return 'surrey';if(n<=14)return 'whistler';return 'bday';}
 function getBadge(day){
-  const phase=getPhase(day.day_number);
+  var phase=getPhase(day.day_number);
   if(day.day_number===15)return['bday','Birthday!'];
   if(phase==='whistler')return['whistler','Whistler'];
-  const total=allItems.filter(i=>i.day_id===day.id).reduce((s,i)=>s+(Number(i.cost)||0),0);
+  var total=allItems.filter(function(i){return i.day_id===day.id;}).reduce(function(s,i){return s+(Number(i.cost)||0);},0);
   if(total===0)return['free','Free'];
   if(total<100)return['free','Low cost'];
   if(total<300)return['paid','Moderate'];
@@ -657,42 +569,64 @@ function getBadge(day){
 }
 
 function renderDays(){
-  ['surrey','whistler','bday'].forEach(phase=>{
-    const container=document.getElementById('days-'+phase);
+  ['surrey','whistler','bday'].forEach(function(phase){
+    var container=document.getElementById('days-'+phase);
     if(!container)return;
     container.innerHTML='';
-    allDays.filter(d=>getPhase(d.day_number)===phase).forEach(day=>{
-      const[badgeClass,badgeLabel]=getBadge(day);
-      const numColor=phase==='whistler'?'purple':phase==='bday'?'amber':'';
-      const dayItems=allItems.filter(i=>i.day_id===day.id);
-      const el=document.createElement('div');
-      el.className='day-card'; el.id='day-'+day.id;
-      el.innerHTML=
-        '<div class="day-header" onclick="toggleDay(\''+day.id+'\')">' +
-          '<div class="day-num'+(numColor?' '+numColor:'')+'">'+day.day_number+'</div>'+
-          '<div style="flex:1;min-width:0;">'+
-            '<div class="day-date">'+fmtShort(day.date)+' &nbsp;&#183;&nbsp; Day '+day.day_number+'</div>'+
-            '<div class="day-title-text">'+escHtml(day.title)+'</div>'+
-          '</div>'+
-          '<span class="day-badge badge-'+badgeClass+'">'+badgeLabel+'</span>'+
-          (dayItems.length?'<span style="font-size:11px;color:var(--text-muted);margin-left:4px;">'+dayItems.length+' item'+(dayItems.length!==1?'s':'')+'</span>':'')+
-          '<span class="day-chevron">&#8964;</span>'+
-        '</div>'+
-        '<div class="day-body">'+
-          '<textarea class="day-notes-input" placeholder="Add notes for this day..." onchange="saveDayNotes(\''+day.id+'\',this.value)">'+escHtml(day.notes||'')+'</textarea>'+
-          '<div id="items-'+day.id+'"></div>'+
-          '<div class="add-item-row">'+
-            '<input class="input-time" type="text" placeholder="10:00 AM" id="ai-time-'+day.id+'"/>'+
-            '<input class="input-activity" type="text" placeholder="Activity..." id="ai-act-'+day.id+'" onkeydown="if(event.key===\'Enter\')addItem(\''+day.id+'\')"/>'+
-            '<input class="input-location" type="text" placeholder="Location" id="ai-loc-'+day.id+'"/>'+
-            '<input class="input-cost" type="number" placeholder="CA$" id="ai-cost-'+day.id+'"/>'+
-            '<select class="input-cat" id="ai-cat-'+day.id+'">'+
-              '<option value="activity">Activity</option><option value="food">Food</option><option value="hotel">Hotel</option>'+
-              '<option value="transport">Transport</option><option value="flight">Flight</option><option value="other">Other</option>'+
-            '</select>'+
-            '<button class="btn btn-primary btn-sm" onclick="addItem(\''+day.id+'\')">+ Add</button>'+
-          '</div>'+
-        '</div>';
+    allDays.filter(function(d){return getPhase(d.day_number)===phase;}).forEach(function(day){
+      var badge=getBadge(day);
+      var badgeClass=badge[0],badgeLabel=badge[1];
+      var numColor=phase==='whistler'?'purple':phase==='bday'?'amber':'';
+      var dayItems=allItems.filter(function(i){return i.day_id===day.id;});
+      var el=document.createElement('div');
+      el.className='day-card';el.id='day-'+day.id;
+
+      var header=document.createElement('div');
+      header.className='day-header';
+      header.onclick=function(){toggleDay(day.id);};
+      header.innerHTML=
+        '<div class="day-num'+(numColor?' '+numColor:'')+'">'+day.day_number+'</div>'+
+        '<div style="flex:1;min-width:0;"><div class="day-date">'+fmtShort(day.date)+' &nbsp;&middot;&nbsp; Day '+day.day_number+'</div>'+
+        '<div class="day-title-text">'+escHtml(day.title)+'</div></div>'+
+        '<span class="day-badge badge-'+badgeClass+'">'+badgeLabel+'</span>'+
+        (dayItems.length?'<span style="font-size:11px;color:var(--text-muted);margin-left:4px;">'+dayItems.length+' item'+(dayItems.length!==1?'s':'')+'</span>':'')+
+        '<span class="day-chevron">&#8964;</span>';
+      el.appendChild(header);
+
+      var body=document.createElement('div');
+      body.className='day-body';
+
+      var notes=document.createElement('textarea');
+      notes.className='day-notes-input';
+      notes.placeholder='Add notes for this day...';
+      notes.value=day.notes||'';
+      notes.onchange=function(){saveDayNotes(day.id,notes.value);};
+      body.appendChild(notes);
+
+      var itemsDiv=document.createElement('div');
+      itemsDiv.id='items-'+day.id;
+      body.appendChild(itemsDiv);
+
+      // add item row
+      var addRow=document.createElement('div');
+      addRow.className='add-item-row';
+      addRow.innerHTML=
+        '<input class="input-time" type="text" placeholder="10:00 AM" id="ai-time-'+day.id+'"/>'+
+        '<input class="input-activity" type="text" placeholder="Activity..." id="ai-act-'+day.id+'"/>'+
+        '<input class="input-location" type="text" placeholder="Location" id="ai-loc-'+day.id+'"/>'+
+        '<input class="input-cost" type="number" placeholder="CA$" id="ai-cost-'+day.id+'"/>'+
+        '<select class="input-cat" id="ai-cat-'+day.id+'">'+
+          '<option value="activity">Activity</option><option value="food">Food</option>'+
+          '<option value="hotel">Hotel</option><option value="transport">Transport</option>'+
+          '<option value="flight">Flight</option><option value="other">Other</option>'+
+        '</select>';
+      var addBtn=document.createElement('button');
+      addBtn.className='btn btn-primary btn-sm';
+      addBtn.textContent='+ Add';
+      addBtn.onclick=function(){addItem(day.id);};
+      addRow.appendChild(addBtn);
+      body.appendChild(addRow);
+      el.appendChild(body);
       container.appendChild(el);
       renderItems(day.id);
     });
@@ -702,177 +636,233 @@ function renderDays(){
 function toggleDay(id){document.getElementById('day-'+id).classList.toggle('open');}
 
 function renderItems(dayId){
-  const container=document.getElementById('items-'+dayId); if(!container)return;
-  const items=allItems.filter(i=>i.day_id===dayId).sort((a,b)=>a.sort_order-b.sort_order);
-  if(!items.length){container.innerHTML='';return;}
-  const wrap=document.createElement('div'); wrap.className='items-list';
-  const hdr=document.createElement('div'); hdr.className='item-row header';
+  var container=document.getElementById('items-'+dayId);
+  if(!container)return;
+  var items=allItems.filter(function(i){return i.day_id===dayId;}).sort(function(a,b){return a.sort_order-b.sort_order;});
+  container.innerHTML='';
+  if(!items.length)return;
+
+  var wrap=document.createElement('div');
+  wrap.className='items-list';
+  var hdr=document.createElement('div');
+  hdr.className='item-row header';
   hdr.innerHTML='<span>Time</span><span>Activity</span><span class="item-location">Location</span><span>Cost (CAD)</span><span></span>';
   wrap.appendChild(hdr);
-  items.forEach(item=>{
-    const col=CAT_COLORS[item.category]||CAT_COLORS.other;
-    const itemParts=allParticipants.filter(p=>p.item_id===item.id);
-    const pCount=itemParts.length||1;
-    const perPerson=item.cost?Math.round((Number(item.cost)||0)/pCount):0;
-    const row=document.createElement('div'); row.className='item-row'; row.id='item-'+item.id;
-    row.innerHTML=
-      '<input class="item-input" value="'+escHtml(item.time||'')+'" placeholder="--:--" onblur="updateItem(\'' +item.id+ '\',\'time\',this.value)"/>'+
-      '<span><span class="category-dot" style="background:'+col+'"></span><input class="item-input" value="'+escHtml(item.activity||'')+'" style="width:calc(100% - 16px)" onblur="updateItem(\'' +item.id+ '\',\'activity\',this.value)"/></span>'+
-      '<input class="item-input item-location" value="'+escHtml(item.location||'')+'" placeholder="location" onblur="updateItem(\'' +item.id+ '\',\'location\',this.value)"/>'+
-      '<input class="item-input item-cost" type="number" value="'+escHtml(item.cost||'')+'" style="text-align:right" onblur="updateItem(\'' +item.id+ '\',\'cost\',this.value)"/>'+
-      '<button class="delete-btn" onclick="deleteItem(\'' +item.id+ '\')" title="Remove">&#215;</button>';
+
+  items.forEach(function(item){
+    var col=CAT_COLORS[item.category]||CAT_COLORS.other;
+    var itemParts=allParticipants.filter(function(p){return p.item_id===item.id;});
+    var pCount=itemParts.length||1;
+    var perPerson=item.cost?Math.round((Number(item.cost)||0)/pCount):0;
+
+    // main row - all DOM, no innerHTML with dynamic values
+    var row=document.createElement('div');
+    row.className='item-row';row.id='item-'+item.id;
+
+    var timeIn=document.createElement('input');
+    timeIn.className='item-input';timeIn.value=item.time||'';timeIn.placeholder='--:--';
+    timeIn.onblur=function(){updateItem(item.id,'time',timeIn.value);};
+
+    var actWrap=document.createElement('span');
+    var dot=document.createElement('span');
+    dot.className='category-dot';dot.style.background=col;
+    var actIn=document.createElement('input');
+    actIn.className='item-input';actIn.value=item.activity||'';actIn.style.width='calc(100% - 16px)';
+    actIn.onblur=function(){updateItem(item.id,'activity',actIn.value);};
+    actWrap.appendChild(dot);actWrap.appendChild(actIn);
+
+    var locIn=document.createElement('input');
+    locIn.className='item-input item-location';locIn.value=item.location||'';locIn.placeholder='location';
+    locIn.onblur=function(){updateItem(item.id,'location',locIn.value);};
+
+    var costIn=document.createElement('input');
+    costIn.className='item-input';costIn.type='number';costIn.value=item.cost||'';
+    costIn.style.textAlign='right';
+    costIn.onblur=function(){updateItem(item.id,'cost',costIn.value);};
+
+    var delBtn=document.createElement('button');
+    delBtn.className='delete-btn';delBtn.title='Remove';delBtn.innerHTML='&#215;';
+    delBtn.onclick=function(){deleteItem(item.id);};
+
+    row.appendChild(timeIn);row.appendChild(actWrap);row.appendChild(locIn);row.appendChild(costIn);row.appendChild(delBtn);
     wrap.appendChild(row);
-    const det=document.createElement('div'); det.className='item-detail-row';
-    const transDiv=document.createElement('div');
-    transDiv.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap;';
-    transDiv.innerHTML='<span style="font-size:11px;color:var(--text-muted);font-weight:500;">Transport:</span>';
-    [['','None'],['car','&#128664; Car'],['public','&#128652; Public'],['uber','&#128663; Uber']].forEach(function(pair){
-      var t=pair[0]; var lbl=pair[1];
-      const b=document.createElement('button');
-      b.className='cur-btn'+((item.transport||'')=== t?' active':'');
-      b.style.padding='3px 8px';
-      b.innerHTML=lbl;
-      b.onclick=(function(id,val){return function(){updateItem(id,'transport',val);};})(item.id,t);
-      transDiv.appendChild(b);
+
+    // detail row
+    var det=document.createElement('div');det.className='item-detail-row';
+
+    // TRANSPORT - self-contained, no page re-render
+    var transWrap=document.createElement('div');
+    transWrap.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:100%;';
+    var transLbl=document.createElement('span');
+    transLbl.style.cssText='font-size:11px;color:var(--text-muted);font-weight:600;min-width:70px;';
+    transLbl.textContent='Transport:';
+    transWrap.appendChild(transLbl);
+
+    var currentT=item.transport||'';
+    var transBtns=[];
+    [['','None'],['car','Car'],['public','Public'],['uber','Uber']].forEach(function(pair){
+      var val=pair[0],label=pair[1];
+      var icon={'':'','car':'🚗 ','public':'🚌 ','uber':'🚕 '}[val];
+      var b=document.createElement('button');
+      b.className='cur-btn'+(currentT===val?' active':'');
+      b.style.cssText='padding:3px 10px;font-size:12px;';
+      b.innerHTML=icon+label;
+      b.onclick=function(){
+        // update active state immediately - no re-render
+        transBtns.forEach(function(x){x.classList.remove('active');});
+        b.classList.add('active');
+        currentT=val;
+        item.transport=val;
+        updateItem(item.id,'transport',val);
+      };
+      transBtns.push(b);
+      transWrap.appendChild(b);
     });
-    det.appendChild(transDiv);
-    const pDiv=document.createElement('div');
-    pDiv.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;width:100%;';
-    pDiv.innerHTML='<span style="font-size:11px;color:var(--text-muted);font-weight:500;">Who is joining:</span>';
-    allPeople.forEach(function(person){
-      const joined=itemParts.some(function(p){return p.traveler_id===person.id;});
-      const chip=document.createElement('span');
-      chip.className='participant-chip'+(joined?' selected':'');
-      chip.innerHTML=escHtml(person.avatar||'?')+' '+escHtml(person.name);
-      chip.onclick=(function(iId,pId,dId){return function(){toggleParticipant(iId,pId,dId);};})(item.id,person.id,dayId);
-      pDiv.appendChild(chip);
-    });
-    if(item.cost&&itemParts.length){
-      const pp=document.createElement('span');
-      pp.style.cssText='font-size:11px;color:var(--text-muted);margin-left:4px;font-weight:500;';
-      pp.textContent=fmtMoney(perPerson)+' / person ('+itemParts.length+' joined)';
-      pDiv.appendChild(pp);
+    det.appendChild(transWrap);
+
+    // PARTICIPANTS - chips toggle in place
+    var pWrap=document.createElement('div');
+    pWrap.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;width:100%;';
+    var pLbl=document.createElement('span');
+    pLbl.style.cssText='font-size:11px;color:var(--text-muted);font-weight:600;min-width:70px;';
+    pLbl.textContent='Who joins:';
+    pWrap.appendChild(pLbl);
+
+    // cost per person label - updated in place when chips change
+    var ppLbl=document.createElement('span');
+    ppLbl.style.cssText='font-size:11px;color:var(--amber);font-weight:600;margin-left:4px;';
+    function refreshPp(){
+      var cnt=allParticipants.filter(function(p){return p.item_id===item.id;}).length;
+      ppLbl.textContent=(item.cost&&cnt>0)?fmtMoney(Math.round((Number(item.cost)||0)/cnt))+' ea ('+cnt+')':'';
     }
-    det.appendChild(pDiv);
+    refreshPp();
+
+    allPeople.forEach(function(person){
+      var joined=itemParts.some(function(p){return p.traveler_id===person.id;});
+      var chip=document.createElement('span');
+      chip.className='participant-chip'+(joined?' selected':'');
+      // Use text node for avatar to avoid encoding issues
+      chip.textContent=(person.avatar||'?')+' '+person.name;
+      chip.onclick=function(){
+        // toggle immediately in UI, sync to DB in background
+        var nowJoined=chip.classList.contains('selected');
+        if(nowJoined){
+          chip.classList.remove('selected');
+          var existing=allParticipants.find(function(p){return p.item_id===item.id&&p.traveler_id===person.id;});
+          if(existing){
+            allParticipants=allParticipants.filter(function(p){return p.id!==existing.id;});
+            sb.from('item_participants').delete().eq('id',existing.id);
+          }
+        }else{
+          chip.classList.add('selected');
+          sb.from('item_participants').insert({item_id:item.id,traveler_id:person.id}).select().single().then(function(res){
+            if(!res.error&&res.data)allParticipants.push(res.data);
+          });
+        }
+        refreshPp();
+        if(document.getElementById('tab-people').classList.contains('active'))renderPeople();
+      };
+      pWrap.appendChild(chip);
+    });
+    pWrap.appendChild(ppLbl);
+    det.appendChild(pWrap);
     wrap.appendChild(det);
   });
-  container.innerHTML='';
   container.appendChild(wrap);
 }
 
-async function toggleParticipant(itemId, travelerId, dayId){
-  const existing=allParticipants.find(function(p){return p.item_id===itemId&&p.traveler_id===travelerId;});
-  if(existing){
-    await sb.from('item_participants').delete().eq('id',existing.id);
-    allParticipants=allParticipants.filter(function(p){return p.id!==existing.id;});
-  } else {
-    const res=await sb.from('item_participants').insert({item_id:itemId,traveler_id:travelerId}).select().single();
-    if(!res.error&&res.data) allParticipants.push(res.data);
-  }
-  renderItems(dayId);
-  if(document.getElementById('tab-people').classList.contains('active')) renderPeople();
-}
-const saveDayNotes=debounce(async(dayId,notes)=>{
-  await sb.from('itinerary_days').update({notes,updated_at:new Date().toISOString()}).eq('id',dayId);
-  const day=allDays.find(d=>d.id===dayId); if(day)day.notes=notes; showToast('Notes saved');
+var saveDayNotes=debounce(function(dayId,notes){
+  sb.from('itinerary_days').update({notes:notes,updated_at:new Date().toISOString()}).eq('id',dayId);
+  var day=allDays.find(function(d){return d.id===dayId;});
+  if(day)day.notes=notes;
+  showToast('Notes saved');
 },800);
 
 async function updateItem(itemId,field,value){
-  const update={}; update[field]=(field==='cost')?(parseFloat(value)||0):value;
+  var update={};update[field]=(field==='cost')?(parseFloat(value)||0):value;
   await sb.from('itinerary_items').update(update).eq('id',itemId);
-  const item=allItems.find(i=>i.id===itemId); if(item)item[field]=update[field];
-  renderHero(); showToast('Saved');
+  var item=allItems.find(function(i){return i.id===itemId;});
+  if(item)item[field]=update[field];
+  renderHero();
 }
 
 async function addItem(dayId){
-  const time=document.getElementById('ai-time-'+dayId).value.trim();
-  const activity=document.getElementById('ai-act-'+dayId).value.trim();
-  const location=document.getElementById('ai-loc-'+dayId).value.trim();
-  const cost=parseFloat(document.getElementById('ai-cost-'+dayId).value)||0;
-  const category=document.getElementById('ai-cat-'+dayId).value;
+  var time=document.getElementById('ai-time-'+dayId).value.trim();
+  var activity=document.getElementById('ai-act-'+dayId).value.trim();
+  var location=document.getElementById('ai-loc-'+dayId).value.trim();
+  var cost=parseFloat(document.getElementById('ai-cost-'+dayId).value)||0;
+  var category=document.getElementById('ai-cat-'+dayId).value;
   if(!activity)return;
-  const existing=allItems.filter(i=>i.day_id===dayId);
-  const sort_order=existing.length?Math.max(...existing.map(i=>i.sort_order))+1:1;
-  const{data,error}=await sb.from('itinerary_items').insert({day_id:dayId,time,activity,location,cost,category,sort_order}).select().single();
-  if(error){showToast('Error saving');return;}
-  allItems.push(data);
-  ['time','act','loc','cost'].forEach(f=>document.getElementById('ai-'+f+'-'+dayId).value='');
-  renderItems(dayId); renderHero(); showToast('Activity added!');
+  var existing=allItems.filter(function(i){return i.day_id===dayId;});
+  var sort_order=existing.length?Math.max.apply(null,existing.map(function(i){return i.sort_order;}))+1:1;
+  var res=await sb.from('itinerary_items').insert({day_id:dayId,time:time,activity:activity,location:location,cost:cost,category:category,sort_order:sort_order}).select().single();
+  if(res.error){showToast('Error saving');return;}
+  allItems.push(res.data);
+  ['time','act','loc','cost'].forEach(function(f){document.getElementById('ai-'+f+'-'+dayId).value='';});
+  renderItems(dayId);renderHero();showToast('Activity added!');
 }
 
 async function deleteItem(itemId){
   await sb.from('itinerary_items').delete().eq('id',itemId);
-  const el=document.getElementById('item-'+itemId);
-  if(el){const body=el.closest('.day-body');if(body){const dayId=body.closest('.day-card').id.replace('day-','');allItems=allItems.filter(i=>i.id!==itemId);renderItems(dayId);}}
-  else{allItems=allItems.filter(i=>i.id!==itemId);}
-  renderHero(); showToast('Removed');
+  allParticipants=allParticipants.filter(function(p){return p.item_id!==itemId;});
+  var item=allItems.find(function(i){return i.id===itemId;});
+  var dayId=item?item.day_id:null;
+  allItems=allItems.filter(function(i){return i.id!==itemId;});
+  if(dayId)renderItems(dayId);
+  renderHero();showToast('Removed');
 }
 
 // PUBLIC COSTS
 function renderCosts(){
-  const nonFlight=allItems.filter(i=>i.category!=='flight');
-  const totalCost=nonFlight.reduce((s,i)=>s+(Number(i.cost)||0),0);
-  const cats={};
-  nonFlight.forEach(i=>{const c=i.category||'other';cats[c]=(cats[c]||0)+(Number(i.cost)||0);});
-
-  // summary cards
-  const perPerson=allPeople.length?Math.round(totalCost/allPeople.length):0;
-  const perFamily=Math.round(totalCost/3);
+  var nonFlight=allItems.filter(function(i){return i.category!=='flight';});
+  var totalCost=nonFlight.reduce(function(s,i){return s+(Number(i.cost)||0);},0);
+  var cats={};
+  nonFlight.forEach(function(i){var c=i.category||'other';cats[c]=(cats[c]||0)+(Number(i.cost)||0);});
+  var perPerson=allPeople.length?Math.round(totalCost/allPeople.length):0;
+  var perFamily=Math.round(totalCost/3);
   document.getElementById('costs-summary-cards').innerHTML=
     '<div class="budget-card highlight"><div class="label">Total estimated</div><div class="amount">'+fmtMoney(totalCost)+'</div><div class="sub">excl. flights</div></div>'+
-    '<div class="budget-card"><div class="label">Per person (est.)</div><div class="amount">'+fmtMoney(perPerson)+'</div><div class="sub">'+allPeople.length+' people total</div></div>'+
-    '<div class="budget-card"><div class="label">Per family (est.)</div><div class="amount">'+fmtMoney(perFamily)+'</div><div class="sub">split 3 families</div></div>';
-
-  // by day
-  const byDay=document.getElementById('costs-by-day');
-  const daysWithCosts=allDays.map(d=>{
-    const items=nonFlight.filter(i=>i.day_id===d.id);
-    const total=items.reduce((s,i)=>s+(Number(i.cost)||0),0);
-    return{day:d,items,total};
-  }).filter(x=>x.total>0);
-
-  if(!daysWithCosts.length){byDay.innerHTML='<div class="empty-state">No costs added yet. Add activities on the Itinerary tab.</div>';return;}
-  const maxDay=Math.max(...daysWithCosts.map(x=>x.total),1);
-
-  byDay.innerHTML=daysWithCosts.map(({day,items,total})=>{
-    const phase=getPhase(day.day_number);
-    const barColor=phase==='whistler'?'var(--purple)':phase==='bday'?'var(--amber)':'var(--green)';
-    const pct=Math.round((total/maxDay)*100);
-    const itemList=items.map(i=>
-      '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--gray-light);border-radius:6px;padding:2px 8px;font-size:11px;margin:2px;">'+
-        '<span style="width:6px;height:6px;border-radius:50%;background:'+(CAT_COLORS[i.category]||CAT_COLORS.other)+';display:inline-block;"></span>'+
+    '<div class="budget-card"><div class="label">Per person</div><div class="amount">'+fmtMoney(perPerson)+'</div><div class="sub">'+allPeople.length+' people</div></div>'+
+    '<div class="budget-card"><div class="label">Per family</div><div class="amount">'+fmtMoney(perFamily)+'</div><div class="sub">split 3 ways</div></div>';
+  var byDay=document.getElementById('costs-by-day');
+  var daysWithCosts=allDays.map(function(d){
+    var items=nonFlight.filter(function(i){return i.day_id===d.id;});
+    var total=items.reduce(function(s,i){return s+(Number(i.cost)||0);},0);
+    return{day:d,items:items,total:total};
+  }).filter(function(x){return x.total>0;});
+  if(!daysWithCosts.length){byDay.innerHTML='<div class="empty-state">No costs added yet.</div>';return;}
+  var maxDay=Math.max.apply(null,daysWithCosts.map(function(x){return x.total;}));
+  byDay.innerHTML=daysWithCosts.map(function(x){
+    var day=x.day,items=x.items,total=x.total;
+    var phase=getPhase(day.day_number);
+    var barColor=phase==='whistler'?'var(--purple)':phase==='bday'?'var(--amber)':'var(--green)';
+    var pct=Math.round((total/maxDay)*100);
+    var chips=items.map(function(i){
+      return '<span style="display:inline-flex;align-items:center;gap:3px;background:var(--gray-light);border-radius:6px;padding:2px 7px;font-size:11px;margin:2px;">'+
+        '<span style="width:6px;height:6px;border-radius:50%;background:'+(CAT_COLORS[i.category]||'#6b7280')+';display:inline-block;"></span>'+
         escHtml(i.activity)+(i.cost?' - '+fmtMoney(i.cost):'')+
-      '</span>'
-    ).join('');
+      '</span>';
+    }).join('');
     return '<div style="background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);padding:14px 16px;margin-bottom:8px;">'+
       '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">'+
         '<div style="background:'+barColor+';color:white;border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">'+day.day_number+'</div>'+
-        '<div style="flex:1;min-width:0;">'+
-          '<div style="font-size:11px;color:var(--text-muted);">'+fmtShort(day.date)+'</div>'+
-          '<div style="font-weight:600;font-size:14px;">'+escHtml(day.title)+'</div>'+
-        '</div>'+
+        '<div style="flex:1;min-width:0;"><div style="font-size:11px;color:var(--text-muted);">'+fmtShort(day.date)+'</div><div style="font-weight:600;font-size:14px;">'+escHtml(day.title)+'</div></div>'+
         '<div style="font-weight:700;font-size:15px;color:'+barColor+';">'+fmtMoney(total)+'</div>'+
       '</div>'+
-      '<div style="height:6px;background:var(--gray-light);border-radius:3px;overflow:hidden;margin-bottom:8px;">'+
-        '<div style="height:100%;width:'+pct+'%;background:'+barColor+';border-radius:3px;transition:width .4s;"></div>'+
-      '</div>'+
-      '<div style="display:flex;flex-wrap:wrap;gap:2px;">'+itemList+'</div>'+
-    '</div>';
+      '<div style="height:6px;background:var(--gray-light);border-radius:3px;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:'+pct+'%;background:'+barColor+';border-radius:3px;"></div></div>'+
+      '<div style="display:flex;flex-wrap:wrap;">'+chips+'</div></div>';
   }).join('');
-
-  // by category
-  const catEl=document.getElementById('costs-by-cat');
-  if(!Object.keys(cats).length){catEl.innerHTML='<div class="empty-state">No items yet.</div>';return;}
-  const maxCat=Math.max(...Object.values(cats),1);
-  catEl.innerHTML=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>{
-    const pct=Math.round((amt/maxCat)*100);
-    const col=CAT_COLORS[cat]||CAT_COLORS.other;
+  var catEl=document.getElementById('costs-by-cat');
+  var maxCat=Math.max.apply(null,Object.values(cats));
+  catEl.innerHTML=Object.entries(cats).sort(function(a,b){return b[1]-a[1];}).map(function(entry){
+    var cat=entry[0],amt=entry[1];
+    var pct=Math.round((amt/maxCat)*100);
+    var col=CAT_COLORS[cat]||'#6b7280';
     return '<div class="cat-row">'+
-      '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+col+';margin-right:8px;flex-shrink:0;"></span>'+
+      '<span style="width:8px;height:8px;border-radius:50%;background:'+col+';flex-shrink:0;display:inline-block;margin-right:8px;"></span>'+
       '<span style="width:90px;font-size:13px;font-weight:500;">'+(CAT_LABELS[cat]||cat)+'</span>'+
       '<div class="cat-bar-wrap"><div class="cat-bar" style="width:'+pct+'%;background:'+col+';opacity:0.75;"></div></div>'+
-      '<span class="cat-amount">'+fmtMoney(amt)+'</span>'+
-    '</div>';
+      '<span class="cat-amount">'+fmtMoney(amt)+'</span></div>';
   }).join('');
 }
 
@@ -883,8 +873,8 @@ function checkBudgetPassword(){
     document.getElementById('budget-content').style.display='block';
     localStorage.setItem('budget_unlocked','1');
     renderBudget();
-  } else {
-    document.getElementById('budget-password-error').textContent='Incorrect password. Try again!';
+  }else{
+    document.getElementById('budget-password-error').textContent='Incorrect password.';
   }
 }
 function lockBudget(){
@@ -895,41 +885,39 @@ function lockBudget(){
   document.getElementById('budget-password-error').textContent='';
 }
 
-// BUDGET RENDER
 function renderBudget(){
   if(localStorage.getItem('budget_unlocked')==='1'){
     document.getElementById('budget-gate').style.display='none';
     document.getElementById('budget-content').style.display='block';
-  } else return;
+  }else return;
   if(!tripData)return;
-  const total=Number(tripData.total_budget)||0;
-  const itinCost=allItems.reduce((s,i)=>s+(Number(i.cost)||0),0);
-  const extraCost=allBudgetItems.reduce((s,i)=>s+(Number(i.amount)||0),0);
-  const spent=itinCost+extraCost;
-  const left=total-spent;
+  var total=Number(tripData.total_budget)||0;
+  var spent=allItems.reduce(function(s,i){return s+(Number(i.cost)||0);},0)+
+            allBudgetItems.reduce(function(s,i){return s+(Number(i.amount)||0);},0);
+  var left=total-spent;
   document.getElementById('b-total').textContent=fmtCAD(total);
   document.getElementById('b-spent').textContent=fmtCAD(spent);
   document.getElementById('b-left').textContent=fmtCAD(Math.abs(left));
   document.getElementById('b-left-sub').textContent=left>=0?'remaining buffer':'over budget';
   document.getElementById('b-left-card').className='budget-card '+(left>=0?'highlight':'warn');
-  const cats={};
-  allItems.forEach(i=>{const c=i.category||'other';cats[c]=(cats[c]||0)+(Number(i.cost)||0);});
-  allBudgetItems.forEach(i=>{const c=i.category||'other';cats[c]=(cats[c]||0)+(Number(i.amount)||0);});
-  const catEl=document.getElementById('cat-breakdown');
+  var cats={};
+  allItems.forEach(function(i){var c=i.category||'other';cats[c]=(cats[c]||0)+(Number(i.cost)||0);});
+  allBudgetItems.forEach(function(i){var c=i.category||'other';cats[c]=(cats[c]||0)+(Number(i.amount)||0);});
+  var catEl=document.getElementById('cat-breakdown');
   if(!Object.keys(cats).length){catEl.innerHTML='<div class="empty-state">No items yet.</div>';}
   else{
-    const maxVal=Math.max(...Object.values(cats),1);
-    catEl.innerHTML=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>{
-      const pct=Math.round((amt/maxVal)*100);
-      const col=CAT_COLORS[cat]||CAT_COLORS.other;
-      const bpct=total>0?Math.round((amt/total)*100):0;
+    var maxVal=Math.max.apply(null,Object.values(cats));
+    catEl.innerHTML=Object.entries(cats).sort(function(a,b){return b[1]-a[1];}).map(function(entry){
+      var cat=entry[0],amt=entry[1];
+      var pct=Math.round((amt/maxVal)*100);
+      var col=CAT_COLORS[cat]||'#6b7280';
+      var bpct=total>0?Math.round((amt/total)*100):0;
       return '<div class="cat-row">'+
-        '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+col+';margin-right:8px;flex-shrink:0;"></span>'+
+        '<span style="width:8px;height:8px;border-radius:50%;background:'+col+';flex-shrink:0;display:inline-block;margin-right:8px;"></span>'+
         '<span style="width:80px;font-size:13px;font-weight:500;">'+(CAT_LABELS[cat]||cat)+'</span>'+
         '<div class="cat-bar-wrap"><div class="cat-bar" style="width:'+pct+'%;background:'+col+';opacity:0.75;"></div></div>'+
         '<span class="cat-amount">'+fmtCAD(amt)+'</span>'+
-        '<span style="font-size:11px;color:var(--text-muted);margin-left:6px;min-width:30px;">'+bpct+'%</span>'+
-      '</div>';
+        '<span style="font-size:11px;color:var(--text-muted);margin-left:6px;min-width:30px;">'+bpct+'%</span></div>';
     }).join('');
   }
   renderBudgetItems();
@@ -937,21 +925,20 @@ function renderBudget(){
 
 function filterBudgetCat(cat,btn){
   activeBudgetCat=cat;
-  document.querySelectorAll('.cat-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.cat-tab').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
   renderBudgetItems();
 }
 
 function renderBudgetItems(){
-  const allCombined=[
-    ...allItems.map(i=>({id:i.id,label:i.activity+(i.location?' - '+i.location:''),amount:i.cost,category:i.category||'other',source:'itinerary'})),
-    ...allBudgetItems.map(i=>({id:i.id,label:i.label,amount:i.amount,category:i.category||'other',source:'budget'}))
-  ].filter(i=>activeBudgetCat==='all'||i.category===activeBudgetCat);
-  const el=document.getElementById('budget-items-table');
-  let html='<div class="budget-item-row header"><span>Item</span><span>Category</span><span style="text-align:right;">Amount</span><span></span></div>';
-  if(!allCombined.length)html+='<div class="empty-state">No items in this category.</div>';
-  allCombined.forEach(item=>{
-    const col=CAT_COLORS[item.category]||CAT_COLORS.other;
+  var combined=allItems.map(function(i){return{id:i.id,label:i.activity+(i.location?' - '+i.location:''),amount:i.cost,category:i.category||'other',source:'itinerary'};})
+    .concat(allBudgetItems.map(function(i){return{id:i.id,label:i.label,amount:i.amount,category:i.category||'other',source:'budget'};}))
+    .filter(function(i){return activeBudgetCat==='all'||i.category===activeBudgetCat;});
+  var el=document.getElementById('budget-items-table');
+  var html='<div class="budget-item-row header"><span>Item</span><span>Category</span><span style="text-align:right;">Amount</span><span></span></div>';
+  if(!combined.length)html+='<div class="empty-state">No items in this category.</div>';
+  combined.forEach(function(item){
+    var col=CAT_COLORS[item.category]||'#6b7280';
     html+='<div class="budget-item-row">'+
       '<span style="font-size:13px;">'+escHtml(item.label)+'</span>'+
       '<span><span class="category-dot" style="background:'+col+'"></span><span style="font-size:12px;color:var(--text-muted);">'+(CAT_LABELS[item.category]||item.category)+'</span></span>'+
@@ -962,36 +949,31 @@ function renderBudgetItems(){
   html+='<div class="add-budget-row">'+
     '<input type="text" placeholder="Item label..." id="bi-label" style="flex:2;min-width:120px;"/>'+
     '<input type="number" placeholder="CA$" id="bi-amount" style="width:80px;"/>'+
-    '<select id="bi-cat">'+
-      '<option value="activity">Activity</option><option value="food">Food</option>'+
-      '<option value="transport">Transport</option><option value="hotel">Hotel</option>'+
-      '<option value="flight">Flight</option><option value="other">Other</option>'+
-    '</select>'+
-    '<button class="btn btn-primary btn-sm" onclick="addBudgetItem()">+ Add</button>'+
-  '</div>';
+    '<select id="bi-cat"><option value="activity">Activity</option><option value="food">Food</option><option value="transport">Transport</option><option value="hotel">Hotel</option><option value="flight">Flight</option><option value="other">Other</option></select>'+
+    '<button class="btn btn-primary btn-sm" onclick="addBudgetItem()">+ Add</button></div>';
   el.innerHTML=html;
 }
 
 function addBudgetItem(){
-  const label=document.getElementById('bi-label').value.trim();
-  const amount=parseFloat(document.getElementById('bi-amount').value)||0;
-  const category=document.getElementById('bi-cat').value;
+  var label=document.getElementById('bi-label').value.trim();
+  var amount=parseFloat(document.getElementById('bi-amount').value)||0;
+  var category=document.getElementById('bi-cat').value;
   if(!label)return;
-  allBudgetItems.push({id:'b'+Date.now(),label,amount,category});
-  saveBudgetItemsLocal(); renderBudget(); showToast('Budget item added!');
+  allBudgetItems.push({id:'b'+Date.now(),label:label,amount:amount,category:category});
+  saveBudgetItemsLocal();renderBudget();showToast('Added!');
 }
-function deleteBudgetItem(id){allBudgetItems=allBudgetItems.filter(i=>i.id!==id);saveBudgetItemsLocal();renderBudget();showToast('Removed');}
+function deleteBudgetItem(id){allBudgetItems=allBudgetItems.filter(function(i){return i.id!==id;});saveBudgetItemsLocal();renderBudget();showToast('Removed');}
 
 // AVATAR PICKER
-function buildAvatarPicker(containerId, hiddenId, currentVal){
-  const container=document.getElementById(containerId); if(!container)return;
+function buildAvatarPicker(containerId,hiddenId,currentVal){
+  var container=document.getElementById(containerId);if(!container)return;
   container.innerHTML='';
-  AVATARS.forEach(emoji=>{
-    const btn=document.createElement('div');
+  AVATARS.forEach(function(emoji){
+    var btn=document.createElement('div');
     btn.className='avatar-option'+(emoji===currentVal?' selected':'');
     btn.textContent=emoji;
-    btn.onclick=()=>{
-      container.querySelectorAll('.avatar-option').forEach(b=>b.classList.remove('selected'));
+    btn.onclick=function(){
+      container.querySelectorAll('.avatar-option').forEach(function(b){b.classList.remove('selected');});
       btn.classList.add('selected');
       document.getElementById(hiddenId).value=emoji;
     };
@@ -1001,59 +983,60 @@ function buildAvatarPicker(containerId, hiddenId, currentVal){
 
 // PEOPLE
 function renderPeople(){
-  const grid=document.getElementById('people-grid');
-  if(!grid)return;
+  var grid=document.getElementById('people-grid');if(!grid)return;
   grid.innerHTML='';
   if(!allPeople.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1;">No crew added yet!</div>';return;}
-  const groups={};
-  allPeople.forEach(p=>{const g=p.group_name||'Other';if(!groups[g])groups[g]=[];groups[g].push(p);});
-  // group cost totals
-  const groupTotalDiv=document.createElement('div');
-  groupTotalDiv.style.cssText='grid-column:1/-1;margin-top:16px;';
-  const groupOrder=['Pia family','Andy family','Ines family','Relatives','Other'];
+  var groups={};
+  allPeople.forEach(function(p){var g=p.group_name||'Other';if(!groups[g])groups[g]=[];groups[g].push(p);});
 
-  // pre-compute per-person costs
-  const personCosts={};
-  allPeople.forEach(p=>{
-    let total=0;
-    allParticipants.filter(pt=>pt.traveler_id===p.id).forEach(pt=>{
-      const item=allItems.find(i=>i.id===pt.item_id);
-      if(item&&item.cost){const cnt=allParticipants.filter(x=>x.item_id===pt.item_id).length||1;total+=Math.round((Number(item.cost)||0)/cnt);}
+  // pre-compute per-person costs from participants
+  var personCosts={};
+  allPeople.forEach(function(p){
+    var total=0;
+    allParticipants.filter(function(pt){return pt.traveler_id===p.id;}).forEach(function(pt){
+      var item=allItems.find(function(i){return i.id===pt.item_id;});
+      if(item&&item.cost){
+        var cnt=allParticipants.filter(function(x){return x.item_id===pt.item_id;}).length||1;
+        total+=Math.round((Number(item.cost)||0)/cnt);
+      }
     });
     personCosts[p.id]=total;
   });
 
-  groupOrder.filter(g=>groups[g]).forEach(group=>{
-    const header=document.createElement('div');
+  ['Pia family','Andy family','Ines family','Relatives','Other'].filter(function(g){return groups[g];}).forEach(function(group){
+    var header=document.createElement('div');
     header.className='group-header';
-    header.innerHTML=(GROUP_EMOJI[group]||'&#128101;')+' <span>'+group+'</span><span style="font-size:12px;font-weight:400;margin-left:4px;">('+groups[group].length+' people)</span>';
+    header.innerHTML=(GROUP_EMOJI[group]||'👥')+' <span>'+group+'</span><span style="font-size:12px;font-weight:400;margin-left:4px;">('+groups[group].length+')</span>';
     grid.appendChild(header);
-    groups[group].forEach(p=>{
-      const card=document.createElement('div');
-      card.className='person-card';
-      const daysCount=p.trip_start&&p.trip_end?Math.round((new Date(p.trip_end)-new Date(p.trip_start))/86400000)+1:null;
-      card.innerHTML=
-        '<button class="person-edit-btn" onclick="openPersonModal(\''+p.id+'\')">&#9998;</button>'+
-        '<div class="person-avatar-wrap">'+
-          '<div class="person-avatar">'+escHtml(p.avatar||'🧑')+'</div>'+
-          '<div>'+
-            '<div class="person-name">'+escHtml(p.name)+'</div>'+
-            '<div class="person-role">'+escHtml(group)+'</div>'+
-          '</div>'+
-        '</div>'+
-        '<div class="person-meta">'+
-          (p.age?'<span>&#127874; Age '+p.age+'</span>':'')+
-          (p.trip_start?'<span>&#9992; Arrives '+fmtShort(p.trip_start)+'</span>':'')+
-          (p.trip_end?'<span>&#127968; Departs '+fmtShort(p.trip_end)+'</span>':'')+
-          (p.notes?'<span>&#128221; '+escHtml(p.notes)+'</span>':'')+
-        '</div>'+
-        (daysCount?'<div class="person-days-badge">'+daysCount+' days on trip</div>':'');
+
+    groups[group].forEach(function(p){
+      var daysCount=p.trip_start&&p.trip_end?Math.round((new Date(p.trip_end)-new Date(p.trip_start))/86400000)+1:null;
+      var card=document.createElement('div');card.className='person-card';
+      var editBtn=document.createElement('button');editBtn.className='person-edit-btn';editBtn.innerHTML='&#9998;';
+      editBtn.onclick=function(){openPersonModal(p.id);};
+      card.appendChild(editBtn);
+      var avatarWrap=document.createElement('div');avatarWrap.className='person-avatar-wrap';
+      var avatar=document.createElement('div');avatar.className='person-avatar';avatar.textContent=p.avatar||'?';
+      var nameDiv=document.createElement('div');
+      var nameEl=document.createElement('div');nameEl.className='person-name';nameEl.textContent=p.name;
+      var roleEl=document.createElement('div');roleEl.className='person-role';roleEl.textContent=group;
+      nameDiv.appendChild(nameEl);nameDiv.appendChild(roleEl);
+      avatarWrap.appendChild(avatar);avatarWrap.appendChild(nameDiv);
+      card.appendChild(avatarWrap);
+      var meta=document.createElement('div');meta.className='person-meta';
+      if(p.age){var s=document.createElement('span');s.textContent='🎂 Age '+p.age;meta.appendChild(s);}
+      if(p.trip_start){var s=document.createElement('span');s.textContent='✈️ Arrives '+fmtShort(p.trip_start);meta.appendChild(s);}
+      if(p.trip_end){var s=document.createElement('span');s.textContent='🏡 Departs '+fmtShort(p.trip_end);meta.appendChild(s);}
+      if(p.notes){var s=document.createElement('span');s.textContent='📝 '+p.notes;meta.appendChild(s);}
+      card.appendChild(meta);
+      if(daysCount){var badge=document.createElement('div');badge.className='person-days-badge';badge.textContent=daysCount+' days on trip';card.appendChild(badge);}
+      if(personCosts[p.id]>0){var costTag=document.createElement('div');costTag.className='person-cost-tag';costTag.textContent='💰 Est. '+fmtMoney(personCosts[p.id]);card.appendChild(costTag);}
       grid.appendChild(card);
     });
-    // group total card
-    const groupTotal=groups[group].reduce((s,p)=>s+(personCosts[p.id]||0),0);
+
+    var groupTotal=groups[group].reduce(function(s,p){return s+(personCosts[p.id]||0);},0);
     if(groupTotal>0){
-      const tot=document.createElement('div');
+      var tot=document.createElement('div');
       tot.style.cssText='grid-column:1/-1;display:flex;align-items:center;justify-content:flex-end;padding:4px 0 12px;border-bottom:1px solid var(--gray-border);margin-bottom:8px;';
       tot.innerHTML='<span style="font-size:13px;color:var(--text-muted);">'+group+' estimated total:</span><span style="font-weight:700;font-size:15px;color:var(--green);margin-left:8px;">'+fmtMoney(groupTotal)+'</span>';
       grid.appendChild(tot);
@@ -1062,88 +1045,88 @@ function renderPeople(){
 }
 
 function toggleAddPerson(){
-  const form=document.getElementById('add-person-form');
-  const showing=form.style.display!=='none';
+  var form=document.getElementById('add-person-form');
+  var showing=form.style.display!=='none';
   form.style.display=showing?'none':'block';
-  if(!showing) buildAvatarPicker('add-avatar-picker','p-avatar','🧑');
+  if(!showing)buildAvatarPicker('add-avatar-picker','p-avatar',AVATARS[0]);
 }
 
 async function savePerson(){
-  const name=document.getElementById('p-name').value.trim();
+  var name=document.getElementById('p-name').value.trim();
   if(!name){showToast('Name is required');return;}
-  const avatar=document.getElementById('p-avatar').value||'🧑';
-  const existing=allPeople.length?Math.max(...allPeople.map(p=>p.sort_order||0))+1:1;
-  const{data,error}=await sb.from('travelers').insert({
-    trip_id:TRIP_ID,
-    name,
+  var avatar=document.getElementById('p-avatar').value||AVATARS[0];
+  var existing=allPeople.length?Math.max.apply(null,allPeople.map(function(p){return p.sort_order||0;}))+1:1;
+  var res=await sb.from('travelers').insert({
+    trip_id:TRIP_ID,name:name,
     age:parseInt(document.getElementById('p-age').value)||null,
-    avatar,
+    avatar:avatar,
     trip_start:document.getElementById('p-arrival').value||null,
     trip_end:document.getElementById('p-departure').value||null,
     notes:document.getElementById('p-notes').value.trim()||null,
     group_name:document.getElementById('p-group').value,
     sort_order:existing
   }).select().single();
-  if(error){showToast('Error: '+error.message);return;}
-  allPeople.push(data);
-  ['p-name','p-age','p-arrival','p-departure','p-notes'].forEach(id=>document.getElementById(id).value='');
-  toggleAddPerson(); renderPeople(); showToast(name+' added!');
+  if(res.error){showToast('Error: '+res.error.message);return;}
+  allPeople.push(res.data);
+  ['p-name','p-age','p-arrival','p-departure','p-notes'].forEach(function(id){document.getElementById(id).value='';});
+  toggleAddPerson();renderPeople();showToast(name+' added!');
 }
 
 function openPersonModal(id){
   editingPersonId=id;
-  const p=allPeople.find(x=>x.id===id); if(!p)return;
+  var p=allPeople.find(function(x){return x.id===id;});if(!p)return;
   document.getElementById('ep-name').value=p.name||'';
   document.getElementById('ep-age').value=p.age||'';
   document.getElementById('ep-arrival').value=p.trip_start||'';
   document.getElementById('ep-departure').value=p.trip_end||'';
   document.getElementById('ep-group').value=p.group_name||'Pia family';
   document.getElementById('ep-notes').value=p.notes||'';
-  document.getElementById('ep-avatar').value=p.avatar||'🧑';
+  document.getElementById('ep-avatar').value=p.avatar||AVATARS[0];
   document.getElementById('person-modal').classList.remove('hidden');
-  buildAvatarPicker('edit-avatar-picker','ep-avatar',p.avatar||'🧑');
+  buildAvatarPicker('edit-avatar-picker','ep-avatar',p.avatar||AVATARS[0]);
 }
-
 function closePersonModal(){document.getElementById('person-modal').classList.add('hidden');editingPersonId=null;}
 
 async function updatePerson(){
-  const p=allPeople.find(x=>x.id===editingPersonId); if(!p)return;
-  const updates={
+  var p=allPeople.find(function(x){return x.id===editingPersonId;});if(!p)return;
+  var updates={
     name:document.getElementById('ep-name').value.trim(),
     age:parseInt(document.getElementById('ep-age').value)||null,
-    avatar:document.getElementById('ep-avatar').value||'🧑',
+    avatar:document.getElementById('ep-avatar').value||AVATARS[0],
     trip_start:document.getElementById('ep-arrival').value||null,
     trip_end:document.getElementById('ep-departure').value||null,
     group_name:document.getElementById('ep-group').value,
     notes:document.getElementById('ep-notes').value.trim()||null
   };
-  const{error}=await sb.from('travelers').update(updates).eq('id',editingPersonId);
-  if(error){showToast('Error saving');return;}
+  var res=await sb.from('travelers').update(updates).eq('id',editingPersonId);
+  if(res.error){showToast('Error saving');return;}
   Object.assign(p,updates);
-  renderPeople(); closePersonModal(); showToast('Updated!');
+  renderPeople();closePersonModal();showToast('Updated!');
 }
 
 async function deletePerson(){
-  const{error}=await sb.from('travelers').delete().eq('id',editingPersonId);
-  if(error){showToast('Error deleting');return;}
-  allPeople=allPeople.filter(p=>p.id!==editingPersonId);
-  renderPeople(); closePersonModal(); showToast('Removed');
+  var res=await sb.from('travelers').delete().eq('id',editingPersonId);
+  if(res.error){showToast('Error deleting');return;}
+  allPeople=allPeople.filter(function(p){return p.id!==editingPersonId;});
+  renderPeople();closePersonModal();showToast('Removed');
 }
 
 // PACKING
 function renderPacking(){
-  const cats={};
-  allPacking.forEach(item=>{const c=item.category||'other';if(!cats[c])cats[c]=[];cats[c].push(item);});
-  const packed=allPacking.filter(i=>i.packed).length;
+  var cats={};
+  allPacking.forEach(function(item){var c=item.category||'other';if(!cats[c])cats[c]=[];cats[c].push(item);});
+  var packed=allPacking.filter(function(i){return i.packed;}).length;
   document.getElementById('pack-progress').textContent=packed+' / '+allPacking.length+' packed';
-  const container=document.getElementById('packing-list'); container.innerHTML='';
-  ['documents','clothing','health','gear','tech','food','other'].filter(c=>cats[c]).forEach(c=>{
-    const label=document.createElement('div'); label.className='pack-cat-label';
-    label.textContent=c.charAt(0).toUpperCase()+c.slice(1); container.appendChild(label);
-    const grid=document.createElement('div'); grid.className='pack-grid';
-    cats[c].forEach(item=>{
-      const el=document.createElement('label'); el.className='pack-item'+(item.packed?' packed':'');
-      el.innerHTML='<input type="checkbox"'+(item.packed?' checked':'')+' onchange="togglePack(\''+item.id+'\',this.checked)"/> '+escHtml(item.item);
+  var container=document.getElementById('packing-list');container.innerHTML='';
+  ['documents','clothing','health','gear','tech','food','other'].filter(function(c){return cats[c];}).forEach(function(c){
+    var label=document.createElement('div');label.className='pack-cat-label';
+    label.textContent=c.charAt(0).toUpperCase()+c.slice(1);container.appendChild(label);
+    var grid=document.createElement('div');grid.className='pack-grid';
+    cats[c].forEach(function(item){
+      var el=document.createElement('label');el.className='pack-item'+(item.packed?' packed':'');
+      var cb=document.createElement('input');cb.type='checkbox';cb.checked=item.packed;cb.style.cssText='width:16px;height:16px;accent-color:var(--green);cursor:pointer;flex-shrink:0;';
+      cb.onchange=function(){togglePack(item.id,cb.checked);};
+      el.appendChild(cb);el.appendChild(document.createTextNode(' '+item.item));
       grid.appendChild(el);
     });
     container.appendChild(grid);
@@ -1151,17 +1134,17 @@ function renderPacking(){
 }
 
 async function togglePack(id,packed){
-  await sb.from('packing_items').update({packed}).eq('id',id);
-  const item=allPacking.find(i=>i.id===id); if(item)item.packed=packed; renderPacking();
+  await sb.from('packing_items').update({packed:packed}).eq('id',id);
+  var item=allPacking.find(function(i){return i.id===id;});if(item)item.packed=packed;renderPacking();
 }
 
 async function addPackItem(){
-  const item=document.getElementById('pack-item-input').value.trim();
-  const category=document.getElementById('pack-cat-input').value;
+  var item=document.getElementById('pack-item-input').value.trim();
+  var category=document.getElementById('pack-cat-input').value;
   if(!item)return;
-  const{data,error}=await sb.from('packing_items').insert({trip_id:TRIP_ID,item,category,packed:false}).select().single();
-  if(error){showToast('Error');return;}
-  allPacking.push(data); document.getElementById('pack-item-input').value=''; renderPacking(); showToast('Added!');
+  var res=await sb.from('packing_items').insert({trip_id:TRIP_ID,item:item,category:category,packed:false}).select().single();
+  if(res.error){showToast('Error');return;}
+  allPacking.push(res.data);document.getElementById('pack-item-input').value='';renderPacking();showToast('Added!');
 }
 
 // CHAT
@@ -1170,58 +1153,58 @@ function toggleChat(){
   document.getElementById('chat-panel').classList.toggle('open',chatOpen);
   if(chatOpen){
     document.getElementById('chat-input').focus();
-    if(!chatHistory.length)appendMsg('assistant','Hi! I am your Vancouver trip assistant. I can suggest activities, help rearrange days, answer questions, and make changes to your itinerary directly. What would you like to know?');
+    if(!chatHistory.length)appendMsg('assistant','Hi! I am your Vancouver trip assistant. I can suggest activities, answer questions, and make changes to your itinerary. What would you like to know?');
     renderChips();
   }
 }
 
-const CHIPS=['Best restaurants near Surrey?','What to book in advance?','Add dinner at Miku on Day 6','Tips for Whistler with young kids','What is free in Vancouver?','Add sunscreen to packing list'];
+var CHIPS=['Best restaurants near Surrey?','What to book in advance?','Tips for Whistler with young kids','What is free in Vancouver?','Add sunscreen to packing list'];
 function renderChips(){
-  const el=document.getElementById('chat-chips'); el.innerHTML='';
-  CHIPS.forEach(c=>{
-    const btn=document.createElement('button'); btn.className='chip'; btn.textContent=c;
-    btn.onclick=()=>{document.getElementById('chat-input').value=c;sendChat();};
+  var el=document.getElementById('chat-chips');el.innerHTML='';
+  CHIPS.forEach(function(c){
+    var btn=document.createElement('button');btn.className='chip';btn.textContent=c;
+    btn.onclick=function(){document.getElementById('chat-input').value=c;sendChat();};
     el.appendChild(btn);
   });
 }
 
 function appendMsg(role,text){
-  chatHistory.push({role,content:text});
-  const container=document.getElementById('chat-messages');
-  const div=document.createElement('div'); div.className='msg '+role;
+  chatHistory.push({role:role,content:text});
+  var container=document.getElementById('chat-messages');
+  var div=document.createElement('div');div.className='msg '+role;
   div.innerHTML=text.replace(/\n/g,'<br/>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
-  container.appendChild(div); container.scrollTop=container.scrollHeight; return div;
+  container.appendChild(div);container.scrollTop=container.scrollHeight;return div;
 }
 
 async function sendChat(){
-  const input=document.getElementById('chat-input');
-  const text=input.value.trim(); if(!text)return;
-  input.value=''; document.getElementById('chat-send').disabled=true;
+  var input=document.getElementById('chat-input');
+  var text=input.value.trim();if(!text)return;
+  input.value='';document.getElementById('chat-send').disabled=true;
   appendMsg('user',text);
-  const container=document.getElementById('chat-messages');
-  const typing=document.createElement('div'); typing.className='msg assistant';
+  var container=document.getElementById('chat-messages');
+  var typing=document.createElement('div');typing.className='msg assistant';
   typing.innerHTML='<div class="typing-dots"><span></span><span></span><span></span></div>';
-  container.appendChild(typing); container.scrollTop=container.scrollHeight;
-  const spent=allItems.reduce((s,i)=>s+(Number(i.cost)||0),0);
-  const context=[
-    'Trip: '+(tripData?.title||'Vancouver 2026'),
-    'Dates: '+fmtDate(tripData?.start_date)+' to '+fmtDate(tripData?.end_date),
-    'Budget: CA$'+(tripData?.total_budget||0)+' total, CA$'+spent+' estimated, CA$'+((Number(tripData?.total_budget)||0)-spent)+' remaining',
-    'Days: '+allDays.map(d=>{
-      const items=allItems.filter(i=>i.day_id===d.id);
-      return 'Day '+d.day_number+' ('+d.date+'): '+d.title+(items.length?' - '+items.map(i=>i.activity+(i.cost?' CA$'+i.cost:'')).join(', '):'');
+  container.appendChild(typing);container.scrollTop=container.scrollHeight;
+  var spent=allItems.reduce(function(s,i){return s+(Number(i.cost)||0);},0);
+  var context=[
+    'Trip: '+(tripData?tripData.title:'Vancouver 2026'),
+    'Dates: '+fmtDate(tripData?tripData.start_date:null)+' to '+fmtDate(tripData?tripData.end_date:null),
+    'Budget: CA$'+(tripData?tripData.total_budget:0)+' total, CA$'+spent+' estimated',
+    'Days: '+allDays.map(function(d){
+      var items=allItems.filter(function(i){return i.day_id===d.id;});
+      return 'Day '+d.day_number+' ('+d.date+'): '+d.title+(items.length?' - '+items.map(function(i){return i.activity+(i.cost?' CA$'+i.cost:'');}).join(', '):'');
     }).join(' | '),
-    'People: '+allPeople.map(p=>p.name+(p.age?' age '+p.age:'')+(p.trip_start?' arrives '+p.trip_start:'')).join(', ')
+    'People: '+allPeople.map(function(p){return p.name+(p.age?' age '+p.age:'');}).join(', ')
   ].join('\n');
   try{
-    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatHistory.filter(m=>m.role!=='system').slice(-20).map(m=>({role:m.role,content:m.content})),tripContext:context})});
-    const{reply,error,madeChanges}=await res.json();
+    var res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatHistory.filter(function(m){return m.role!=='system';}).slice(-20).map(function(m){return{role:m.role,content:m.content};}),tripContext:context})});
+    var data=await res.json();
     typing.remove();
-    appendMsg('assistant',error?'Sorry, something went wrong. Try again!':reply);
-    if(madeChanges){await loadAll();showToast('Trip updated!');}
+    appendMsg('assistant',data.error?'Sorry, something went wrong.':data.reply);
+    if(data.madeChanges){await loadAll();showToast('Trip updated!');}
   }catch(e){
     typing.remove();
-    appendMsg('assistant','Connection error. Check your internet and try again.');
+    appendMsg('assistant','Connection error. Please try again.');
   }
   document.getElementById('chat-send').disabled=false;
   container.scrollTop=container.scrollHeight;
