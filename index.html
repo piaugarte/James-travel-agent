@@ -629,7 +629,56 @@ function renderDays(){
   if(!container)return;
   container.innerHTML='';
 
-  allPhases.sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);}).forEach(function(phase){
+  // If phases didn't load, build synthetic ones from days
+  var phasesToRender=allPhases.slice().sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);});
+  if(phasesToRender.length===0){
+    // fallback: group by day_number ranges
+    var synth=[
+      {id:'__surrey',title:'Surrey base camp',subtitle:'Jun 15-24',color:'green',sort_order:1,_synth:true},
+      {id:'__whistler',title:'Whistler escape',subtitle:'Jun 25-28',color:'purple',sort_order:2,_synth:true},
+      {id:'__bday',title:'Birthday week + Canada Day',subtitle:'Jun 29 - Jul 1',color:'amber',sort_order:3,_synth:true}
+    ];
+    // assign days to synth phases by day_number
+    allDays.forEach(function(d){
+      if(!d.phase_id){
+        if(d.day_number<=10)d._synthPhase='__surrey';
+        else if(d.day_number<=14)d._synthPhase='__whistler';
+        else d._synthPhase='__bday';
+      }
+    });
+    // render synth phases
+    synth.forEach(function(phase){
+      var phaseEl=document.createElement('div');
+      phaseEl.className='phase-block';
+      var hdr=document.createElement('div');
+      hdr.className='phase-header '+phase.color;
+      hdr.innerHTML='<div style="flex:1;"><div style="font-family:Funnel Display,sans-serif;font-weight:700;font-size:15px;">'+escHtml(phase.title)+'</div><div style="font-size:12px;opacity:0.8;">'+escHtml(phase.subtitle)+'</div></div>';
+      phaseEl.appendChild(hdr);
+      var daysDiv=document.createElement('div');
+      daysDiv.className='days-container';
+      daysDiv.id='days-phase-'+phase.id;
+      var phaseDays=allDays.filter(function(d){
+        if(d.phase_id){
+          // match by position
+          if(phase.id==='__surrey')return d.day_number<=10;
+          if(phase.id==='__whistler')return d.day_number>10&&d.day_number<=14;
+          return d.day_number>14;
+        }
+        return d._synthPhase===phase.id;
+      }).sort(function(a,b){return (a.sort_order||a.day_number||0)-(b.sort_order||b.day_number||0);});
+      phaseDays.forEach(function(day){
+        var card=buildDayCard(day,phase);
+        daysDiv.appendChild(card);
+        renderItems(day.id);
+      });
+      phaseEl.appendChild(daysDiv);
+      container.appendChild(phaseEl);
+    });
+    initActivitySortable();
+    return;
+  }
+
+  phasesToRender.forEach(function(phase){
     var phaseEl=document.createElement('div');
     phaseEl.className='phase-block';
     phaseEl.setAttribute('data-phase-id',phase.id);
