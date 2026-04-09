@@ -493,6 +493,16 @@ function setCurrency(cur){
   if(localStorage.getItem('budget_unlocked')==='1')renderBudget();
 }
 
+function fmt12h(t){
+  if(!t)return '';
+  // handle already-formatted "10:00 AM" strings
+  if(t.indexOf('AM')>-1||t.indexOf('PM')>-1)return t;
+  var parts=t.split(':');
+  var h=parseInt(parts[0]);var m=parts[1]||'00';
+  var ampm=h>=12?'PM':'AM';
+  h=h%12||12;
+  return h+':'+m+' '+ampm;
+}
 function fmtDate(d){if(!d)return '--';var dt=new Date(d+'T12:00:00');return dt.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'});}
 function fmtShort(d){if(!d)return '';var dt=new Date(d+'T12:00:00');return dt.toLocaleDateString('en-CA',{month:'short',day:'numeric'});}
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
@@ -724,7 +734,7 @@ function buildDayBlock(day, phaseColor){
 
   var nameIn=document.createElement('input');nameIn.type='text';nameIn.placeholder='Activity name...';nameIn.id='aa-name-'+day.id;
   nameIn.onkeydown=function(e){if(e.key==='Enter')addActivity(day.id);};
-  var timeIn=document.createElement('input');timeIn.type='text';timeIn.placeholder='Time (e.g. 10:00 AM)';timeIn.id='aa-time-'+day.id;
+  var timeIn=document.createElement('input');timeIn.type='time';timeIn.id='aa-time-'+day.id;
   var costIn=document.createElement('input');costIn.type='number';costIn.placeholder='Cost (CA$)';costIn.id='aa-cost-'+day.id;
   var catSel=document.createElement('select');catSel.id='aa-cat-'+day.id;
   ['activity','food','hotel','transport','flight','other'].forEach(function(cat){
@@ -750,7 +760,16 @@ function renderActivities(dayId){
   var container=document.getElementById('acts-'+dayId);
   if(!container)return;
   container.innerHTML='';
-  var items=allItems.filter(function(i){return i.day_id===dayId;}).sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);});
+  var items=allItems.filter(function(i){return i.day_id===dayId;}).sort(function(a,b){
+    // sort by time if both have time, otherwise by sort_order
+    if(a.time&&b.time){
+      var ta=a.time.replace(':','');var tb=b.time.replace(':','');
+      return parseInt(ta)-parseInt(tb);
+    }
+    if(a.time&&!b.time)return -1;
+    if(!a.time&&b.time)return 1;
+    return (a.sort_order||0)-(b.sort_order||0);
+  });
   items.forEach(function(item){
     var itemParts=allParticipants.filter(function(p){return p.item_id===item.id;});
     var row=document.createElement('div');
@@ -789,13 +808,15 @@ function renderActivities(dayId){
     var rightSide=document.createElement('span');
     rightSide.style.cssText='display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:auto;';
 
-    if(item.time){var t=document.createElement('span');t.className='act-time';t.textContent=item.time+(item.end_time?' - '+item.end_time:'');rightSide.appendChild(t);}
+    if(item.time){var t=document.createElement('span');t.className='act-time';t.textContent=fmt12h(item.time)+(item.end_time?' - '+fmt12h(item.end_time):'');rightSide.appendChild(t);}
 
     var costSpan=document.createElement('span');costSpan.className='act-cost';
     function refreshCostSpan(){
       var cnt=allParticipants.filter(function(p){return p.item_id===item.id;}).length;
       var eff=cnt>0?cnt:1;
-      costSpan.textContent=item.cost?(fmtMoney(item.cost)+' · '+fmtMoney(Math.round((Number(item.cost)||0)/eff))+' ea'):'';
+      var total=Number(item.cost)||0;
+      var pp=Math.round(total/eff);
+      costSpan.textContent=total?('CA$'+total+' · CA$'+pp+' ea'):'';
     }
     refreshCostSpan();
     rightSide.appendChild(costSpan);
@@ -828,13 +849,9 @@ function renderActivities(dayId){
 
     // Time
     var timeWrap=document.createElement('div');timeWrap.style.cssText='display:flex;align-items:center;gap:8px;flex:1;';
-    var timeIn=document.createElement('input');timeIn.className='act-field-input';timeIn.value=item.time||'';timeIn.placeholder='Start (e.g. 10:00 AM)';
-    timeIn.onblur=function(){};
-    timeIn.onkeydown=function(e){if(e.key==='Enter')timeIn.blur();};
+    var timeIn=document.createElement('input');timeIn.className='act-field-input';timeIn.type='time';timeIn.value=item.time||'';
     var timeSep=document.createElement('span');timeSep.style.cssText='font-size:12px;color:var(--text-muted);flex-shrink:0;';timeSep.textContent='to';
-    var endTimeIn=document.createElement('input');endTimeIn.className='act-field-input';endTimeIn.value=item.end_time||'';endTimeIn.placeholder='End (e.g. 12:00 PM)';
-    endTimeIn.onblur=function(){};
-    endTimeIn.onkeydown=function(e){if(e.key==='Enter')endTimeIn.blur();};
+    var endTimeIn=document.createElement('input');endTimeIn.className='act-field-input';endTimeIn.type='time';endTimeIn.value=item.end_time||'';
     timeWrap.appendChild(timeIn);timeWrap.appendChild(timeSep);timeWrap.appendChild(endTimeIn);
     expanded.appendChild(makeField('Time', timeWrap));
 
@@ -907,14 +924,16 @@ function renderActivities(dayId){
     var ppLbl=document.createElement('div');ppLbl.style.cssText='font-size:11px;color:var(--amber);font-weight:600;width:100%;margin-bottom:4px;';
     function refreshPp(){
       var cnt=allParticipants.filter(function(p){return p.item_id===item.id;}).length;
-      ppLbl.textContent=(item.cost&&cnt>0)?fmtMoney(Math.round((Number(item.cost)||0)/cnt))+' each ('+cnt+' joining)':'';
+      var eff=cnt>0?cnt:1;
+      var pp=item.cost?Math.round((Number(item.cost)||0)/eff):0;
+      ppLbl.textContent=item.cost?'CA$'+pp+' each ('+eff+' joining)':'';
     }
     refreshPp();
     chipsWrap.appendChild(ppLbl);
 
     allPeople.forEach(function(person){
       var joined=itemParts.some(function(p){return p.traveler_id===person.id;});
-      var chip=document.createElement('div');chip.className='act-who-chip'+(joined?' joined':'');
+      var chip=document.createElement('div');chip.className='act-who-chip'+(joined?' joined':'');chip.setAttribute('data-person-id',person.id);
       var av=document.createElement('div');av.className='chip-av';av.textContent=person.avatar||'?';
       var nm=document.createElement('div');nm.textContent=person.name;
       chip.appendChild(av);chip.appendChild(nm);
@@ -950,7 +969,28 @@ function renderActivities(dayId){
 
     // Save button
     var saveRow=document.createElement('div');
-    saveRow.style.cssText='display:flex;justify-content:flex-end;margin-top:12px;';
+    saveRow.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-top:12px;';
+    var clearBtn=document.createElement('button');
+    clearBtn.className='btn btn-ghost btn-sm';
+    clearBtn.style.cssText='color:var(--red);border-color:var(--red-pale);';
+    clearBtn.textContent='Clear';
+    clearBtn.onclick=function(){
+      if(!confirm('Clear all fields for this activity?'))return;
+      nameIn.value='';timeIn.value='';endTimeIn.value='';totalIn.value='';ppIn.value='';
+      transBtns.forEach(function(b){b.classList.remove('active');});transBtns[0].classList.add('active');currentT='';
+      // remove all participants
+      var toRemove=allParticipants.filter(function(p){return p.item_id===item.id;});
+      toRemove.forEach(function(p){sb.from('item_participants').delete().eq('id',p.id);});
+      allParticipants=allParticipants.filter(function(p){return p.item_id!==item.id;});
+      localJoinedCount=0;
+      chipsWrap.querySelectorAll('.act-who-chip').forEach(function(ch){ch.classList.remove('joined');});
+      ppLbl.textContent='';
+      Object.assign(item,{activity:'',time:'',end_time:'',cost:0,transport:''});
+      sb.from('itinerary_items').update({activity:'',time:'',end_time:'',cost:0,transport:''}).eq('id',item.id);
+      nameSpan.textContent='Untitled';avatarWrap.innerHTML='';refreshCostSpan();
+      showToast('Cleared!');
+    };
+    saveRow.appendChild(clearBtn);
     var saveBtn=document.createElement('button');
     saveBtn.className='btn btn-primary btn-sm';
     saveBtn.textContent='Save';
@@ -976,7 +1016,7 @@ function renderActivities(dayId){
         // update collapsed display directly with values we know are correct
         nameSpan.textContent=item.activity||'Untitled';
         var tEl=collapsed.querySelector('.act-time');
-        var timeStr=item.time+(item.end_time?' - '+item.end_time:'');
+        var timeStr=fmt12h(item.time)+(item.end_time?' - '+fmt12h(item.end_time):'');
         if(tEl){tEl.textContent=timeStr;}
         else if(item.time){
           var newT=document.createElement('span');newT.className='act-time';newT.textContent=timeStr;
@@ -990,12 +1030,13 @@ function renderActivities(dayId){
           var av=document.createElement('span');av.className='act-mini-avatar joined';av.textContent=p.avatar||'?';
           avatarWrap.appendChild(av);
         });
-        // update cost display using cnt from THIS save context
+        // update cost display - always CA$ to match input fields
+        var pp2=cnt>0?Math.round(newCost/cnt):newCost;
         if(costSpan){
-          costSpan.textContent=newCost?(fmtMoney(newCost)+' · '+fmtMoney(Math.round(newCost/cnt))+' ea'):'';
+          costSpan.textContent=newCost?('CA$'+newCost+' · CA$'+pp2+' ea'):'';
         } else if(newCost){
           var cs=document.createElement('span');cs.className='act-cost';
-          cs.textContent=fmtMoney(newCost)+' · '+fmtMoney(Math.round(newCost/cnt))+' ea';
+          cs.textContent='CA$'+newCost+' · CA$'+pp2+' ea';
           rightSide.appendChild(cs);
         }
         renderHero();
