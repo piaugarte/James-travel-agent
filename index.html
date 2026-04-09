@@ -171,30 +171,18 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .who-pp-tag{font-size:11px;color:var(--amber);font-weight:600;margin-top:2px;}
 /* cal */
 .cal-act-card{position:relative;}
-.cal-act-card:hover::after{
-  content:attr(data-tooltip);
-  position:absolute;
-  bottom:calc(100% + 6px);
-  left:0;
+#cal-tooltip{
+  position:fixed;
   background:var(--text);
   color:white;
-  padding:5px 9px;
+  padding:6px 10px;
   border-radius:6px;
-  font-size:11px;
+  font-size:12px;
   white-space:nowrap;
-  z-index:999;
+  z-index:9999;
   pointer-events:none;
   box-shadow:var(--shadow-md);
-}
-.cal-act-card:hover::before{
-  content:'';
-  position:absolute;
-  bottom:calc(100% + 1px);
-  left:10px;
-  border:5px solid transparent;
-  border-top-color:var(--text);
-  z-index:999;
-  pointer-events:none;
+  display:none;
 }
 .cal-toggle{display:flex;gap:8px;margin-bottom:16px;}
 .cal-toggle button{padding:6px 16px;border-radius:20px;border:1px solid var(--gray-border);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;background:var(--white);color:var(--text-muted);transition:all .15s;}
@@ -476,6 +464,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
   <div class="chat-input-row"><input type="text" id="chat-input" placeholder="Ask something or make a change..." onkeydown="if(event.key==='Enter')sendChat()"/><button class="chat-send" id="chat-send" onclick="sendChat()">&#10148;</button></div>
 </div>
 <div class="toast" id="toast"></div>
+<div id="cal-tooltip"></div>
 
 <script>
 const SUPABASE_URL = 'https://ajtjpcenmlzmpnzrfxvg.supabase.co';
@@ -723,6 +712,18 @@ function buildCalCard(item){
   el.setAttribute('data-id',item.id);
   var label=(item.time?fmt12h(item.time)+' · ':'')+item.activity;
   el.setAttribute('data-tooltip',label);
+  el.addEventListener('mouseenter',function(e){
+    var tip=document.getElementById('cal-tooltip');
+    if(tip){tip.textContent=label;tip.style.display='block';tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-32)+'px';}
+  });
+  el.addEventListener('mousemove',function(e){
+    var tip=document.getElementById('cal-tooltip');
+    if(tip){tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-32)+'px';}
+  });
+  el.addEventListener('mouseleave',function(){
+    var tip=document.getElementById('cal-tooltip');
+    if(tip)tip.style.display='none';
+  });
   el.style.cssText='font-size:10px;background:white;border:1px solid var(--gray-border);border-left:3px solid '+(CAT_COLORS[item.category]||CAT_COLORS.other)+';border-radius:4px;padding:2px 5px;margin-bottom:2px;cursor:grab;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:100%;';
   el.textContent=label;
   return el;
@@ -1243,7 +1244,7 @@ function initDragDrop(){
           var it=allItems.find(function(x){return x.id===id;});
           if(it&&it.sort_order!==i+1){it.sort_order=i+1;sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id);}
         });
-        renderHero();showToast('Moved!');
+        renderHero();renderCalendar();showToast('Moved!');
       }
     });
   });
