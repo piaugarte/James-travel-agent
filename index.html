@@ -688,40 +688,40 @@ function renderDays(){
     container.appendChild(phaseEl);
   });
 
-  // Sortable for activities CROSS-DAY drag
-  // Re-init Sortable on all items-lists with shared group
+  // Init cross-day Sortable AFTER all renderItems calls
+  initActivitySortable();
+}
+
+function initActivitySortable(){
+  if(typeof Sortable==='undefined')return;
   document.querySelectorAll('.items-list').forEach(function(list){
-    if(list._sortable)list._sortable.destroy();
-    if(typeof Sortable!=='undefined'){
-      list._sortable=Sortable.create(list,{
-        group:'activities',
-        handle:'.drag-handle',
-        animation:150,
-        ghostClass:'sortable-ghost',
-        filter:'.item-row.header',
-        onEnd:function(evt){
-          var itemId=evt.item.getAttribute('data-id');
-          var newList=evt.to;
-          var dayCard=newList.closest('.day-card');
-          var newDayId=dayCard?dayCard.id.replace('day-',''):null;
-          var item=allItems.find(function(x){return x.id===itemId;});
-          if(!item)return;
-          // update day_id if moved to different day
-          if(newDayId&&newDayId!==item.day_id){
-            item.day_id=newDayId;
-            sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
-          }
-          // update sort orders in new list
-          var rows=newList.querySelectorAll('[data-id]');
-          rows.forEach(function(r,i){
-            var id=r.getAttribute('data-id');
-            var it=allItems.find(function(x){return x.id===id;});
-            if(it&&it.sort_order!==i+1){it.sort_order=i+1;sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id);}
-          });
-          showToast('Saved!');
+    if(list._sortable){list._sortable.destroy();list._sortable=null;}
+    list._sortable=Sortable.create(list,{
+      group:'activities',
+      handle:'.drag-handle',
+      animation:150,
+      ghostClass:'sortable-ghost',
+      filter:'.item-row.header',
+      onEnd:function(evt){
+        var itemId=evt.item.getAttribute('data-id');
+        var newList=evt.to;
+        var dayCard=newList.closest('.day-card');
+        var newDayId=dayCard?dayCard.id.replace('day-',''):null;
+        var item=allItems.find(function(x){return x.id===itemId;});
+        if(!item)return;
+        if(newDayId&&newDayId!==item.day_id){
+          item.day_id=newDayId;
+          sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
         }
-      });
-    }
+        var rows=newList.querySelectorAll('[data-id]');
+        rows.forEach(function(r,i){
+          var id=r.getAttribute('data-id');
+          var it=allItems.find(function(x){return x.id===id;});
+          if(it&&it.sort_order!==i+1){it.sort_order=i+1;sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id);}
+        });
+        showToast('Saved!');
+      }
+    });
   });
 }
 
@@ -1075,7 +1075,7 @@ async function addItem(dayId){
   if(res.error){showToast('Error saving');return;}
   allItems.push(res.data);
   ['time','act','loc','cost'].forEach(function(f){document.getElementById('ai-'+f+'-'+dayId).value='';});
-  renderItems(dayId);renderHero();showToast('Activity added!');
+  renderItems(dayId);initActivitySortable();renderHero();showToast('Activity added!');
 }
 
 async function deleteItem(itemId){
