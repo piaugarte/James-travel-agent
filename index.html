@@ -865,31 +865,33 @@ function buildDayBlock(day, phaseColor){
   saveOrderBtn.className='btn btn-ghost btn-sm';
   saveOrderBtn.style.cssText='font-size:11px;opacity:0;pointer-events:none;transition:opacity .2s;';
   saveOrderBtn.textContent='Save order';
-  saveOrderBtn.onclick=function(){
-    var zone=document.getElementById('acts-'+day.id);
-    if(!zone)return;
-    var rows=Array.from(zone.children).filter(function(el){return el.getAttribute('data-id');});
-    var dayIdx=allDays.findIndex(function(d){return d.id===day.id;});
-    var base=(dayIdx>=0?dayIdx:0)*1000;
-    var saves=rows.map(function(r,i){
-      var id=r.getAttribute('data-id');
-      var it=allItems.find(function(x){return x.id===id;});
-      if(it){it.sort_order=base+i+1;}
-      return sb.from('itinerary_items').update({sort_order:base+i+1}).eq('id',id);
-    });
-    Promise.all(saves).then(function(){
-      saveOrderBtn.textContent='✓ Saved!';
-      saveOrderBtn.style.background='var(--green-pale)';
-      saveOrderBtn.style.color='var(--green)';
-      setTimeout(function(){
-        saveOrderBtn.textContent='Save order';
-        saveOrderBtn.style.opacity='0';
-        saveOrderBtn.style.pointerEvents='none';
-        saveOrderBtn.style.background='';
-        saveOrderBtn.style.color='';
-      },1500);
-    });
-  };
+  (function(capturedDayId){
+    saveOrderBtn.onclick=function(){
+      var zone=document.getElementById('acts-'+capturedDayId);
+      if(!zone)return;
+      var rows=Array.from(zone.children).filter(function(el){return el.getAttribute('data-id');});
+      var dayIdx=allDays.findIndex(function(d){return d.id===capturedDayId;});
+      var base=(dayIdx>=0?dayIdx:0)*1000;
+      var saves=rows.map(function(r,i){
+        var id=r.getAttribute('data-id');
+        var it=allItems.find(function(x){return x.id===id;});
+        if(it){it.sort_order=base+i+1;}
+        return sb.from('itinerary_items').update({sort_order:base+i+1}).eq('id',id);
+      });
+      Promise.all(saves).then(function(){
+        saveOrderBtn.textContent='✓ Saved!';
+        saveOrderBtn.style.background='var(--green-pale)';
+        saveOrderBtn.style.color='var(--green)';
+        setTimeout(function(){
+          saveOrderBtn.textContent='Save order';
+          saveOrderBtn.style.opacity='0';
+          saveOrderBtn.style.pointerEvents='none';
+          saveOrderBtn.style.background='';
+          saveOrderBtn.style.color='';
+        },1500);
+      });
+    };
+  })(day.id);
   hdr.appendChild(saveOrderBtn);
   el.setAttribute('data-save-btn', day.id);
   el.appendChild(hdr);
@@ -1287,14 +1289,11 @@ function initDragDrop(){
           sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
         }
         // save sort_order
-        // show save order button on this day
-        var dayBlock=newZone.closest('.day-block');
+        // show save order button on destination day
+        var dayBlock=document.getElementById('day-'+newDayId);
         if(dayBlock){
-          var btn=dayBlock.querySelector('.btn-ghost');
-          if(btn&&btn.textContent==='Save order'){
-            btn.style.opacity='1';
-            btn.style.pointerEvents='auto';
-          }
+          var btn=dayBlock.querySelector('button.btn-ghost');
+          if(btn){btn.style.opacity='1';btn.style.pointerEvents='auto';}
         }
         renderHero();renderCalendar();
       }
