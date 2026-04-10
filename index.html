@@ -1252,12 +1252,18 @@ function initDragDrop(){
           item.day_id=newDayId;
           sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
         }
-        // save sort_order - filter to only elements with data-id, track index separately
+        // save sort_order
         var rows=Array.from(newZone.children).filter(function(el){return el.getAttribute('data-id');});
+        console.log('LIST DROP - itemId:',itemId,'newDayId:',newDayId,'rows:',rows.length,'zone class:',newZone.className,'zone data-day-id:',newZone.getAttribute('data-day-id'));
         rows.forEach(function(r,i){
           var id=r.getAttribute('data-id');
           var it=allItems.find(function(x){return x.id===id;});
-          if(it){it.sort_order=i+1;sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id);}
+          if(it){
+            it.sort_order=i+1;
+            sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id).then(function(res){
+              console.log('sort save',id,'order',i+1,'error:',res.error||'ok');
+            });
+          }
         });
         renderHero();
         showToast('Saved!');
