@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1251,17 +1252,13 @@ function initDragDrop(){
           item.day_id=newDayId;
           sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
         }
-        // save every item's sort_order in this zone
-        var children=newZone.children;
-        for(var i=0;i<children.length;i++){
-          var id=children[i].getAttribute('data-id');
-          if(!id)continue;
+        // save sort_order - filter to only elements with data-id, track index separately
+        var rows=Array.from(newZone.children).filter(function(el){return el.getAttribute('data-id');});
+        rows.forEach(function(r,i){
+          var id=r.getAttribute('data-id');
           var it=allItems.find(function(x){return x.id===id;});
-          if(it){
-            it.sort_order=i+1;
-            sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id);
-          }
-        }
+          if(it){it.sort_order=i+1;sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id);}
+        });
         renderHero();
         showToast('Saved!');
       }
