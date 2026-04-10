@@ -1222,12 +1222,14 @@ function saveDropOrder(itemId, newDayId, zoneEl){
   var rows=Array.from(zoneEl.children).filter(function(el){return el.getAttribute('data-id');});
   var updates=[];
   if(dayChanged)updates.push(sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId));
+  var dayIdx=allDays.findIndex(function(d){return d.id===newDayId;});
+  var base=(dayIdx>=0?dayIdx:0)*1000;
   rows.forEach(function(r,i){
     var id=r.getAttribute('data-id');
     var it=allItems.find(function(x){return x.id===id;});
     if(it){
-      it.sort_order=i+1;
-      updates.push(sb.from('itinerary_items').update({sort_order:i+1,day_id:it.day_id}).eq('id',id));
+      it.sort_order=base+i+1;
+      updates.push(sb.from('itinerary_items').update({sort_order:base+i+1,day_id:it.day_id}).eq('id',id));
     }
   });
   Promise.all(updates).then(function(){showToast('Moved!');renderHero();});
@@ -1254,18 +1256,15 @@ function initDragDrop(){
         }
         // save sort_order
         var rows=Array.from(newZone.children).filter(function(el){return el.getAttribute('data-id');});
-        console.log('LIST DROP - itemId:',itemId,'newDayId:',newDayId,'rows:',rows.length,'zone class:',newZone.className,'zone data-day-id:',newZone.getAttribute('data-day-id'));
+        // find day index to create unique sort_orders across all days
+        var dayIdx=allDays.findIndex(function(d){return d.id===newDayId;});
+        var base=(dayIdx>=0?dayIdx:0)*1000;
         rows.forEach(function(r,i){
           var id=r.getAttribute('data-id');
           var it=allItems.find(function(x){return x.id===id;});
-          if(it){
-            it.sort_order=i+1;
-            sb.from('itinerary_items').update({sort_order:i+1}).eq('id',id).then(function(res){
-              console.log('sort save',id,'order',i+1,'error:',res.error||'ok');
-            });
-          }
+          if(it){it.sort_order=base+i+1;sb.from('itinerary_items').update({sort_order:base+i+1}).eq('id',id);}
         });
-        renderHero();
+        renderHero();renderCalendar();
         showToast('Saved!');
       }
     });
