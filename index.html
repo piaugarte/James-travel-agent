@@ -951,7 +951,7 @@ function renderActivities(dayId){
       var eff=cnt>0?cnt:1;
       var total=Number(item.cost)||0;
       var pp=Math.round(total/eff);
-      costSpan.textContent=total?(fmtCAD(total)+' · '+fmtCAD(pp)+' ea'):'';
+      costSpan.textContent=total?(fmtMoney(total)+' · '+fmtMoney(pp)+' ea'):'';
     }
     refreshCostSpan();
     rightSide.appendChild(costSpan);
@@ -1061,7 +1061,7 @@ function renderActivities(dayId){
       var cnt=allParticipants.filter(function(p){return p.item_id===item.id;}).length;
       var eff=cnt>0?cnt:1;
       var pp=item.cost?Math.round((Number(item.cost)||0)/eff):0;
-      ppLbl.textContent=item.cost?'CA$'+pp+' each ('+eff+' joining)':'';
+      ppLbl.textContent=item.cost?fmtMoney(pp)+' each ('+eff+' joining)':'';
     }
     refreshPp();
     chipsWrap.appendChild(ppLbl);
@@ -1168,10 +1168,10 @@ function renderActivities(dayId){
         // update cost display - always CA$ to match input fields
         var pp2=cnt>0?Math.round(newCost/cnt):newCost;
         if(costSpan){
-          costSpan.textContent=newCost?('CA$'+newCost+' · CA$'+pp2+' ea'):'';
+          costSpan.textContent=newCost?(fmtMoney(newCost)+' · '+fmtMoney(pp2)+' ea'):'';
         } else if(newCost){
           var cs=document.createElement('span');cs.className='act-cost';
-          cs.textContent='CA$'+newCost+' · CA$'+pp2+' ea';
+          cs.textContent=fmtMoney(newCost)+' · '+fmtMoney(pp2)+' ea';
           rightSide.appendChild(cs);
         }
         renderHero();
