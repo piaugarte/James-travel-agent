@@ -857,43 +857,11 @@ function buildDayBlock(day, phaseColor){
   num.textContent=day.day_number;
   hdr.appendChild(num);
   var label=document.createElement('div');
-  label.style.cssText='font-size:13px;font-weight:600;color:var(--text);flex:1;';
+  label.style.cssText='font-size:13px;font-weight:600;color:var(--text);';
   label.textContent='Day '+day.day_number+' · '+fmtShort(day.date);
   hdr.appendChild(label);
 
-  var saveOrderBtn=document.createElement('button');
-  saveOrderBtn.className='btn btn-ghost btn-sm';
-  saveOrderBtn.style.cssText='font-size:11px;opacity:0;pointer-events:none;transition:opacity .2s;';
-  saveOrderBtn.textContent='Save order';
-  (function(capturedDayId){
-    saveOrderBtn.onclick=function(){
-      var zone=document.getElementById('acts-'+capturedDayId);
-      if(!zone)return;
-      var rows=Array.from(zone.children).filter(function(el){return el.getAttribute('data-id');});
-      var dayIdx=allDays.findIndex(function(d){return d.id===capturedDayId;});
-      var base=(dayIdx>=0?dayIdx:0)*1000;
-      var saves=rows.map(function(r,i){
-        var id=r.getAttribute('data-id');
-        var it=allItems.find(function(x){return x.id===id;});
-        if(it){it.sort_order=base+i+1;}
-        return sb.from('itinerary_items').update({sort_order:base+i+1}).eq('id',id);
-      });
-      Promise.all(saves).then(function(){
-        saveOrderBtn.textContent='✓ Saved!';
-        saveOrderBtn.style.background='var(--green-pale)';
-        saveOrderBtn.style.color='var(--green)';
-        setTimeout(function(){
-          saveOrderBtn.textContent='Save order';
-          saveOrderBtn.style.opacity='0';
-          saveOrderBtn.style.pointerEvents='none';
-          saveOrderBtn.style.background='';
-          saveOrderBtn.style.color='';
-        },1500);
-      });
-    };
-  })(day.id);
-  hdr.appendChild(saveOrderBtn);
-  el.setAttribute('data-save-btn', day.id);
+
   el.appendChild(hdr);
 
   // activities drop zone
