@@ -1282,20 +1282,8 @@ function initDragDrop(){
         var newZone=evt.to;
         var newDayId=newZone.getAttribute('data-day-id');
         if(!itemId||!newDayId)return;
-        // update day_id if changed
-        var item=allItems.find(function(x){return x.id===itemId;});
-        if(item&&newDayId!==item.day_id){
-          item.day_id=newDayId;
-          sb.from('itinerary_items').update({day_id:newDayId}).eq('id',itemId);
-        }
-        // save sort_order
-        // show save order button on destination day
-        var dayBlock=document.getElementById('day-'+newDayId);
-        if(dayBlock){
-          var btn=dayBlock.querySelector('button.btn-ghost');
-          if(btn){btn.style.opacity='1';btn.style.pointerEvents='auto';}
-        }
-        renderHero();renderCalendar();
+        saveDropOrder(itemId,newDayId,newZone);
+        renderCalendar();
       }
     });
   });
