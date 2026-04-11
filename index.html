@@ -2391,6 +2391,45 @@ async function completeOnboarding(skipped){
   }
 
   localStorage.setItem('onboarding_complete','1');
+  localStorage.removeItem('calc_explainer_dismissed'); // show explainer fresh
+
+  // push pre-costs into calculator as locked rows BEFORE loadAll
+  if(!skipped&&obData.preCosts&&obData.preCosts.length){
+    // remove existing default rows that match (e.g. Flights)
+    var toAdd=obData.preCosts.filter(function(pc){return pc.desc&&pc.amount>0;});
+    if(toAdd.length){
+      // replace Flights row if we have a flight cost
+      var flightCost=toAdd.find(function(pc){return pc.desc.toLowerCase().includes('flight');});
+      if(flightCost){
+        var flightRow=calcItems.find(function(i){return i.label==='Flights';});
+        if(flightRow){flightRow.amount=flightCost.amount;flightRow.locked=true;}
+      }
+      // add remaining pre-costs as new locked rows
+      var colors=['#c62828','#5e35b1','#1565c0','#00695c','#6b7280'];
+      toAdd.forEach(function(pc,i){
+        if(pc.desc.toLowerCase().includes('flight'))return; // already handled
+        calcItems.push({id:calcNextId++,label:pc.desc,amount:pc.amount,color:colors[i%colors.length],locked:true});
+      });
+    }
+  }
+
+  // set budget, days, people from onboarding
+  if(!skipped){
+    if(obData.budget){calcBudget=obData.budget;window.calcBudgetSet=true;}
+    if(obData.startDate&&obData.endDate){
+      window.calcDays=Math.max(1,Math.round((new Date(obData.endDate)-new Date(obData.startDate))/86400000)+1);
+    }
+    var validTravelers=obData.travelers.filter(function(t){return t.name&&t.name.trim();});
+    if(validTravelers.length)window.calcPeople=validTravelers.length;
+  }
+
+  // save pre-costs to localStorage so they persist on refresh
+  if(!skipped&&obData.preCosts.length){
+    localStorage.setItem('calc_precosts',JSON.stringify(
+      obData.preCosts.filter(function(pc){return pc.desc&&pc.amount>0;})
+    ));
+  }
+
   document.getElementById('ob-overlay').classList.add('hidden');
 
   // reload to get fresh data
@@ -2401,7 +2440,7 @@ async function completeOnboarding(skipped){
     setTimeout(function(){
       var calcBtn=document.querySelector('[onclick*="calculator"]');
       if(calcBtn)calcBtn.click();
-      showToast('Welcome! Time to build your trip budget!');
+      showToast('Welcome! Time to build your budget!');
     },400);
   }
 }
