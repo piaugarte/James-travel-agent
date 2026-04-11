@@ -170,6 +170,27 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .who-grid-chip.selected{border-color:var(--green);background:var(--green-pale);color:var(--green);font-weight:600;}
 .who-grid-chip .chip-avatar{font-size:20px;line-height:1;}
 .who-pp-tag{font-size:11px;color:var(--amber);font-weight:600;margin-top:2px;}
+/* calculator */
+.calc-header{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);padding:20px 24px;margin-bottom:16px;box-shadow:var(--shadow);}
+.calc-budget-display{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.calc-budget-fixed{font-family:'Funnel Display',sans-serif;font-size:28px;font-weight:700;color:var(--green);}
+.calc-status{padding:8px 16px;border-radius:20px;font-size:14px;font-weight:700;}
+.calc-status.under{background:var(--green-pale);color:var(--green);}
+.calc-status.over{background:var(--red-pale);color:var(--red);}
+.calc-status.exact{background:var(--blue-pale);color:var(--blue);}
+.calc-table{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
+.calc-table-header{display:grid;grid-template-columns:1fr 110px 90px 90px 36px;gap:8px;padding:10px 16px;background:var(--gray-light);font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;}
+.calc-row{display:grid;grid-template-columns:1fr 110px 90px 90px 36px;gap:8px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--gray-border);}
+.calc-row:last-child{border-bottom:none;}
+.calc-row-label{display:flex;align-items:center;gap:8px;}
+.calc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.calc-label-input{border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text);width:100%;padding:2px 4px;border-radius:4px;}
+.calc-label-input:focus{outline:none;background:var(--gray-light);}
+.calc-amount-input{border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:6px 10px;font-family:'DM Sans',sans-serif;font-size:13px;text-align:right;width:100%;background:var(--white);}
+.calc-amount-input:focus{outline:none;border-color:var(--green);}
+.calc-derived{font-size:12px;color:var(--text-muted);text-align:right;padding:2px 4px;}
+.calc-total-row{display:grid;grid-template-columns:1fr 110px 90px 90px 36px;gap:8px;align-items:center;padding:12px 16px;background:var(--gray-light);font-weight:700;font-size:14px;border-top:2px solid var(--gray-border);}
+.calc-add-row{padding:12px 16px;border-top:1px solid var(--gray-border);}
 /* plan wizard */
 .wizard{max-width:680px;margin:0 auto;}
 .wizard-progress{display:flex;align-items:center;gap:0;margin-bottom:32px;}
@@ -370,6 +391,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
     <button class="nav-tab" onclick="switchTab('plan',this)">&#127775; Plan</button>
     <button class="nav-tab" onclick="switchTab('people',this)">People</button>
     <button class="nav-tab" onclick="switchTab('costs',this)">Costs</button>
+    <button class="nav-tab" onclick="switchTab('calculator',this)">&#129518; Calculator</button>
     <span class="nav-spacer"></span>
     <button class="nav-tab" onclick="switchTab('packing',this)">&#127876; Packing</button>
     <button class="nav-tab" onclick="switchTab('budget',this)">&#128274; Budget</button>
@@ -397,6 +419,11 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
       <button class="btn btn-ghost btn-sm" style="margin-top:4px;" onclick="addPhase()">+ Add phase</button>
     </div>
     <div id="itin-calendar" style="display:none;"></div>
+  </div>
+
+  <!-- CALCULATOR -->
+  <div id="tab-calculator" class="tab-content">
+    <div id="calculator-container" style="max-width:720px;margin:0 auto;"></div>
   </div>
 
   <!-- PLAN -->
@@ -583,6 +610,7 @@ function switchTab(name,btn){
   btn.classList.add('active');
   if(name==='budget')renderBudget();
   if(name==='plan')initWizard();
+  if(name==='calculator')initCalculator();
   if(name==='packing')renderPacking();
   if(name==='costs')renderCosts();
   if(name==='people'){renderPeople();buildAvatarPicker('add-avatar-picker','p-avatar',AVATARS[0]);}
@@ -1811,6 +1839,361 @@ function initActivitySortable(){
   });
 }
 
+// ── CALCULATOR ──
+var calcItems=[
+  {id:1,label:'Accommodation',amount:0,color:'#5e35b1'},
+  {id:2,label:'Food & Dining',amount:0,color:'#e76f00'},
+  {id:3,label:'Activities',amount:0,color:'#2d6a4f'},
+  {id:4,label:'Transport',amount:0,color:'#1565c0'},
+  {id:5,label:'Shopping & Misc',amount:0,color:'#6b7280'}
+];
+var calcBudget=0;
+var calcNextId=10;
+var calcScenarios=[];
+
+function updateCalcStatus(){
+  // update status bar without full re-render
+  var container=document.getElementById('calculator-container');
+  if(!container)return;
+  var total=calcItems.reduce(function(s,i){return s+(Number(i.amount)||0);},0);
+  var diff=calcBudget-total;
+  var statusEl=container.querySelector('.calc-status');
+  if(statusEl){
+    statusEl.className='calc-status '+(diff<0?'over':diff===0?'exact':'under');
+    if(diff<0)statusEl.textContent='Over by US$'+Math.abs(Math.round(diff)).toLocaleString()+'  ⚠️';
+    else if(diff===0)statusEl.textContent='Exactly on budget ✓';
+    else statusEl.textContent='US$'+Math.round(diff).toLocaleString()+' remaining ✓';
+  }
+}
+
+function initCalculator(){
+  // pre-fill budget from trip data if available
+  if(tripData&&tripData.total_budget)calcBudget=Number(tripData.total_budget)*fxRates.USD;
+  // pre-fill from wizard if available
+  if(wizardData&&wizardData.budget)calcBudget=wizardData.budget;
+  if(wizardData&&wizardData.breakdown){
+    calcItems=Object.entries(wizardData.breakdown).map(function(e,i){
+      return{id:i+1,label:e[0].charAt(0).toUpperCase()+e[0].slice(1),amount:e[1].amount,color:CAT_COLORS_BUDGET[e[0]]||'#6b7280'};
+    });
+  }
+  renderCalculator();
+}
+
+function renderCalculator(){
+  var container=document.getElementById('calculator-container');
+  if(!container)return;
+  container.innerHTML='';
+
+  var days=1,people=1;
+  if(tripData&&tripData.start_date&&tripData.end_date){
+    days=Math.max(1,Math.round((new Date(tripData.end_date)-new Date(tripData.start_date))/86400000)+1);
+  }
+  if(allPeople&&allPeople.length)people=allPeople.length;
+
+  var total=calcItems.reduce(function(s,i){return s+(Number(i.amount)||0);},0);
+  var diff=calcBudget-total;
+  var isOver=diff<0;
+  var isExact=diff===0;
+
+  // header
+  var hdr=document.createElement('div');hdr.className='calc-header';
+  var topRow=document.createElement('div');topRow.style.cssText='display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:12px;';
+  var titleEl=document.createElement('div');
+  titleEl.innerHTML='<div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">FIXED BUDGET</div>';
+  var budgetRow=document.createElement('div');budgetRow.className='calc-budget-display';
+  var budgetIn=document.createElement('input');
+  budgetIn.type='number';budgetIn.value=calcBudget||'';budgetIn.placeholder='Enter total budget';
+  budgetIn.style.cssText='border:none;font-family:Funnel Display,sans-serif;font-size:28px;font-weight:700;color:var(--green);width:180px;background:transparent;';
+  budgetIn.oninput=function(){calcBudget=parseFloat(budgetIn.value)||0;updateCalcStatus();};
+  var budgetLbl=document.createElement('span');budgetLbl.style.cssText='font-size:14px;color:var(--text-muted);';budgetLbl.textContent='US$ total budget';
+  budgetRow.appendChild(budgetIn);budgetRow.appendChild(budgetLbl);
+  titleEl.appendChild(budgetRow);
+  topRow.appendChild(titleEl);
+
+  var statusEl=document.createElement('div');
+  statusEl.className='calc-status '+(isOver?'over':isExact?'exact':'under');
+  if(isOver)statusEl.textContent='Over by US$'+Math.abs(Math.round(diff)).toLocaleString()+'  ⚠️';
+  else if(isExact)statusEl.textContent='Exactly on budget ✓';
+  else statusEl.textContent='US$'+Math.round(diff).toLocaleString()+' remaining ✓';
+  topRow.appendChild(statusEl);
+  hdr.appendChild(topRow);
+
+  // mini stats
+  var statsRow=document.createElement('div');statsRow.style.cssText='display:flex;gap:16px;flex-wrap:wrap;align-items:center;';
+
+  // editable days
+  var daysCell=document.createElement('div');daysCell.style.cssText='font-size:12px;display:flex;align-items:center;gap:4px;';
+  var daysLbl=document.createElement('span');daysLbl.style.color='var(--text-muted)';daysLbl.textContent='Days';
+  var daysIn=document.createElement('input');daysIn.type='number';daysIn.value=days;daysIn.min='1';
+  daysIn.style.cssText='width:48px;border:1px solid var(--gray-border);border-radius:4px;padding:2px 6px;font-family:DM Sans,sans-serif;font-size:12px;font-weight:700;text-align:center;';
+  daysIn.oninput=function(){days=parseInt(daysIn.value)||1;refreshCalcDerived();};
+  daysCell.appendChild(daysLbl);daysCell.appendChild(daysIn);
+  statsRow.appendChild(daysCell);
+
+  // editable people
+  var peopleCell=document.createElement('div');peopleCell.style.cssText='font-size:12px;display:flex;align-items:center;gap:4px;';
+  var peopleLbl=document.createElement('span');peopleLbl.style.color='var(--text-muted)';peopleLbl.textContent='Travelers';
+  var peopleIn=document.createElement('input');peopleIn.type='number';peopleIn.value=people;peopleIn.min='1';
+  peopleIn.style.cssText='width:48px;border:1px solid var(--gray-border);border-radius:4px;padding:2px 6px;font-family:DM Sans,sans-serif;font-size:12px;font-weight:700;text-align:center;';
+  peopleIn.oninput=function(){people=parseInt(peopleIn.value)||1;refreshCalcDerived();};
+  peopleCell.appendChild(peopleLbl);peopleCell.appendChild(peopleIn);
+  statsRow.appendChild(peopleCell);
+
+  // derived stats (updated by refreshCalcDerived)
+  var perDayStat=document.createElement('div');perDayStat.style.cssText='font-size:12px;';
+  var perPersonStat=document.createElement('div');perPersonStat.style.cssText='font-size:12px;';
+  var perPPDStat=document.createElement('div');perPPDStat.style.cssText='font-size:12px;';
+  statsRow.appendChild(perDayStat);statsRow.appendChild(perPersonStat);statsRow.appendChild(perPPDStat);
+
+  function refreshCalcDerived(){
+    var t=calcItems.reduce(function(s,i){return s+(Number(i.amount)||0);},0);
+    perDayStat.innerHTML='<span style="color:var(--text-muted);">Per day</span> <strong>US$'+Math.round(t/days).toLocaleString()+'</strong>';
+    perPersonStat.innerHTML='<span style="color:var(--text-muted);">Per person</span> <strong>US$'+Math.round(t/people).toLocaleString()+'</strong>';
+    perPPDStat.innerHTML='<span style="color:var(--text-muted);">Per person/day</span> <strong>US$'+Math.round(t/people/days).toLocaleString()+'</strong>';
+    // also refresh per day/person cells in rows
+    var tbl=document.querySelector('.calc-table');
+    if(!tbl)return;
+    tbl.querySelectorAll('.calc-row').forEach(function(row){
+      var id=parseInt(row.getAttribute('data-calc-id'));
+      var item=calcItems.find(function(x){return x.id===id;});
+      if(!item)return;
+      var cells=row.querySelectorAll('.calc-derived');
+      if(cells[0])cells[0].textContent=item.amount?'US$'+Math.round(item.amount/days).toLocaleString():'—';
+      if(cells[1])cells[1].textContent=item.amount?'US$'+Math.round(item.amount/people).toLocaleString():'—';
+    });
+    // update totals
+    var totCells=document.querySelectorAll('.calc-total-row span');
+    if(totCells[2])totCells[2].textContent='US$'+Math.round(t/days).toLocaleString();
+    if(totCells[3])totCells[3].textContent='US$'+Math.round(t/people).toLocaleString();
+  }
+  hdr.appendChild(statsRow);
+  container.appendChild(hdr);
+
+  // table
+  var table=document.createElement('div');table.className='calc-table';
+
+  // header row
+  var thead=document.createElement('div');thead.className='calc-table-header';
+  thead.innerHTML='<span>Category</span><span style="text-align:right;">Total</span><span style="text-align:right;">/Day</span><span style="text-align:right;">/Person</span><span></span>';
+  table.appendChild(thead);
+
+  calcItems.forEach(function(item){
+    var row=document.createElement('div');row.className='calc-row';
+    row.setAttribute('data-calc-id',item.id);
+
+    var labelCell=document.createElement('div');labelCell.className='calc-row-label';
+    var dot=document.createElement('div');dot.className='calc-dot';dot.style.background=item.color;
+    var labelIn=document.createElement('input');labelIn.className='calc-label-input';labelIn.value=item.label;
+    labelIn.onblur=function(){item.label=labelIn.value;};
+    labelCell.appendChild(dot);labelCell.appendChild(labelIn);
+    row.appendChild(labelCell);
+
+    var amtIn=document.createElement('input');amtIn.className='calc-amount-input';amtIn.type='number';amtIn.value=item.amount||'';amtIn.placeholder='0';
+    amtIn.oninput=function(){item.amount=parseFloat(amtIn.value)||0;refreshDerived();};
+    row.appendChild(amtIn);
+
+    var perDay=document.createElement('div');perDay.className='calc-derived';
+    var perPerson=document.createElement('div');perPerson.className='calc-derived';
+
+    function refreshDerived(){
+      perDay.textContent=item.amount?'US$'+Math.round((item.amount||0)/days).toLocaleString():'—';
+      perPerson.textContent=item.amount?'US$'+Math.round((item.amount||0)/people).toLocaleString():'—';
+      // update header status
+      var newTotal=calcItems.reduce(function(s,i){return s+(Number(i.amount)||0);},0);
+      var newDiff=calcBudget-newTotal;
+      statusEl.className='calc-status '+(newDiff<0?'over':newDiff===0?'exact':'under');
+      if(newDiff<0)statusEl.textContent='Over by US$'+Math.abs(Math.round(newDiff)).toLocaleString()+'  ⚠️';
+      else if(newDiff===0)statusEl.textContent='Exactly on budget ✓';
+      else statusEl.textContent='US$'+Math.round(newDiff).toLocaleString()+' remaining ✓';
+      // update totals row
+      var totAmt=table.querySelector('.calc-total-amount');
+      var totDay=table.querySelector('.calc-total-day');
+      var totPerson=table.querySelector('.calc-total-person');
+      if(totAmt)totAmt.textContent='US$'+newTotal.toLocaleString();
+      if(totDay)totDay.textContent='US$'+Math.round(newTotal/days).toLocaleString();
+      if(totPerson)totPerson.textContent='US$'+Math.round(newTotal/people).toLocaleString();
+      // update mini stats
+      statsRow.querySelectorAll('strong')[2].textContent='US$'+Math.round(newTotal/days).toLocaleString();
+      statsRow.querySelectorAll('strong')[3].textContent='US$'+Math.round(newTotal/people).toLocaleString();
+      statsRow.querySelectorAll('strong')[4].textContent='US$'+Math.round(newTotal/people/days).toLocaleString();
+    }
+    refreshDerived();
+    row.appendChild(perDay);row.appendChild(perPerson);
+
+    var rightCell=document.createElement('div');rightCell.style.cssText='display:flex;align-items:center;gap:4px;';
+    var lockBtn=document.createElement('button');
+    lockBtn.style.cssText='background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;opacity:'+(item.locked?'1':'0.3')+';transition:opacity .15s;';
+    lockBtn.innerHTML=item.locked?'&#128274;':'&#128275;';
+    lockBtn.title=item.locked?'Unlock':'Lock amount';
+    lockBtn.onclick=function(){item.locked=!item.locked;lockBtn.innerHTML=item.locked?'&#128274;':'&#128275;';lockBtn.style.opacity=item.locked?'1':'0.3';amtIn.style.background=item.locked?'var(--gray-light)':'var(--white)';amtIn.readOnly=item.locked;};
+    amtIn.style.background=item.locked?'var(--gray-light)':'var(--white)';
+    amtIn.readOnly=item.locked||false;
+    var dragHandle=document.createElement('span');dragHandle.className='act-drag';dragHandle.innerHTML='&#8801;';dragHandle.style.cssText='font-size:14px;opacity:0.3;cursor:grab;';
+    var delBtn=document.createElement('button');delBtn.className='act-del';delBtn.innerHTML='&#215;';
+    delBtn.onclick=function(){calcItems=calcItems.filter(function(x){return x.id!==item.id;});renderCalculator();};
+    rightCell.appendChild(lockBtn);rightCell.appendChild(dragHandle);rightCell.appendChild(delBtn);
+    row.appendChild(rightCell);
+    row.setAttribute('data-calc-id',item.id);
+    table.appendChild(row);
+  });
+
+  // init sortable for reordering
+  if(typeof Sortable!=='undefined'){
+    var tableBody=table;
+    if(tableBody._sortable){tableBody._sortable.destroy();}
+    tableBody._sortable=Sortable.create(tableBody,{
+      handle:'.act-drag',
+      animation:150,
+      ghostClass:'sortable-ghost',
+      filter:'.calc-table-header,.calc-total-row,.calc-add-row',
+      onEnd:function(){
+        var newOrder=[];
+        tableBody.querySelectorAll('[data-calc-id]').forEach(function(row){
+          var id=parseInt(row.getAttribute('data-calc-id'));
+          var item=calcItems.find(function(x){return x.id===id;});
+          if(item)newOrder.push(item);
+        });
+        calcItems=newOrder;
+      }
+    });
+  }
+
+  // totals row
+  var totRow=document.createElement('div');totRow.className='calc-total-row';
+  totRow.innerHTML='<span>Total</span>'+
+    '<span class="calc-total-amount" style="text-align:right;">US$'+total.toLocaleString()+'</span>'+
+    '<span class="calc-total-day" style="text-align:right;">US$'+Math.round(total/days).toLocaleString()+'</span>'+
+    '<span class="calc-total-person" style="text-align:right;">US$'+Math.round(total/people).toLocaleString()+'</span>'+
+    '<span></span>';
+  table.appendChild(totRow);
+
+  // action buttons row
+  var addRow=document.createElement('div');addRow.className='calc-add-row';
+  addRow.style.cssText='padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid var(--gray-border);';
+
+  var genBtn=document.createElement('button');genBtn.className='btn btn-primary btn-sm';genBtn.textContent='&#10024; Generate breakdown';
+  genBtn.onclick=function(){generateCalcBreakdown(days,people);};
+  addRow.appendChild(genBtn);
+
+  var addBtn=document.createElement('button');addBtn.className='btn btn-ghost btn-sm';addBtn.textContent='+ Category';
+  addBtn.onclick=function(){
+    var colors=['#5e35b1','#e76f00','#2d6a4f','#1565c0','#c62828','#6b7280'];
+    calcItems.push({id:calcNextId++,label:'New category',amount:0,color:colors[calcItems.length%colors.length],locked:false});
+    renderCalculator();
+  };
+  addRow.appendChild(addBtn);
+
+  var resetBtn=document.createElement('button');resetBtn.className='btn btn-ghost btn-sm';resetBtn.textContent='Reset amounts';
+  resetBtn.onclick=function(){
+    if(!confirm('Reset all amounts to 0?'))return;
+    calcItems.forEach(function(i){if(!i.locked)i.amount=0;});
+    renderCalculator();
+  };
+  addRow.appendChild(resetBtn);
+
+  if(wizardData&&wizardData.breakdown){
+    var importBtn=document.createElement('button');importBtn.className='btn btn-ghost btn-sm';importBtn.textContent='Import from Plan';
+    importBtn.onclick=function(){
+      calcItems=Object.entries(wizardData.breakdown).map(function(e,i){
+        return{id:i+1,label:e[0].charAt(0).toUpperCase()+e[0].slice(1),amount:e[1].amount,color:CAT_COLORS_BUDGET[e[0]]||'#6b7280',locked:false};
+      });
+      if(wizardData.budget)calcBudget=wizardData.budget;
+      renderCalculator();showToast('Imported from Plan!');
+    };
+    addRow.appendChild(importBtn);
+  }
+
+  var saveBtn=document.createElement('button');saveBtn.className='btn btn-primary btn-sm';saveBtn.textContent='Save scenario';
+  saveBtn.onclick=function(){
+    var name=prompt('Name this scenario:','Scenario '+(calcScenarios.length+1));
+    if(!name)return;
+    calcScenarios.push({
+      name:name,
+      budget:calcBudget,
+      items:JSON.parse(JSON.stringify(calcItems))
+    });
+    renderCalcScenarioTabs();
+    showToast('Scenario saved!');
+  };
+  addRow.appendChild(saveBtn);
+
+  var compareBtn=document.createElement('button');compareBtn.className='btn btn-ghost btn-sm';compareBtn.textContent='+ New scenario';
+  compareBtn.onclick=function(){
+    // start fresh with same budget but zero amounts
+    calcBudget=calcBudget||0;
+    calcItems=[
+      {id:calcNextId++,label:'Accommodation',amount:0,color:'#5e35b1',locked:false},
+      {id:calcNextId++,label:'Food & Dining',amount:0,color:'#e76f00',locked:false},
+      {id:calcNextId++,label:'Activities',amount:0,color:'#2d6a4f',locked:false},
+      {id:calcNextId++,label:'Transport',amount:0,color:'#1565c0',locked:false},
+      {id:calcNextId++,label:'Shopping & Misc',amount:0,color:'#6b7280',locked:false}
+    ];
+    renderCalculator();showToast('Start fresh — save when done!');
+  };
+  addRow.appendChild(compareBtn);
+
+  table.appendChild(addRow);
+
+  // saved scenarios tabs
+  var scenarioSection=document.createElement('div');
+  scenarioSection.id='calc-scenario-section';
+  container.appendChild(table);
+  container.appendChild(scenarioSection);
+  refreshCalcDerived();
+  renderCalcScenarioTabs();
+}
+
+
+function generateCalcBreakdown(days,people){
+  if(!calcBudget){showToast('Please enter a budget first');return;}
+  var remaining=calcBudget;
+  // unlock locked items and get their total
+  var lockedTotal=calcItems.filter(function(i){return i.locked;}).reduce(function(s,i){return s+(i.amount||0);},0);
+  remaining=calcBudget-lockedTotal;
+  if(remaining<=0){showToast('All budget is locked!');return;}
+  // simple sensible defaults based on remaining
+  var splits={accommodation:0.35,food:0.2,activities:0.25,transport:0.12,misc:0.08};
+  calcItems.forEach(function(item){
+    if(item.locked)return;
+    var key=item.label.toLowerCase();
+    var pct=key.includes('accom')?splits.accommodation:
+            key.includes('food')||key.includes('din')?splits.food:
+            key.includes('activ')?splits.activities:
+            key.includes('transport')||key.includes('flight')||key.includes('car')?splits.transport:
+            splits.misc;
+    item.amount=Math.round(remaining*pct);
+  });
+  renderCalculator();showToast('Breakdown generated!');
+}
+function renderCalcScenarioTabs(){
+  var section=document.getElementById('calc-scenario-section');
+  if(!section||calcScenarios.length===0)return;
+  section.innerHTML='';
+  var hdr=document.createElement('div');hdr.style.cssText='font-size:13px;font-weight:700;margin:20px 0 10px;';hdr.textContent='Saved Scenarios';
+  section.appendChild(hdr);
+  var grid=document.createElement('div');grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;';
+  calcScenarios.forEach(function(sc,idx){
+    var card=document.createElement('div');
+    card.style.cssText='background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);';
+    var nameEl=document.createElement('div');nameEl.style.cssText='font-weight:700;font-size:14px;margin-bottom:6px;';nameEl.textContent=sc.name;
+    var budgetEl=document.createElement('div');budgetEl.style.cssText='font-size:12px;color:var(--text-muted);margin-bottom:8px;';
+    var scTotal=sc.items.reduce(function(s,i){return s+(i.amount||0);},0);
+    var scDiff=sc.budget-scTotal;
+    budgetEl.textContent='Budget: US$'+sc.budget.toLocaleString()+' · Spent: US$'+scTotal.toLocaleString();
+    var statusEl=document.createElement('div');statusEl.style.cssText='font-size:12px;font-weight:600;margin-bottom:10px;color:'+(scDiff<0?'var(--red)':'var(--green)');
+    statusEl.textContent=scDiff<0?'Over by US$'+Math.abs(Math.round(scDiff)).toLocaleString():'US$'+Math.round(scDiff).toLocaleString()+' remaining';
+    var btnRow=document.createElement('div');btnRow.style.cssText='display:flex;gap:6px;';
+    var loadBtn=document.createElement('button');loadBtn.className='btn btn-ghost btn-sm';loadBtn.textContent='Load';
+    loadBtn.onclick=function(){calcItems=JSON.parse(JSON.stringify(sc.items));calcBudget=sc.budget;renderCalculator();showToast('Loaded: '+sc.name);};
+    var delBtn=document.createElement('button');delBtn.className='btn btn-ghost btn-sm';delBtn.style.color='var(--red)';delBtn.textContent='Delete';
+    delBtn.onclick=function(){calcScenarios.splice(idx,1);renderCalcScenarioTabs();};
+    btnRow.appendChild(loadBtn);btnRow.appendChild(delBtn);
+    card.appendChild(nameEl);card.appendChild(budgetEl);card.appendChild(statusEl);card.appendChild(btnRow);
+    grid.appendChild(card);
+  });
+  section.appendChild(grid);
+}
+
 // ── PLAN WIZARD ──
 var wizardData={
   budget:null, preCosts:[], destinations:'', sureThing:'', maybes:'',
@@ -2204,13 +2587,22 @@ function showBreakdownEditor(){
   var breakdown=JSON.parse(JSON.stringify(sc.breakdown)); // deep copy
   wizardData.breakdown=breakdown;
 
+  var days=wizardData.startDate&&wizardData.endDate?Math.max(1,Math.round((new Date(wizardData.endDate)-new Date(wizardData.startDate))/86400000)+1):1;
+  var people=wizardData.travelers&&wizardData.travelers.length?wizardData.travelers.length:1;
+
   var table=document.createElement('div');table.className='budget-breakdown-table';
+
+  // column headers
+  var thead=document.createElement('div');
+  thead.style.cssText='display:grid;grid-template-columns:1fr 50px 100px 80px 80px;gap:8px;padding:0 0 8px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;';
+  thead.innerHTML='<span>Category</span><span style="text-align:right;">%</span><span style="text-align:right;">Total</span><span style="text-align:right;">/Day</span><span style="text-align:right;">/Person</span>';
+  table.appendChild(thead);
+
   var totalDisplay=null;
 
   function updateTotal(){
     var sum=Object.values(breakdown).reduce(function(s,v){return s+(v.amount||0);},0);
     if(totalDisplay)totalDisplay.textContent='US$'+sum.toLocaleString()+' / US$'+remaining.toLocaleString();
-    // update pcts
     Object.keys(breakdown).forEach(function(cat){
       breakdown[cat].pct=remaining>0?Math.round((breakdown[cat].amount/remaining)*100):0;
     });
@@ -2218,13 +2610,25 @@ function showBreakdownEditor(){
 
   Object.entries(breakdown).forEach(function(entry){
     var cat=entry[0],vals=entry[1];
-    var row=document.createElement('div');row.className='breakdown-row';
+    var row=document.createElement('div');
+    row.style.cssText='display:grid;grid-template-columns:1fr 50px 100px 80px 80px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--gray-border);';
+    var labelCell=document.createElement('div');labelCell.style.cssText='display:flex;align-items:center;gap:6px;';
     var dot=document.createElement('div');dot.className='breakdown-dot';dot.style.background=CAT_COLORS_BUDGET[cat]||'#6b7280';
-    var lbl=document.createElement('div');lbl.className='breakdown-label';lbl.textContent=cat.charAt(0).toUpperCase()+cat.slice(1);
+    var lbl=document.createElement('span');lbl.style.cssText='font-size:13px;font-weight:500;';lbl.textContent=cat.charAt(0).toUpperCase()+cat.slice(1);
+    labelCell.appendChild(dot);labelCell.appendChild(lbl);
     var pctEl=document.createElement('div');pctEl.className='breakdown-pct';pctEl.textContent=vals.pct+'%';
     var inp=document.createElement('input');inp.className='breakdown-input';inp.type='number';inp.value=vals.amount;
-    inp.oninput=function(){breakdown[cat].amount=parseFloat(inp.value)||0;pctEl.textContent=remaining>0?Math.round((breakdown[cat].amount/remaining)*100)+'%':'0%';updateTotal();};
-    row.appendChild(dot);row.appendChild(lbl);row.appendChild(pctEl);row.appendChild(inp);
+    var perDayEl=document.createElement('div');perDayEl.style.cssText='font-size:12px;color:var(--text-muted);text-align:right;';
+    var perPersonEl=document.createElement('div');perPersonEl.style.cssText='font-size:12px;color:var(--text-muted);text-align:right;';
+    function refreshRow(){
+      var amt=breakdown[cat].amount||0;
+      pctEl.textContent=remaining>0?Math.round((amt/remaining)*100)+'%':'0%';
+      perDayEl.textContent=amt?'US$'+Math.round(amt/days).toLocaleString():'—';
+      perPersonEl.textContent=amt?'US$'+Math.round(amt/people).toLocaleString():'—';
+    }
+    inp.oninput=function(){breakdown[cat].amount=parseFloat(inp.value)||0;refreshRow();updateTotal();};
+    refreshRow();
+    row.appendChild(labelCell);row.appendChild(pctEl);row.appendChild(inp);row.appendChild(perDayEl);row.appendChild(perPersonEl);
     table.appendChild(row);
   });
 
