@@ -2185,7 +2185,12 @@ function renderCalculator(){
   // extra scenarios
   calcExtraScenarios.forEach(function(sc,idx){
     var scBudget=[sc.budget];
-    var scBlock=buildScenarioBlock(sc.items,scBudget,sc.name,null,function(){
+    var scBlock=buildScenarioBlock(sc.items,scBudget,sc.name,function(items,budget){
+      var name=prompt('Name this scenario:','Scenario '+(calcScenarios.length+1));
+      if(!name)return;
+      calcScenarios.push({name:name,budget:budget,items:JSON.parse(JSON.stringify(items))});
+      renderCalcScenarioTabs();showToast('Saved: '+name);
+    },function(){
       calcExtraScenarios.splice(idx,1);renderCalculator();
     });
     wrapper.appendChild(scBlock);
