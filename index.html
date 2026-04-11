@@ -1841,11 +1841,12 @@ function initActivitySortable(){
 
 // ── CALCULATOR ──
 var calcItems=[
-  {id:1,label:'Accommodation',amount:0,color:'#5e35b1'},
-  {id:2,label:'Food & Dining',amount:0,color:'#e76f00'},
-  {id:3,label:'Activities',amount:0,color:'#2d6a4f'},
-  {id:4,label:'Transport',amount:0,color:'#1565c0'},
-  {id:5,label:'Shopping & Misc',amount:0,color:'#6b7280'}
+  {id:1,label:'Flights',amount:0,color:'#c62828',locked:false},
+  {id:2,label:'Accommodation',amount:0,color:'#5e35b1',locked:false},
+  {id:3,label:'Food & Dining',amount:0,color:'#e76f00',locked:false},
+  {id:4,label:'Activities',amount:0,color:'#2d6a4f',locked:false},
+  {id:5,label:'Transport',amount:0,color:'#1565c0',locked:false},
+  {id:6,label:'Shopping & Misc',amount:0,color:'#6b7280',locked:false}
 ];
 var calcBudget=0;
 var calcNextId=10;
@@ -1881,13 +1882,8 @@ function initCalculator(){
 }
 
 function fmt$(n){
-  if(!n)return 'US$0';
-  return 'US$'+(Math.round(n*100)/100).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});
-}
-
-function fmt$(n){
-  var v=Math.round((Number(n)||0)*100)/100;
-  return 'US$'+v.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});
+  if(!n&&n!==0)return 'US$0';
+  return 'US$'+(Math.round((Number(n)||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});
 }
 
 function renderCalculator(){
@@ -1898,7 +1894,7 @@ function renderCalculator(){
   // init defaults
   if(!window.calcDays)window.calcDays=tripData&&tripData.start_date&&tripData.end_date?Math.max(1,Math.round((new Date(tripData.end_date)-new Date(tripData.start_date))/86400000)+1):17;
   if(!window.calcPeople)window.calcPeople=4;
-  if(!calcBudget)calcBudget=10000;
+  if(!calcBudget||calcBudget<1)calcBudget=10000;
 
   function getTotal(){return calcItems.reduce(function(s,i){return s+(Number(i.amount)||0);},0);}
   function getDiff(){return calcBudget-getTotal();}
@@ -2068,13 +2064,20 @@ function renderCalculator(){
     genBtn.onclick=function(){
       var locked=scenarioItems.reduce(function(s,i){return s+(i.locked?i.amount:0);},0);
       var rem=scenarioBudget[0]-locked;
-      var splits={accommodation:0.35,food:0.2,activities:0.25,transport:0.12,misc:0.08};
-      scenarioItems.forEach(function(item){
-        if(item.locked)return;
+      // assign weights then normalize so total = rem
+      var splits={accommodation:35,food:20,activities:25,transport:10,flights:15,misc:5};
+      var unlocked=scenarioItems.filter(function(i){return !i.locked;});
+      var weights=unlocked.map(function(item){
         var k=item.label.toLowerCase();
-        var pct=k.includes('accom')?splits.accommodation:k.includes('food')||k.includes('din')?splits.food:k.includes('activ')?splits.activities:k.includes('transport')||k.includes('flight')?splits.transport:splits.misc;
-        item.amount=Math.round(rem*pct);
+        return k.includes('accom')?splits.accommodation:k.includes('food')||k.includes('din')?splits.food:k.includes('activ')?splits.activities:k.includes('flight')?splits.flights:k.includes('transport')||k.includes('car')||k.includes('uber')?splits.transport:splits.misc;
       });
+      var totalWeight=weights.reduce(function(s,w){return s+w;},0)||1;
+      unlocked.forEach(function(item,i){
+        item.amount=Math.round(rem*(weights[i]/totalWeight));
+      });
+      // fix rounding so sum === rem exactly
+      var sumNow=unlocked.reduce(function(s,i){return s+(i.amount||0);},0);
+      if(unlocked.length>0)unlocked[unlocked.length-1].amount+=rem-sumNow;
       // update inputs
       tbl.querySelectorAll('.calc-row').forEach(function(row){
         var id=parseInt(row.getAttribute('data-calc-id'));
@@ -2094,13 +2097,49 @@ function renderCalculator(){
 
     var addCatBtn=document.createElement('button');addCatBtn.className='btn btn-ghost btn-sm';addCatBtn.textContent='+ Category';
     addCatBtn.onclick=function(){
-      var colors=['#5e35b1','#e76f00','#2d6a4f','#1565c0','#c62828','#6b7280'];
-      var newItem={id:calcNextId++,label:'New',amount:0,color:colors[scenarioItems.length%colors.length],locked:false};
-      scenarioItems.push(newItem);
-      // add row
-      var row=document.createElement('div');row.className='calc-row';row.setAttribute('data-calc-id',newItem.id);
-      row.innerHTML='<div class="calc-row-label"><div class="calc-dot" style="background:'+newItem.color+'"></div><input class="calc-label-input" value="New"/></div><input class="calc-amount-input" type="number" placeholder="0"/><input class="calc-amount-input" type="number" placeholder="0" style="font-size:11px"/><div class="calc-derived">—</div><div style="display:flex;align-items:center;gap:2px;"><button style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.3">🔓</button><span class="act-drag" style="font-size:13px;opacity:0.3;cursor:grab;">≡</span><button class="act-del">×</button></div>';
-      tbl.insertBefore(row,totRow);refreshSummary();
+      var palette=['#c62828','#5e35b1','#e76f00','#2d6a4f','#1565c0','#00695c','#ad1457','#6b7280','#f9a825','#4527a0'];
+      var popup=document.createElement('div');
+      popup.style.cssText='position:fixed;background:white;border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:12px;box-shadow:var(--shadow-md);z-index:500;min-width:220px;';
+      popup.innerHTML='<div style="font-size:12px;font-weight:600;margin-bottom:8px;">New category</div>'+
+        '<input id="new-cat-name" placeholder="Category name" style="width:100%;border:1px solid var(--gray-border);border-radius:4px;padding:6px 10px;font-family:DM Sans,sans-serif;font-size:13px;margin-bottom:8px;"/>'+ 
+        '<div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Color</div>'+
+        '<div id="new-cat-colors" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>'+
+        '<div style="display:flex;gap:6px;"><button id="new-cat-add" class="btn btn-primary btn-sm" style="flex:1;">Add</button><button id="new-cat-cancel" class="btn btn-ghost btn-sm">Cancel</button></div>';
+      var rect=addCatBtn.getBoundingClientRect();
+      popup.style.top=(rect.bottom+4)+'px';popup.style.left=rect.left+'px';
+      document.body.appendChild(popup);
+      var selectedColor=palette[0];
+      var colorWrap=popup.querySelector('#new-cat-colors');
+      palette.forEach(function(col){
+        var dot=document.createElement('div');dot.style.cssText='width:22px;height:22px;border-radius:50%;background:'+col+';cursor:pointer;border:2px solid '+(col===selectedColor?'#000':'transparent')+';transition:all .1s;';
+        dot.onclick=function(){selectedColor=col;colorWrap.querySelectorAll('div').forEach(function(d){d.style.borderColor='transparent';});dot.style.borderColor='#000';};
+        colorWrap.appendChild(dot);
+      });
+      popup.querySelector('#new-cat-add').onclick=function(){
+        var name=popup.querySelector('#new-cat-name').value.trim()||'New category';
+        var newItem={id:calcNextId++,label:name,amount:0,color:selectedColor,locked:false};
+        scenarioItems.push(newItem);
+        // rebuild just this row properly
+        var row=document.createElement('div');row.className='calc-row';row.setAttribute('data-calc-id',newItem.id);
+        var lc=document.createElement('div');lc.className='calc-row-label';
+        var dot2=document.createElement('div');dot2.className='calc-dot';dot2.style.background=selectedColor;
+        var lIn=document.createElement('input');lIn.className='calc-label-input';lIn.value=name;lIn.onblur=function(){newItem.label=this.value;};
+        lc.appendChild(dot2);lc.appendChild(lIn);row.appendChild(lc);
+        var aIn=document.createElement('input');aIn.className='calc-amount-input';aIn.type='number';aIn.placeholder='0';
+        aIn.oninput=function(){newItem.amount=parseFloat(this.value)||0;refreshSummary();};
+        var pdIn=document.createElement('input');pdIn.className='calc-amount-input';pdIn.type='number';pdIn.placeholder='0';pdIn.style.fontSize='11px';
+        pdIn.oninput=function(){newItem.amount=(parseFloat(this.value)||0)*daysRef[0];aIn.value=newItem.amount||'';refreshSummary();};
+        var ppC=document.createElement('div');ppC.className='calc-derived';ppC.textContent='—';
+        row.appendChild(aIn);row.appendChild(pdIn);row.appendChild(ppC);
+        var ctrl=document.createElement('div');ctrl.style.cssText='display:flex;align-items:center;gap:2px;';
+        ctrl.innerHTML='<button style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.3;">🔓</button><span class="act-drag" style="font-size:13px;opacity:0.3;cursor:grab;">≡</span>';
+        var db=document.createElement('button');db.className='act-del';db.innerHTML='×';db.onclick=function(){scenarioItems.splice(scenarioItems.indexOf(newItem),1);row.remove();refreshSummary();};
+        ctrl.appendChild(db);row.appendChild(ctrl);
+        tbl.insertBefore(row,totRow);
+        popup.remove();refreshSummary();
+      };
+      popup.querySelector('#new-cat-cancel').onclick=function(){popup.remove();};
+      setTimeout(function(){popup.querySelector('#new-cat-name').focus();},50);
     };
     actRow.appendChild(addCatBtn);
 
@@ -2148,6 +2187,7 @@ function renderCalculator(){
     calcExtraScenarios.push({
       name:newName,budget:calcBudget,
       items:[
+        {id:calcNextId++,label:'Flights',amount:0,color:'#c62828',locked:false},
         {id:calcNextId++,label:'Accommodation',amount:0,color:'#5e35b1',locked:false},
         {id:calcNextId++,label:'Food & Dining',amount:0,color:'#e76f00',locked:false},
         {id:calcNextId++,label:'Activities',amount:0,color:'#2d6a4f',locked:false},
