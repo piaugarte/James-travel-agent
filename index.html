@@ -170,6 +170,55 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .who-grid-chip.selected{border-color:var(--green);background:var(--green-pale);color:var(--green);font-weight:600;}
 .who-grid-chip .chip-avatar{font-size:20px;line-height:1;}
 .who-pp-tag{font-size:11px;color:var(--amber);font-weight:600;margin-top:2px;}
+/* plan wizard */
+.wizard{max-width:680px;margin:0 auto;}
+.wizard-progress{display:flex;align-items:center;gap:0;margin-bottom:32px;}
+.wizard-step-dot{width:28px;height:28px;border-radius:50%;background:var(--gray-light);border:2px solid var(--gray-border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text-muted);flex-shrink:0;transition:all .2s;z-index:1;}
+.wizard-step-dot.active{background:var(--green);border-color:var(--green);color:white;}
+.wizard-step-dot.done{background:var(--green-pale);border-color:var(--green);color:var(--green);}
+.wizard-step-line{flex:1;height:2px;background:var(--gray-border);}
+.wizard-step-line.done{background:var(--green);}
+.wizard-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray-border);padding:32px;box-shadow:var(--shadow);}
+.wizard-card h2{font-size:22px;font-weight:700;margin-bottom:8px;}
+.wizard-card p{color:var(--text-muted);font-size:14px;margin-bottom:24px;line-height:1.6;}
+.wizard-field{margin-bottom:16px;}
+.wizard-field label{display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px;}
+.wizard-field input,.wizard-field select,.wizard-field textarea{width:100%;border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:var(--white);transition:border-color .15s;}
+.wizard-field input:focus,.wizard-field select:focus,.wizard-field textarea:focus{outline:none;border-color:var(--green);}
+.wizard-field textarea{resize:vertical;min-height:80px;}
+.wizard-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.wizard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:24px;}
+.option-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:8px;}
+.option-card{border:2px solid var(--gray-border);border-radius:var(--radius-sm);padding:14px 12px;cursor:pointer;transition:all .15s;text-align:center;background:var(--white);}
+.option-card:hover{border-color:var(--green);}
+.option-card.selected{border-color:var(--green);background:var(--green-pale);}
+.option-card .option-emoji{font-size:28px;margin-bottom:6px;}
+.option-card .option-label{font-size:13px;font-weight:600;color:var(--text);}
+.option-card .option-desc{font-size:11px;color:var(--text-muted);margin-top:3px;line-height:1.4;}
+.cost-item-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.cost-item-row input{flex:1;border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;}
+.cost-item-row input:focus{outline:none;border-color:var(--green);}
+.cost-item-row .cost-amount{width:110px;}
+.scenario-card{border:2px solid var(--gray-border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:all .15s;background:var(--white);margin-bottom:12px;}
+.scenario-card:hover{border-color:var(--green);box-shadow:var(--shadow-md);}
+.scenario-card.selected{border-color:var(--green);background:var(--green-pale);}
+.scenario-card h3{font-size:16px;font-weight:700;margin-bottom:4px;}
+.scenario-card p{font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;}
+.scenario-bars{display:flex;flex-direction:column;gap:6px;}
+.scenario-bar-row{display:flex;align-items:center;gap:8px;font-size:12px;}
+.scenario-bar-label{width:100px;color:var(--text-muted);flex-shrink:0;}
+.scenario-bar-track{flex:1;height:8px;background:var(--gray-light);border-radius:4px;overflow:hidden;}
+.scenario-bar-fill{height:100%;border-radius:4px;}
+.scenario-bar-amt{width:60px;text-align:right;font-weight:600;font-size:12px;}
+.budget-breakdown-table{margin-top:20px;}
+.breakdown-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--gray-border);}
+.breakdown-row:last-child{border-bottom:none;}
+.breakdown-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.breakdown-label{flex:1;font-size:14px;font-weight:500;}
+.breakdown-pct{width:45px;text-align:right;font-size:13px;color:var(--text-muted);}
+.breakdown-input{width:100px;border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:5px 10px;font-family:'DM Sans',sans-serif;font-size:13px;text-align:right;}
+.breakdown-input:focus{outline:none;border-color:var(--green);}
+.breakdown-total{display:flex;justify-content:space-between;align-items:center;padding:12px 0;font-weight:700;font-size:15px;border-top:2px solid var(--text);margin-top:8px;}
 /* cal */
 .cal-act-card{position:relative;}
 #cal-tooltip{
@@ -318,6 +367,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
   <div class="nav-inner">
     <span class="nav-brand">&#128329; Vancouver 2026</span>
     <button class="nav-tab active" onclick="switchTab('itinerary',this)">Itinerary</button>
+    <button class="nav-tab" onclick="switchTab('plan',this)">&#127775; Plan</button>
     <button class="nav-tab" onclick="switchTab('people',this)">People</button>
     <button class="nav-tab" onclick="switchTab('costs',this)">Costs</button>
     <span class="nav-spacer"></span>
@@ -347,6 +397,13 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
       <button class="btn btn-ghost btn-sm" style="margin-top:4px;" onclick="addPhase()">+ Add phase</button>
     </div>
     <div id="itin-calendar" style="display:none;"></div>
+  </div>
+
+  <!-- PLAN -->
+  <div id="tab-plan" class="tab-content">
+    <div class="wizard" id="wizard-container">
+      <!-- rendered by JS -->
+    </div>
   </div>
 
   <!-- COSTS (public) -->
@@ -525,6 +582,7 @@ function switchTab(name,btn){
   document.getElementById('tab-'+name).classList.add('active');
   btn.classList.add('active');
   if(name==='budget')renderBudget();
+  if(name==='plan')initWizard();
   if(name==='packing')renderPacking();
   if(name==='costs')renderCosts();
   if(name==='people'){renderPeople();buildAvatarPicker('add-avatar-picker','p-avatar',AVATARS[0]);}
@@ -1751,6 +1809,479 @@ function initActivitySortable(){
       }
     });
   });
+}
+
+// ── PLAN WIZARD ──
+var wizardData={
+  budget:null, preCosts:[], destinations:'', sureThing:'', maybes:'',
+  startDate:'', endDate:'', stayingFree:null, hotelStars:2,
+  activityAppetite:'balanced', scenario:null, breakdown:null
+};
+var wizardStep=1;
+var WIZARD_TOTAL=5;
+var CAT_COLORS_BUDGET={accommodation:'#5e35b1',food:'#e76f00',activities:'#2d6a4f',transport:'#1565c0',shopping:'#c62828',misc:'#6b7280'};
+
+function initWizard(){
+  wizardStep=1;
+  renderWizard();
+}
+
+function renderWizard(){
+  var c=document.getElementById('wizard-container');
+  if(!c)return;
+  c.innerHTML='';
+
+  // progress bar
+  var prog=document.createElement('div');prog.className='wizard-progress';
+  for(var i=1;i<=WIZARD_TOTAL;i++){
+    var dot=document.createElement('div');
+    dot.className='wizard-step-dot'+(i===wizardStep?' active':i<wizardStep?' done':'');
+    dot.textContent=i<wizardStep?'✓':i;
+    prog.appendChild(dot);
+    if(i<WIZARD_TOTAL){var line=document.createElement('div');line.className='wizard-step-line'+(i<wizardStep?' done':'');prog.appendChild(line);}
+  }
+  c.appendChild(prog);
+
+  var card=document.createElement('div');card.className='wizard-card';
+
+  if(wizardStep===1) renderStep1(card);
+  else if(wizardStep===2) renderStep2(card);
+  else if(wizardStep===3) renderStep3(card);
+  else if(wizardStep===4) renderStep4(card);
+  else if(wizardStep===5) renderStep5(card);
+
+  c.appendChild(card);
+}
+
+function wizardNav(card, canNext, onNext){
+  var nav=document.createElement('div');nav.className='wizard-nav';
+  var backBtn=document.createElement('button');backBtn.className='btn btn-ghost btn-sm';backBtn.textContent='← Back';
+  backBtn.style.visibility=wizardStep===1?'hidden':'visible';
+  backBtn.onclick=function(){wizardStep--;renderWizard();};
+  nav.appendChild(backBtn);
+  var nextBtn=document.createElement('button');nextBtn.className='btn btn-primary';
+  nextBtn.textContent=wizardStep===WIZARD_TOTAL?'Generate scenarios →':'Next →';
+  nextBtn.onclick=function(){if(onNext()){{wizardStep++;renderWizard();}}};
+  nav.appendChild(nextBtn);
+  card.appendChild(nav);
+}
+
+function renderStep1(card){
+  card.innerHTML="<h2>&#128176; What's your total budget?</h2><p>Enter the total amount you want to spend on this trip, then add any costs you've already committed to (like flights).</p>";
+
+  var f1=document.createElement('div');f1.className='wizard-field';
+  var l1=document.createElement('label');l1.textContent='Total trip budget (US$)';
+  var inp=document.createElement('input');inp.type='number';inp.placeholder='e.g. 8000';inp.value=wizardData.budget||'';
+  inp.oninput=function(){wizardData.budget=parseFloat(inp.value)||null;};
+  f1.appendChild(l1);f1.appendChild(inp);card.appendChild(f1);
+
+  // pre-spent costs
+  var f2=document.createElement('div');f2.className='wizard-field';
+  var l2=document.createElement('label');l2.textContent='Already committed costs (flights, deposits, etc.)';
+  f2.appendChild(l2);
+
+  var costsWrap=document.createElement('div');costsWrap.id='pre-costs-wrap';
+  function renderCosts(){
+    costsWrap.innerHTML='';
+    wizardData.preCosts.forEach(function(pc,idx){
+      var row=document.createElement('div');row.className='cost-item-row';
+      var nameIn=document.createElement('input');nameIn.placeholder='e.g. Flights';nameIn.value=pc.label;
+      nameIn.oninput=function(){wizardData.preCosts[idx].label=nameIn.value;};
+      var amtIn=document.createElement('input');amtIn.type='number';amtIn.className='cost-amount';amtIn.placeholder='US$';amtIn.value=pc.amount||'';
+      amtIn.oninput=function(){wizardData.preCosts[idx].amount=parseFloat(amtIn.value)||0;};
+      var del=document.createElement('button');del.className='btn btn-ghost btn-sm';del.innerHTML='✕';del.style.flexShrink='0';
+      del.onclick=function(){wizardData.preCosts.splice(idx,1);renderCosts();};
+      row.appendChild(nameIn);row.appendChild(amtIn);row.appendChild(del);
+      costsWrap.appendChild(row);
+    });
+    var addBtn=document.createElement('button');addBtn.className='btn btn-ghost btn-sm';addBtn.textContent='+ Add cost';
+    addBtn.onclick=function(){wizardData.preCosts.push({label:'',amount:0});renderCosts();};
+    costsWrap.appendChild(addBtn);
+  }
+  renderCosts();
+  f2.appendChild(costsWrap);card.appendChild(f2);
+
+  wizardNav(card,true,function(){
+    if(!wizardData.budget){showToast('Please enter a budget');return false;}
+    return true;
+  });
+}
+
+function renderStep2(card){
+  card.innerHTML="<h2>&#128205; Where are you going?</h2><p>Tell us about your destinations &#8212; what's definite and what you're considering if budget allows.</p>";
+
+  var f1=document.createElement('div');f1.className='wizard-field';
+  var l1=document.createElement('label');l1.textContent='Definite destinations (cities / regions)';
+  var i1=document.createElement('input');i1.placeholder='e.g. Vancouver, Surrey BC';i1.value=wizardData.sureThing;
+  i1.oninput=function(){wizardData.sureThing=i1.value;};
+  f1.appendChild(l1);f1.appendChild(i1);card.appendChild(f1);
+
+  var f2=document.createElement('div');f2.className='wizard-field';
+  var l2=document.createElement('label');l2.textContent='Would love to visit (budget permitting)';
+  var i2=document.createElement('input');i2.placeholder='e.g. Whistler for 2-3 nights';i2.value=wizardData.maybes;
+  i2.oninput=function(){wizardData.maybes=i2.value;};
+  f2.appendChild(l2);f2.appendChild(i2);card.appendChild(f2);
+
+  var f3=document.createElement('div');f3.className='wizard-field';
+  var l3=document.createElement('label');l3.textContent='Anything else we should know? (group size, special occasions)';
+  var i3=document.createElement('textarea');i3.placeholder='e.g. Family of 4, kids aged 6 and 8, celebrating a birthday on June 29';i3.value=wizardData.destinations;
+  i3.oninput=function(){wizardData.destinations=i3.value;};
+  f3.appendChild(l3);f3.appendChild(i3);card.appendChild(f3);
+
+  wizardNav(card,true,function(){
+    if(!wizardData.sureThing){showToast('Please enter at least one destination');return false;}
+    return true;
+  });
+}
+
+function renderStep3(card){
+  card.innerHTML="<h2>&#128197; When are you traveling?</h2><p>How long is the trip, and how many days do you have?</p>";
+
+  var row=document.createElement('div');row.className='wizard-row';
+  var f1=document.createElement('div');f1.className='wizard-field';
+  var l1=document.createElement('label');l1.textContent='Start date';
+  var i1=document.createElement('input');i1.type='date';i1.value=wizardData.startDate;
+  i1.oninput=function(){wizardData.startDate=i1.value;};
+  f1.appendChild(l1);f1.appendChild(i1);
+
+  var f2=document.createElement('div');f2.className='wizard-field';
+  var l2=document.createElement('label');l2.textContent='End date';
+  var i2=document.createElement('input');i2.type='date';i2.value=wizardData.endDate;
+  i2.oninput=function(){wizardData.endDate=i2.value;};
+  f2.appendChild(l2);f2.appendChild(i2);
+
+  row.appendChild(f1);row.appendChild(f2);card.appendChild(row);
+
+  // dynamic day count
+  var dayCount=document.createElement('div');dayCount.style.cssText='font-size:13px;color:var(--text-muted);margin-top:-8px;margin-bottom:16px;';
+  function updateDayCount(){
+    if(wizardData.startDate&&wizardData.endDate){
+      var d=Math.round((new Date(wizardData.endDate)-new Date(wizardData.startDate))/86400000)+1;
+      dayCount.textContent=d>0?d+' days total':'';
+    }else dayCount.textContent='';
+  }
+  i1.addEventListener('change',updateDayCount);i2.addEventListener('change',updateDayCount);
+  updateDayCount();
+  card.appendChild(dayCount);
+
+  wizardNav(card,true,function(){
+    if(!wizardData.startDate||!wizardData.endDate){showToast('Please enter travel dates');return false;}
+    return true;
+  });
+}
+
+function renderStep4(card){
+  card.innerHTML="<h2>&#127968; Where will you stay?</h2><p>Tell us about your accommodation preferences.</p>";
+
+  var f1=document.createElement('div');f1.className='wizard-field';
+  var l1=document.createElement('label');l1.textContent='Are you staying with a friend or family for free?';
+  f1.appendChild(l1);
+  var opts=document.createElement('div');opts.className='option-grid';
+  [['yes','✅','Yes, free stay','Saves a lot on accommodation!'],['partial','🏠','Partly','Some nights free, some paid'],['no','🏨','No','Need to budget for full stay']].forEach(function(o){
+    var oc=document.createElement('div');oc.className='option-card'+(wizardData.stayingFree===o[0]?' selected':'');
+    oc.innerHTML='<div class="option-emoji">'+o[1]+'</div><div class="option-label">'+o[2]+'</div><div class="option-desc">'+o[3]+'</div>';
+    oc.onclick=function(){wizardData.stayingFree=o[0];opts.querySelectorAll('.option-card').forEach(function(c){c.classList.remove('selected');});oc.classList.add('selected');};
+    opts.appendChild(oc);
+  });
+  f1.appendChild(opts);card.appendChild(f1);
+
+  var f2=document.createElement('div');f2.className='wizard-field';
+  var l2=document.createElement('label');l2.textContent='For paid nights — minimum hotel/Airbnb comfort level';
+  f2.appendChild(l2);
+  var stars=document.createElement('div');stars.className='option-grid';
+  [['budget','🛏️','Budget','Hostel / basic motel'],['mid','🏩','Mid-range','3-star hotel / nice Airbnb'],['comfort','⭐⭐','Comfort','4-star hotel'],['luxury','✨','Luxury','5-star or premium Airbnb']].forEach(function(o){
+    var oc=document.createElement('div');oc.className='option-card'+(wizardData.hotelStars===o[0]?' selected':'');
+    oc.innerHTML='<div class="option-emoji">'+o[1]+'</div><div class="option-label">'+o[2]+'</div><div class="option-desc">'+o[3]+'</div>';
+    oc.onclick=function(){wizardData.hotelStars=o[0];stars.querySelectorAll('.option-card').forEach(function(c){c.classList.remove('selected');});oc.classList.add('selected');};
+    stars.appendChild(oc);
+  });
+  f2.appendChild(stars);card.appendChild(f2);
+
+  wizardNav(card,true,function(){
+    if(!wizardData.stayingFree){showToast('Please select an accommodation option');return false;}
+    return true;
+  });
+}
+
+function renderStep5(card){
+  card.innerHTML="<h2>🎒 What's your activity appetite?</h2><p>How do you like to travel? This helps us suggest the right mix of activities vs downtime.</p>";
+
+  var f1=document.createElement('div');f1.className='wizard-field';
+  var opts=document.createElement('div');opts.className='option-grid';
+  [
+    ['chill','🌴','Take it easy','Rest days, slow mornings, few activities'],
+    ['balanced','⚖️','Balanced','Mix of activities and downtime'],
+    ['active','🏃','Active','Something every day, make the most of it!'],
+    ['gogogo','🚀','Go go go!','Packed schedule, every hour counts']
+  ].forEach(function(o){
+    var oc=document.createElement('div');oc.className='option-card'+(wizardData.activityAppetite===o[0]?' selected':'');
+    oc.innerHTML='<div class="option-emoji">'+o[1]+'</div><div class="option-label">'+o[2]+'</div><div class="option-desc">'+o[3]+'</div>';
+    oc.onclick=function(){wizardData.activityAppetite=o[0];opts.querySelectorAll('.option-card').forEach(function(c){c.classList.remove('selected');});oc.classList.add('selected');};
+    opts.appendChild(oc);
+  });
+  f1.appendChild(opts);card.appendChild(f1);
+
+  wizardNav(card,true,function(){
+    if(!wizardData.activityAppetite){showToast('Please select an activity level');return false;}
+    // Advance to scenario generation
+    wizardStep++;
+    renderScenarios();
+    return false; // we handle navigation ourselves
+  });
+}
+
+function renderScenarios(){
+  wizardStep=6;
+  WIZARD_TOTAL=7;
+  var container=document.getElementById('wizard-container');
+  container.innerHTML='';
+
+  var card=document.createElement('div');card.className='wizard-card';
+  card.innerHTML="<h2>&#10024; Generating your budget scenarios...</h2><p>Hang tight while we crunch the numbers!</p>";
+  var spinner=document.createElement('div');spinner.style.cssText='text-align:center;padding:32px;font-size:32px;';
+  spinner.innerHTML='<div class="typing-dots" style="justify-content:center;"><span></span><span></span><span></span></div>';
+  card.appendChild(spinner);
+  container.appendChild(card);
+
+  // Build prompt for Claude
+  var preCostTotal=wizardData.preCosts.reduce(function(s,p){return s+(p.amount||0);},0);
+  var days=wizardData.startDate&&wizardData.endDate?Math.round((new Date(wizardData.endDate)-new Date(wizardData.startDate))/86400000)+1:14;
+  var remaining=wizardData.budget-preCostTotal;
+
+  var preCostTotal=wizardData.preCosts.reduce(function(s,p){return s+(p.amount||0);},0);
+  var days=wizardData.startDate&&wizardData.endDate?Math.round((new Date(wizardData.endDate)-new Date(wizardData.startDate))/86400000)+1:14;
+  var remaining=wizardData.budget-preCostTotal;
+  var prompt=[
+    'You are a travel budget expert. Generate exactly 3 budget scenario options as JSON.',
+    'Trip details:',
+    '- Total budget: US$'+wizardData.budget,
+    '- Pre-committed costs: US$'+preCostTotal,
+    '- Remaining to allocate: US$'+remaining,
+    '- Destination: '+wizardData.sureThing+(wizardData.maybes?' + possibly '+wizardData.maybes:''),
+    '- Trip length: '+days+' days',
+    '- Accommodation: '+wizardData.stayingFree,
+    '- Hotel preference: '+wizardData.hotelStars,
+    '- Activity appetite: '+wizardData.activityAppetite,
+    '- Notes: '+wizardData.destinations,
+    '',
+    'Generate 3 scenarios with different philosophies. Each allocates REMAINING US$'+remaining+' across categories.',
+    'Return ONLY valid JSON, no markdown:',
+    '{"scenarios":[{"id":"s1","name":"Name","emoji":"emoji","tagline":"one line","description":"2-3 sentences","breakdown":{"accommodation":{"pct":40,"amount":1200},"food":{"pct":20,"amount":600},"activities":{"pct":25,"amount":750},"transport":{"pct":10,"amount":300},"misc":{"pct":5,"amount":150}}}]}'
+  ].join('\n');
+
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:2000,
+      messages:[{role:'user',content:prompt}]
+    })
+  }).then(function(r){return r.json();}).then(function(data){
+    var text=data.content.map(function(b){return b.text||'';}).join('');
+    var clean=text.replace(/```json|```/g,'').trim();
+    var parsed=JSON.parse(clean);
+    showScenarioCards(parsed.scenarios);
+  }).catch(function(e){
+    card.innerHTML="<h2>Oops!</h2><p>Something went wrong generating scenarios. Please try again.</p>";
+    var retryBtn=document.createElement('button');retryBtn.className='btn btn-primary';retryBtn.textContent='Try again';
+    retryBtn.onclick=renderScenarios;
+    card.appendChild(retryBtn);
+  });
+}
+
+function showScenarioCards(scenarios){
+  var container=document.getElementById('wizard-container');
+  container.innerHTML='';
+  var card=document.createElement('div');card.className='wizard-card';
+  card.innerHTML="<h2>&#10024; Choose your scenario</h2><p>Pick the budget style that feels right for this trip. You can adjust the numbers after.</p>";
+
+  var selectedId=wizardData.scenario?wizardData.scenario.id:null;
+
+  scenarios.forEach(function(sc){
+    var el=document.createElement('div');
+    el.className='scenario-card'+(selectedId===sc.id?' selected':'');
+    var remaining=wizardData.budget-wizardData.preCosts.reduce(function(s,p){return s+(p.amount||0);},0);
+
+    var header=document.createElement('div');header.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:6px;';
+    var emoji=document.createElement('span');emoji.style.fontSize='24px';emoji.textContent=sc.emoji;
+    var title=document.createElement('h3');title.textContent=sc.name;
+    header.appendChild(emoji);header.appendChild(title);
+    el.appendChild(header);
+
+    var tagline=document.createElement('div');tagline.style.cssText='font-size:12px;font-weight:600;color:var(--green);margin-bottom:6px;';tagline.textContent=sc.tagline;
+    el.appendChild(tagline);
+
+    var desc=document.createElement('p');desc.textContent=sc.description;el.appendChild(desc);
+
+    // mini bar chart
+    var bars=document.createElement('div');bars.className='scenario-bars';
+    Object.entries(sc.breakdown).forEach(function(entry){
+      var cat=entry[0],vals=entry[1];
+      var row=document.createElement('div');row.className='scenario-bar-row';
+      var lbl=document.createElement('div');lbl.className='scenario-bar-label';lbl.textContent=cat.charAt(0).toUpperCase()+cat.slice(1);
+      var track=document.createElement('div');track.className='scenario-bar-track';
+      var fill=document.createElement('div');fill.className='scenario-bar-fill';
+      fill.style.cssText='width:'+vals.pct+'%;background:'+(CAT_COLORS_BUDGET[cat]||'#6b7280')+';';
+      track.appendChild(fill);
+      var amt=document.createElement('div');amt.className='scenario-bar-amt';amt.textContent='US$'+vals.amount;
+      row.appendChild(lbl);row.appendChild(track);row.appendChild(amt);
+      bars.appendChild(row);
+    });
+    el.appendChild(bars);
+
+    el.onclick=function(){
+      wizardData.scenario=sc;
+      container.querySelectorAll('.scenario-card').forEach(function(c){c.classList.remove('selected');});
+      el.classList.add('selected');
+    };
+    card.appendChild(el);
+  });
+
+  var nav=document.createElement('div');nav.className='wizard-nav';
+  var back=document.createElement('button');back.className='btn btn-ghost btn-sm';back.textContent='← Back';
+  back.onclick=function(){wizardStep=5;WIZARD_TOTAL=5;renderWizard();};
+  var next=document.createElement('button');next.className='btn btn-primary';next.textContent='Adjust breakdown →';
+  next.onclick=function(){
+    if(!wizardData.scenario){showToast('Please select a scenario');return;}
+    showBreakdownEditor();
+  };
+  nav.appendChild(back);nav.appendChild(next);
+  card.appendChild(nav);
+  container.appendChild(card);
+}
+
+function showBreakdownEditor(){
+  var container=document.getElementById('wizard-container');
+  container.innerHTML='';
+  var card=document.createElement('div');card.className='wizard-card';
+  card.innerHTML="<h2>&#127917; Fine-tune your budget</h2><p>Adjust the amounts to match your preferences. The total will update automatically.</p>";
+
+  var sc=wizardData.scenario;
+  var preCostTotal=wizardData.preCosts.reduce(function(s,p){return s+(p.amount||0);},0);
+  var remaining=wizardData.budget-preCostTotal;
+
+  // editable breakdown
+  var breakdown=JSON.parse(JSON.stringify(sc.breakdown)); // deep copy
+  wizardData.breakdown=breakdown;
+
+  var table=document.createElement('div');table.className='budget-breakdown-table';
+  var totalDisplay=null;
+
+  function updateTotal(){
+    var sum=Object.values(breakdown).reduce(function(s,v){return s+(v.amount||0);},0);
+    if(totalDisplay)totalDisplay.textContent='US$'+sum.toLocaleString()+' / US$'+remaining.toLocaleString();
+    // update pcts
+    Object.keys(breakdown).forEach(function(cat){
+      breakdown[cat].pct=remaining>0?Math.round((breakdown[cat].amount/remaining)*100):0;
+    });
+  }
+
+  Object.entries(breakdown).forEach(function(entry){
+    var cat=entry[0],vals=entry[1];
+    var row=document.createElement('div');row.className='breakdown-row';
+    var dot=document.createElement('div');dot.className='breakdown-dot';dot.style.background=CAT_COLORS_BUDGET[cat]||'#6b7280';
+    var lbl=document.createElement('div');lbl.className='breakdown-label';lbl.textContent=cat.charAt(0).toUpperCase()+cat.slice(1);
+    var pctEl=document.createElement('div');pctEl.className='breakdown-pct';pctEl.textContent=vals.pct+'%';
+    var inp=document.createElement('input');inp.className='breakdown-input';inp.type='number';inp.value=vals.amount;
+    inp.oninput=function(){breakdown[cat].amount=parseFloat(inp.value)||0;pctEl.textContent=remaining>0?Math.round((breakdown[cat].amount/remaining)*100)+'%':'0%';updateTotal();};
+    row.appendChild(dot);row.appendChild(lbl);row.appendChild(pctEl);row.appendChild(inp);
+    table.appendChild(row);
+  });
+
+  // pre-costs rows (read only)
+  if(wizardData.preCosts.length>0){
+    var divider=document.createElement('div');divider.style.cssText='font-size:11px;font-weight:600;color:var(--text-muted);padding:10px 0 4px;text-transform:uppercase;letter-spacing:.05em;';divider.textContent='Already committed';
+    table.appendChild(divider);
+    wizardData.preCosts.forEach(function(pc){
+      var row=document.createElement('div');row.className='breakdown-row';
+      var dot=document.createElement('div');dot.className='breakdown-dot';dot.style.background='var(--gray)';
+      var lbl=document.createElement('div');lbl.className='breakdown-label';lbl.textContent=pc.label;
+      var amt=document.createElement('div');amt.style.cssText='font-weight:600;font-size:13px;';amt.textContent='US$'+(pc.amount||0).toLocaleString();
+      row.appendChild(dot);row.appendChild(lbl);row.appendChild(amt);
+      table.appendChild(row);
+    });
+  }
+
+  // total row
+  var totalRow=document.createElement('div');totalRow.className='breakdown-total';
+  var totalLbl=document.createElement('span');totalLbl.textContent='Total allocated';
+  totalDisplay=document.createElement('span');
+  totalRow.appendChild(totalLbl);totalRow.appendChild(totalDisplay);
+  updateTotal();
+  table.appendChild(totalRow);
+  card.appendChild(table);
+
+  var nav=document.createElement('div');nav.className='wizard-nav';
+  var back=document.createElement('button');back.className='btn btn-ghost btn-sm';back.textContent='← Back';
+  back.onclick=function(){renderScenarios_cached();};
+  var done=document.createElement('button');done.className='btn btn-primary';done.textContent='Save plan ✓';
+  done.onclick=function(){
+    wizardData.breakdown=breakdown;
+    showToast('Plan saved! Ready to generate itinerary.');
+    showPlanSummary();
+  };
+  nav.appendChild(back);nav.appendChild(done);
+  card.appendChild(nav);
+  container.appendChild(card);
+}
+
+var cachedScenarios=null;
+function renderScenarios_cached(){
+  if(cachedScenarios)showScenarioCards(cachedScenarios);
+  else renderScenarios();
+}
+
+// wrap renderScenarios to cache results
+var _origRenderScenarios=renderScenarios;
+renderScenarios=function(){
+  cachedScenarios=null;
+  _origRenderScenarios();
+};
+var _origShowScenarioCards=showScenarioCards;
+showScenarioCards=function(scenarios){
+  cachedScenarios=scenarios;
+  _origShowScenarioCards(scenarios);
+};
+
+function showPlanSummary(){
+  var container=document.getElementById('wizard-container');
+  container.innerHTML='';
+  var card=document.createElement('div');card.className='wizard-card';
+
+  var sc=wizardData.scenario;
+  var bd=wizardData.breakdown;
+  var preCostTotal=wizardData.preCosts.reduce(function(s,p){return s+(p.amount||0);},0);
+
+  card.innerHTML='<h2>'+sc.emoji+' Your plan is set!</h2>'+
+    '<p><strong>'+sc.name+'</strong> — '+sc.description+'</p>';
+
+  var summary=document.createElement('div');
+  summary.style.cssText='background:var(--green-pale);border-radius:var(--radius-sm);padding:16px;margin:16px 0;';
+  summary.innerHTML='<div style="font-size:13px;display:flex;flex-direction:column;gap:6px;">'+
+    '<div style="display:flex;justify-content:space-between;"><span>Total budget</span><strong>US$'+wizardData.budget.toLocaleString()+'</strong></div>'+
+    (preCostTotal>0?'<div style="display:flex;justify-content:space-between;"><span>Pre-committed</span><strong>- US$'+preCostTotal.toLocaleString()+'</strong></div>':'')+
+    '<div style="display:flex;justify-content:space-between;border-top:1px solid var(--green);padding-top:6px;font-weight:700;"><span>Available to spend</span><span>US$'+(wizardData.budget-preCostTotal).toLocaleString()+'</span></div>'+
+    '</div>';
+  card.appendChild(summary);
+
+  Object.entries(bd).forEach(function(entry){
+    var cat=entry[0],vals=entry[1];
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--gray-border);font-size:13px;';
+    var dot=document.createElement('span');dot.style.cssText='width:10px;height:10px;border-radius:50%;background:'+(CAT_COLORS_BUDGET[cat]||'#6b7280')+';flex-shrink:0;';
+    var lbl=document.createElement('span');lbl.style.flex='1';lbl.textContent=cat.charAt(0).toUpperCase()+cat.slice(1);
+    var amt=document.createElement('span');amt.style.fontWeight='700';amt.textContent='US$'+(vals.amount||0).toLocaleString()+' ('+vals.pct+'%)';
+    row.appendChild(dot);row.appendChild(lbl);row.appendChild(amt);
+    card.appendChild(row);
+  });
+
+  var actions=document.createElement('div');actions.style.cssText='display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;';
+  var restart=document.createElement('button');restart.className='btn btn-ghost btn-sm';restart.textContent='Start over';restart.onclick=initWizard;
+  var edit=document.createElement('button');edit.className='btn btn-ghost btn-sm';edit.textContent='Edit breakdown';edit.onclick=showBreakdownEditor;
+  actions.appendChild(restart);actions.appendChild(edit);
+  card.appendChild(actions);
+  container.appendChild(card);
 }
 
 loadAll();
