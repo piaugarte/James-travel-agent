@@ -1995,22 +1995,30 @@ function renderCalculator(){
       pdIn.value=item.amount?Math.round(item.amount/daysRef[0]):'';pdIn.placeholder='0';
       pdIn.style.cssText+='font-size:11px;';
 
-      // /person cell (derived)
-      var ppCell=document.createElement('div');ppCell.className='calc-derived';
-      ppCell.textContent=item.amount?fmt$(item.amount/peopleRef[0]):'—';
+      // /person input (editable - syncs to total)
+      var ppCell=document.createElement('input');ppCell.className='calc-amount-input';ppCell.type='number';
+      ppCell.value=item.amount?Math.round(item.amount/peopleRef[0]):'';ppCell.placeholder='0';
+      ppCell.style.cssText+='font-size:11px;';
 
-      aIn.oninput=function(){
-        item.amount=parseFloat(this.value)||0;
-        pdIn.value=item.amount?Math.round(item.amount/daysRef[0]):'';
-        ppCell.textContent=item.amount?fmt$(item.amount/peopleRef[0]):'—';
+      function syncAll(source){
+        if(source==='total'){
+          pdIn.value=item.amount?Math.round(item.amount/daysRef[0]):'';
+          ppCell.value=item.amount?Math.round(item.amount/peopleRef[0]):'';
+        } else if(source==='day'){
+          item.amount=(parseFloat(pdIn.value)||0)*daysRef[0];
+          aIn.value=item.amount||'';
+          ppCell.value=item.amount?Math.round(item.amount/peopleRef[0]):'';
+        } else if(source==='person'){
+          item.amount=(parseFloat(ppCell.value)||0)*peopleRef[0];
+          aIn.value=item.amount||'';
+          pdIn.value=item.amount?Math.round(item.amount/daysRef[0]):'';
+        }
         updateStatus();refreshSummary();
-      };
-      pdIn.oninput=function(){
-        item.amount=(parseFloat(this.value)||0)*daysRef[0];
-        aIn.value=item.amount||'';
-        ppCell.textContent=item.amount?fmt$(item.amount/peopleRef[0]):'—';
-        updateStatus();refreshSummary();
-      };
+      }
+
+      aIn.oninput=function(){item.amount=parseFloat(this.value)||0;syncAll('total');};
+      pdIn.oninput=function(){syncAll('day');};
+      ppCell.oninput=function(){syncAll('person');};
 
       function updateStatus(){
         var t=scenarioItems.reduce(function(s,i){return s+(i.amount||0);},0);
@@ -2101,8 +2109,7 @@ function renderCalculator(){
         var inputs=row.querySelectorAll('input[type=number]');
         if(inputs[0])inputs[0].value=item.amount||'';
         if(inputs[1])inputs[1].value=item.amount?Math.round(item.amount/daysRef[0]):'';
-        var derived=row.querySelector('.calc-derived');
-        if(derived)derived.textContent=item.amount?fmt$(item.amount/peopleRef[0]):'—';
+        if(inputs[2])inputs[2].value=item.amount?Math.round(item.amount/peopleRef[0]):'';
       });
       var d=scenarioBudget[0]-scenarioItems.reduce(function(s,i){return s+(i.amount||0);},0);
       statusEl.className='calc-status '+statusClass(d);statusEl.textContent=statusText(d);
