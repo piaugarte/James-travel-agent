@@ -1869,10 +1869,12 @@ function updateCalcStatus(){
 }
 
 function initCalculator(){
-  // pre-fill budget from trip data if available
-  if(tripData&&tripData.total_budget)calcBudget=Number(tripData.total_budget)*fxRates.USD;
-  // pre-fill from wizard if available
-  if(wizardData&&wizardData.budget)calcBudget=wizardData.budget;
+  // only pre-fill if user hasn't set a budget yet
+  if(!window.calcBudgetSet){
+    if(wizardData&&wizardData.budget)calcBudget=wizardData.budget;
+    else calcBudget=10000;
+    window.calcBudgetSet=true;
+  }
   if(wizardData&&wizardData.breakdown){
     calcItems=Object.entries(wizardData.breakdown).map(function(e,i){
       return{id:i+1,label:e[0].charAt(0).toUpperCase()+e[0].slice(1),amount:e[1].amount,color:CAT_COLORS_BUDGET[e[0]]||'#6b7280'};
@@ -1894,11 +1896,16 @@ function renderCalculator(){
   // init defaults
   if(!window.calcDays)window.calcDays=tripData&&tripData.start_date&&tripData.end_date?Math.max(1,Math.round((new Date(tripData.end_date)-new Date(tripData.start_date))/86400000)+1):17;
   if(!window.calcPeople)window.calcPeople=4;
-  if(!calcBudget||calcBudget<1)calcBudget=10000;
+  if(!window.calcBudgetSet){window.calcBudgetSet=true;calcBudget=10000;}
 
   function getTotal(){return calcItems.reduce(function(s,i){return s+(Number(i.amount)||0);},0);}
   function getDiff(){return calcBudget-getTotal();}
-  function statusText(d){return d<0?'Over by '+fmt$(Math.abs(d))+' ⚠️':d===0?'Exactly on budget ✓':fmt$(d)+' remaining ✓';}
+  function statusText(d){
+    var ad=Math.abs(Math.round(d*100)/100);
+    if(d<0)return 'Over by US$'+ad.toLocaleString('en-US',{maximumFractionDigits:0})+' ⚠️';
+    if(d===0)return 'Exactly on budget ✓';
+    return 'US$'+ad.toLocaleString('en-US',{maximumFractionDigits:0})+' remaining ✓';
+  }
   function statusClass(d){return d<0?'over':d===0?'exact':'under';}
 
   // wrapper for side-by-side
@@ -1928,7 +1935,13 @@ function renderCalculator(){
     var budgetRow=document.createElement('div');budgetRow.style.cssText='display:flex;align-items:center;gap:6px;';
     var budgetIn=document.createElement('input');budgetIn.type='number';budgetIn.value=scenarioBudget[0];budgetIn.placeholder='10000';
     budgetIn.style.cssText='border:none;font-family:Funnel Display,sans-serif;font-size:26px;font-weight:700;color:var(--green);width:160px;background:transparent;';
-    budgetIn.oninput=function(){scenarioBudget[0]=parseFloat(this.value)||0;statusEl.className='calc-status '+statusClass(scenarioBudget[0]-scenarioItems.reduce(function(s,i){return s+(i.amount||0);},0));statusEl.textContent=statusText(scenarioBudget[0]-scenarioItems.reduce(function(s,i){return s+(i.amount||0);},0));};
+    budgetIn.oninput=function(){
+      scenarioBudget[0]=parseFloat(this.value)||0;
+      calcBudget=scenarioBudget[0];
+      var d=scenarioBudget[0]-scenarioItems.reduce(function(s,i){return s+(i.amount||0);},0);
+      statusEl.className='calc-status '+statusClass(d);
+      statusEl.textContent=statusText(d);
+    };
     var budgetUnit=document.createElement('span');budgetUnit.style.cssText='font-size:13px;color:var(--text-muted);';budgetUnit.textContent='US$ total';
     budgetRow.appendChild(budgetIn);budgetRow.appendChild(budgetUnit);
     budgetWrap.appendChild(budgetLbl);budgetWrap.appendChild(budgetRow);
@@ -2028,6 +2041,7 @@ function renderCalculator(){
     // totals
     var totRow=document.createElement('div');totRow.className='calc-total-row';
     var totAmtEl=document.createElement('span');var totDayEl=document.createElement('span');var totPersonEl=document.createElement('span');
+    totAmtEl.style.textAlign='right';totDayEl.style.textAlign='right';totPersonEl.style.textAlign='right';
     totRow.innerHTML='<span>Total</span>';
     totRow.appendChild(totAmtEl);totRow.appendChild(totDayEl);totRow.appendChild(totPersonEl);
     totRow.appendChild(document.createElement('span'));
@@ -2039,9 +2053,10 @@ function renderCalculator(){
       totAmtEl.textContent=fmt$(t);
       totDayEl.textContent=fmt$(t/daysRef[0]);
       totPersonEl.textContent=fmt$(t/peopleRef[0]);
+      var sd=scenarioBudget[0]-t;statusEl.className='calc-status '+statusClass(sd);statusEl.textContent=statusText(sd);
       perDayEl.innerHTML='<span style="color:var(--text-muted)">Per day</span> <strong>'+fmt$(t/daysRef[0])+'</strong>';
       perPersonEl.innerHTML='<span style="color:var(--text-muted)">Per person</span> <strong>'+fmt$(t/peopleRef[0])+'</strong>';
-      perPPDEl.innerHTML='<span style="color:var(--text-muted)">Per person/day</span> <strong>'+fmt$(t/daysRef[0]/peopleRef[0])+'</strong>';
+      perPPDEl.innerHTML='<span style="color:var(--text-muted)">/person/day</span> <strong>'+fmt$(t/daysRef[0]/peopleRef[0])+'</strong>';
     }
     function refreshAll(){
       // re-populate /day inputs
@@ -2105,8 +2120,7 @@ function renderCalculator(){
         '<div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Color</div>'+
         '<div id="new-cat-colors" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>'+
         '<div style="display:flex;gap:6px;"><button id="new-cat-add" class="btn btn-primary btn-sm" style="flex:1;">Add</button><button id="new-cat-cancel" class="btn btn-ghost btn-sm">Cancel</button></div>';
-      var rect=addCatBtn.getBoundingClientRect();
-      popup.style.top=(rect.bottom+4)+'px';popup.style.left=rect.left+'px';
+      popup.style.cssText+='top:50%;left:50%;transform:translate(-50%,-50%);';
       document.body.appendChild(popup);
       var selectedColor=palette[0];
       var colorWrap=popup.querySelector('#new-cat-colors');
