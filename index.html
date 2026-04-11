@@ -282,9 +282,9 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 /* chat */
 .chat-fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:var(--green);color:var(--white);border:none;cursor:pointer;font-size:24px;box-shadow:var(--shadow-md);z-index:200;transition:all .15s;display:flex;align-items:center;justify-content:center;}
 .chat-fab:hover{transform:scale(1.08);background:#1b4332;}
-.chat-panel{position:fixed;bottom:0;right:0;width:100%;max-width:400px;height:72vh;max-height:600px;background:var(--white);border-top-left-radius:var(--radius);border-top-right-radius:var(--radius);box-shadow:0 -4px 32px rgba(0,0,0,0.15);z-index:201;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .25s ease;}
-.chat-panel.open{transform:translateY(0);}
-@media(min-width:640px){.chat-panel{bottom:90px;right:24px;border-radius:var(--radius);height:520px;}.chat-panel.open{transform:translateY(0);}}
+.chat-panel{position:fixed;bottom:90px;right:24px;width:340px;height:460px;background:var(--white);border-radius:var(--radius);box-shadow:0 -4px 32px rgba(0,0,0,0.15);z-index:201;display:flex;flex-direction:column;transform:translateY(20px);opacity:0;pointer-events:none;transition:all .2s ease;}
+.chat-panel.open{transform:translateY(0);opacity:1;pointer-events:all;}
+@media(min-width:640px){.chat-panel{bottom:90px;right:24px;border-radius:var(--radius);height:520px;}.chat-panel.open{transform:translateY(0);opacity:1;pointer-events:all;}}
 .chat-header{background:var(--green);color:var(--white);padding:14px 16px;border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;justify-content:space-between;}
 .chat-header h3{font-size:15px;font-weight:700;}
 .chat-header p{font-size:12px;opacity:0.8;}
@@ -453,7 +453,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
   </div>
 </div>
 
-<button class="chat-fab" onclick="toggleChat()" title="Trip assistant">&#127757;</button>
+<button class="chat-fab" id="chat-fab" onclick="toggleChat()" title="Trip assistant">&#127757;</button>
 <div class="chat-panel" id="chat-panel">
   <div class="chat-header"><div><h3>Trip assistant</h3><p>Ask anything or make changes</p></div><button class="chat-close" onclick="toggleChat()">&#10005;</button></div>
   <div class="chat-messages" id="chat-messages"></div>
@@ -1637,10 +1637,16 @@ async function addPackItem(){
 function toggleChat(){
   chatOpen=!chatOpen;
   document.getElementById('chat-panel').classList.toggle('open',chatOpen);
+  var fab=document.getElementById('chat-fab');
   if(chatOpen){
+    fab.innerHTML='&#10005;';
+    fab.style.background='#1b4332';
     document.getElementById('chat-input').focus();
     if(!chatHistory.length)appendMsg('assistant','Hi! I am your Vancouver trip assistant. I can suggest activities, answer questions, and make changes to your itinerary. What would you like to know?');
     renderChips();
+  }else{
+    fab.innerHTML='&#127757;';
+    fab.style.background='';
   }
 }
 
