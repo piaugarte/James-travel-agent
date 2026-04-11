@@ -170,6 +170,69 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .who-grid-chip.selected{border-color:var(--green);background:var(--green-pale);color:var(--green);font-weight:600;}
 .who-grid-chip .chip-avatar{font-size:20px;line-height:1;}
 .who-pp-tag{font-size:11px;color:var(--amber);font-weight:600;margin-top:2px;}
+
+/* onboarding */
+.ob-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#1b4332 0%,#2d6a4f 100%);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;overflow:hidden;}
+.ob-overlay.hidden{display:none;}
+.ob-card{background:white;border-radius:20px;padding:32px;width:100%;max-width:560px;height:auto;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.ob-logo{font-family:'Funnel Display',sans-serif;font-size:14px;font-weight:700;color:var(--green);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.ob-step-dots{display:flex;gap:6px;margin-bottom:16px;}
+.ob-dot{width:8px;height:8px;border-radius:50%;background:var(--gray-border);transition:all .2s;}
+.ob-dot.active{background:var(--green);width:24px;border-radius:4px;}
+.ob-dot.done{background:var(--green-pale);border:1px solid var(--green);}
+.ob-card h2{font-family:'Funnel Display',sans-serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.ob-card .ob-sub{font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.5;}
+.ob-field{margin-bottom:12px;}
+.ob-field label{display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+.ob-field input,.ob-field select,.ob-field textarea{width:100%;border:1.5px solid var(--gray-border);border-radius:10px;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);transition:border-color .15s;background:white;}
+.ob-field input:focus,.ob-field select:focus,.ob-field textarea:focus{outline:none;border-color:var(--green);}
+.ob-field textarea{resize:vertical;min-height:70px;}
+.ob-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ob-row-3{display:grid;grid-template-columns:1fr 80px auto;gap:8px;align-items:end;}
+.ob-person-row{display:flex;gap:8px;align-items:flex-start;padding:12px;background:var(--gray-light);border-radius:10px;margin-bottom:8px;}
+.ob-person-row input{border:1.5px solid var(--gray-border);border-radius:8px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;background:white;width:100%;}
+.ob-person-row input:focus{outline:none;border-color:var(--green);}
+.ob-add-btn{background:none;border:1.5px dashed var(--gray-border);border-radius:10px;padding:10px;width:100%;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-muted);cursor:pointer;transition:all .15s;}
+.ob-add-btn:hover{border-color:var(--green);color:var(--green);}
+.ob-cost-row{display:flex;gap:8px;margin-bottom:8px;}
+.ob-cost-row input{border:1.5px solid var(--gray-border);border-radius:8px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;background:white;}
+.ob-cost-row input:focus{outline:none;border-color:var(--green);}
+.ob-vibe-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;}
+.ob-vibe-card{border:2px solid var(--gray-border);border-radius:12px;padding:16px 12px;cursor:pointer;text-align:center;transition:all .15s;background:white;}
+.ob-vibe-card:hover{border-color:var(--green);}
+.ob-vibe-card.selected{border-color:var(--green);background:var(--green-pale);}
+.ob-vibe-card .ob-vibe-emoji{font-size:28px;margin-bottom:6px;}
+.ob-vibe-card .ob-vibe-label{font-size:13px;font-weight:700;color:var(--text);}
+.ob-vibe-card .ob-vibe-desc{font-size:11px;color:var(--text-muted);margin-top:3px;line-height:1.4;}
+.ob-stay-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ob-stay-card{border:2px solid var(--gray-border);border-radius:12px;padding:14px 12px;cursor:pointer;text-align:center;transition:all .15s;background:white;}
+.ob-stay-card:hover{border-color:var(--green);}
+.ob-stay-card.selected{border-color:var(--green);background:var(--green-pale);}
+.ob-stay-card .ob-stay-emoji{font-size:22px;margin-bottom:4px;}
+.ob-stay-card .ob-stay-label{font-size:12px;font-weight:700;color:var(--text);}
+.ob-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;}
+.ob-btn-primary{background:var(--green);color:white;border:none;border-radius:10px;padding:12px 28px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;}
+.ob-btn-primary:hover{background:#1b4332;}
+.ob-btn-ghost{background:none;border:none;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;padding:8px;}
+.ob-btn-ghost:hover{color:var(--text);}
+.ob-progress-bar{height:3px;background:var(--gray-border);border-radius:2px;margin-bottom:16px;overflow:hidden;}
+.ob-progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s;}
+/* suggestion cards */
+.suggestions-wrap{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+.suggestion-card{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:12px;font-size:12px;transition:box-shadow .15s;}
+.suggestion-card:hover{box-shadow:var(--shadow-md);}
+.suggestion-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;}
+.suggestion-card-name{font-weight:700;font-size:13px;color:var(--text);flex:1;}
+.suggestion-card-add{background:var(--green);color:white;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.suggestion-card-add:hover{background:#1b4332;transform:scale(1.1);}
+.suggestion-card-add.added{background:var(--gray);cursor:default;}
+.suggestion-card-desc{color:var(--text-muted);line-height:1.4;margin-bottom:6px;}
+.suggestion-card-meta{display:flex;flex-wrap:wrap;gap:6px;}
+.suggestion-meta-tag{background:var(--gray-light);border-radius:10px;padding:2px 8px;font-size:11px;color:var(--text-muted);}
+.suggestion-meta-tag.cost{background:var(--amber-pale);color:var(--amber);}
+.suggestion-meta-tag.kid{background:var(--green-pale);color:var(--green);}
+.suggestion-meta-tag.book{background:var(--red-pale);color:var(--red);}
+.proactive-banner{background:linear-gradient(135deg,var(--green) 0%,#1b4332 100%);color:white;border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;margin-bottom:8px;line-height:1.5;}
 /* calculator */
 .calc-header{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);padding:20px 24px;margin-bottom:16px;box-shadow:var(--shadow);}
 .calc-budget-display{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
@@ -384,11 +447,18 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 </style>
 </head>
 <body>
+
+<!-- ONBOARDING OVERLAY -->
+<div class="ob-overlay hidden" id="ob-overlay">
+  <div class="ob-card" id="ob-card">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
 <nav>
   <div class="nav-inner">
     <span class="nav-brand">&#128329; Vancouver 2026</span>
     <button class="nav-tab active" onclick="switchTab('itinerary',this)">Itinerary</button>
-    <button class="nav-tab" onclick="switchTab('plan',this)">&#127775; Plan</button>
     <button class="nav-tab" onclick="switchTab('people',this)">People</button>
     <button class="nav-tab" onclick="switchTab('costs',this)">Costs</button>
     <button class="nav-tab" onclick="switchTab('calculator',this)">&#129518; Calculator</button>
@@ -424,13 +494,6 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
   <!-- CALCULATOR -->
   <div id="tab-calculator" class="tab-content">
     <div id="calculator-container" style="max-width:720px;margin:0 auto;"></div>
-  </div>
-
-  <!-- PLAN -->
-  <div id="tab-plan" class="tab-content">
-    <div class="wizard" id="wizard-container">
-      <!-- rendered by JS -->
-    </div>
   </div>
 
   <!-- COSTS (public) -->
@@ -609,7 +672,6 @@ function switchTab(name,btn){
   document.getElementById('tab-'+name).classList.add('active');
   btn.classList.add('active');
   if(name==='budget')renderBudget();
-  if(name==='plan')initWizard();
   if(name==='calculator')initCalculator();
   if(name==='packing')renderPacking();
   if(name==='costs')renderCosts();
@@ -617,6 +679,7 @@ function switchTab(name,btn){
 }
 
 async function loadAll(){
+  // returns promise implicitly since async
   await loadFxRates();
   var results=await Promise.all([
     sb.from('trip').select('*').eq('id',TRIP_ID).single(),
@@ -1728,7 +1791,10 @@ function toggleChat(){
     fab.innerHTML='&#10005;';
     fab.style.background='#1b4332';
     document.getElementById('chat-input').focus();
-    if(!chatHistory.length)appendMsg('assistant','Hi! I am your Vancouver trip assistant. I can suggest activities, answer questions, and make changes to your itinerary. What would you like to know?');
+    if(!chatHistory.length){
+      appendMsg('assistant','Hi Pia! Scanning your trip... &#128269;');
+      triggerProactiveScan();
+    }
     renderChips();
   }else{
     fab.innerHTML='&#127757;';
@@ -1736,7 +1802,128 @@ function toggleChat(){
   }
 }
 
-var CHIPS=['Best restaurants near Surrey?','What to book in advance?','Tips for Whistler with young kids','What is free in Vancouver?','Add sunscreen to packing list'];
+async function triggerProactiveScan(){
+  var container=document.getElementById('chat-messages');
+  // show typing
+  var typing=document.createElement('div');typing.className='msg assistant';
+  typing.innerHTML='<div class="typing-dots"><span></span><span></span><span></span></div>';
+  container.appendChild(typing);container.scrollTop=container.scrollHeight;
+
+  var spent=allItems.reduce(function(s,i){return s+(Number(i.cost)||0);},0);
+  var context=buildTripContext();
+
+  try{
+    var res=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({proactive:true,tripContext:context})
+    });
+    var data=await res.json();
+    typing.remove();
+    var lastMsg=appendMsg('assistant',data.reply||'Ready to help plan!');
+    if(data.suggestions&&data.suggestions.length){
+      renderSuggestionCards(data.suggestions,lastMsg);
+    }
+    if(data.madeChanges)loadAll();
+  }catch(e){
+    typing.remove();
+    appendMsg('assistant','Hi Pia! I am your Vancouver trip assistant. Ask me anything or say "suggest activities for Day 3"!');
+  }
+}
+
+function buildTripContext(){
+  var spent=allItems.reduce(function(s,i){return s+(Number(i.cost)||0);},0);
+  var emptyDays=allDays.filter(function(d){return !allItems.some(function(i){return i.day_id===d.id;});});
+  return [
+    'Trip: '+(tripData?tripData.title:'Vancouver 2026'),
+    'Dates: Jun 15 - Jul 1 2026 (17 days)',
+    'Family: Pia, Pach, Joaquin (8), Alba (6) + extended family',
+    'Budget: ~USD$10,000 total',
+    'Empty days: '+emptyDays.length+' ('+emptyDays.map(function(d){return 'Day '+d.day_number+' '+d.date;}).join(', ')+')',
+    'Planned days: '+(allDays.length-emptyDays.length),
+    'Total activities: '+allItems.length,
+    'Days: '+allDays.slice(0,8).map(function(d){
+      var its=allItems.filter(function(i){return i.day_id===d.id;});
+      return 'Day '+d.day_number+' ('+d.date+'): '+(its.length?its.map(function(i){return i.activity;}).join(', '):'EMPTY');
+    }).join(' | ')
+  ].join('\n');
+}
+
+function renderSuggestionCards(suggestions, afterEl){
+  var wrap=document.createElement('div');wrap.className='suggestions-wrap';
+  suggestions.forEach(function(sg){
+    var card=document.createElement('div');card.className='suggestion-card';
+    var hdr=document.createElement('div');hdr.className='suggestion-card-header';
+    var name=document.createElement('div');name.className='suggestion-card-name';
+    name.textContent=(sg.type==='restaurant'?'&#127829; ':sg.type==='hotel'?'&#127968; ':sg.type==='day_trip'?'&#128652; ':'&#127775; ')+sg.name;
+    name.innerHTML=(sg.type==='restaurant'?'🍽 ':sg.type==='hotel'?'🏨 ':sg.type==='day_trip'?'🚌 ':'🌟 ')+sg.name;
+
+    var addBtn=document.createElement('button');addBtn.className='suggestion-card-add';addBtn.innerHTML='+';addBtn.title='Add to itinerary';
+    addBtn.onclick=function(){
+      addSuggestionToItinerary(sg,addBtn);
+    };
+    hdr.appendChild(name);hdr.appendChild(addBtn);
+
+    var desc=document.createElement('div');desc.className='suggestion-card-desc';desc.textContent=sg.description;
+
+    var meta=document.createElement('div');meta.className='suggestion-card-meta';
+    if(sg.cost_total){var t=document.createElement('span');t.className='suggestion-meta-tag cost';t.textContent='US$'+sg.cost_total+' total';meta.appendChild(t);}
+    if(sg.cost_per_person){var p=document.createElement('span');p.className='suggestion-meta-tag cost';p.textContent='US$'+sg.cost_per_person+'/person';meta.appendChild(p);}
+    if(sg.kid_rating){var k=document.createElement('span');k.className='suggestion-meta-tag kid';k.textContent='Kids: '+'⭐'.repeat(sg.kid_rating);meta.appendChild(k);}
+    if(sg.best_time){var bt=document.createElement('span');bt.className='suggestion-meta-tag';bt.textContent=sg.best_time;meta.appendChild(bt);}
+    if(sg.duration_hours){var dh=document.createElement('span');dh.className='suggestion-meta-tag';dh.textContent=sg.duration_hours+'h';meta.appendChild(dh);}
+    if(sg.book_in_advance){var ba=document.createElement('span');ba.className='suggestion-meta-tag book';ba.textContent='Book ahead!';meta.appendChild(ba);}
+    if(sg.suggested_day_number){var sd=document.createElement('span');sd.className='suggestion-meta-tag';sd.textContent='Suggested: Day '+sg.suggested_day_number;meta.appendChild(sd);}
+
+    card.appendChild(hdr);card.appendChild(desc);card.appendChild(meta);
+    wrap.appendChild(card);
+  });
+
+  // insert after the message
+  if(afterEl&&afterEl.parentNode){
+    afterEl.parentNode.insertBefore(wrap,afterEl.nextSibling);
+  }else{
+    document.getElementById('chat-messages').appendChild(wrap);
+  }
+  document.getElementById('chat-messages').scrollTop=9999;
+}
+
+async function addSuggestionToItinerary(sg,btn){
+  btn.innerHTML='...';btn.style.background='var(--gray)';btn.disabled=true;
+  // find best day to add to
+  var dayId=sg.suggested_day_id;
+  if(!dayId&&sg.suggested_day_number){
+    var d=allDays.find(function(d){return d.day_number===sg.suggested_day_number;});
+    if(d)dayId=d.id;
+  }
+  if(!dayId){
+    // find first empty day
+    var empty=allDays.find(function(d){return !allItems.some(function(i){return i.day_id===d.id;});});
+    if(empty)dayId=empty.id;
+    else dayId=allDays[0]&&allDays[0].id;
+  }
+  if(!dayId){showToast('No day found');btn.innerHTML='+';btn.disabled=false;return;}
+
+  var res=await fetch('/api/chat',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      messages:[{role:'user',content:'Add "'+sg.name+'" to day_id '+dayId+'. Use location: "'+( sg.location||'')+'" cost: '+(sg.cost_total||0)+' category: '+(sg.category||'activity')+'. Just add it, confirm done.'}],
+      tripContext:buildTripContext()
+    })
+  });
+  var data=await res.json();
+  if(data.madeChanges){
+    btn.innerHTML='✓';btn.className='suggestion-card-add added';
+    showToast('Added: '+sg.name+'!');
+    await loadAll();
+  }else{
+    btn.innerHTML='+';btn.disabled=false;btn.style.background='';
+    showToast('Could not add - try again');
+  }
+}
+
+var CHIPS=['Fill my empty days!','Best kid activities in Vancouver','Plan Whistler days','Birthday dinner ideas for Pia','What to book in advance?'];
 function renderChips(){
   var el=document.getElementById('chat-chips');el.innerHTML='';
   CHIPS.forEach(function(c){
@@ -1778,7 +1965,10 @@ async function sendChat(){
     var res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatHistory.filter(function(m){return m.role!=='system';}).slice(-20).map(function(m){return{role:m.role,content:m.content};}),tripContext:context})});
     var data=await res.json();
     typing.remove();
-    appendMsg('assistant',data.error?'Sorry, something went wrong.':data.reply);
+    var lastMsg=appendMsg('assistant',data.error?'Sorry, something went wrong.':data.reply);
+    if(data.suggestions&&data.suggestions.length){
+      renderSuggestionCards(data.suggestions,lastMsg);
+    }
     if(data.madeChanges){await loadAll();showToast('Trip updated!');}
   }catch(e){
     typing.remove();
@@ -1837,6 +2027,383 @@ function initActivitySortable(){
       }
     });
   });
+}
+
+// ── ONBOARDING ──
+var OB_STEPS = 5;
+var obStep = 1;
+var obData = {
+  destination: '', maybes: '', startDate: '', endDate: '',
+  travelers: [],
+  budget: null, preCosts: [],
+  stayType: [], hotelsBooked: false, hotelDetails: '',
+  vibe: ''
+};
+
+function checkOnboarding(){
+  if(!localStorage.getItem('onboarding_complete')){
+    document.getElementById('ob-overlay').classList.remove('hidden');
+    renderObStep();
+  }
+}
+
+function renderObStep(){
+  var card=document.getElementById('ob-card');
+  card.innerHTML='';
+
+  // logo
+  var logo=document.createElement('div');logo.className='ob-logo';
+  logo.innerHTML='&#128329; Trip Planner';
+  card.appendChild(logo);
+
+  // progress
+  var prog=document.createElement('div');prog.className='ob-progress-bar';
+  var fill=document.createElement('div');fill.className='ob-progress-fill';
+  fill.style.width=Math.round((obStep/OB_STEPS)*100)+'%';
+  prog.appendChild(fill);card.appendChild(prog);
+
+  // dots
+  var dots=document.createElement('div');dots.className='ob-step-dots';
+  for(var i=1;i<=OB_STEPS;i++){
+    var dot=document.createElement('div');
+    dot.className='ob-dot'+(i===obStep?' active':i<obStep?' done':'');
+    dots.appendChild(dot);
+  }
+  card.appendChild(dots);
+
+  if(obStep===1) renderObStep1(card);
+  else if(obStep===2) renderObStep2(card);
+  else if(obStep===3) renderObStep3(card);
+  else if(obStep===4) renderObStep4(card);
+  else if(obStep===5) renderObStep5(card);
+}
+
+function obNav(card, onNext, nextLabel){
+  var nav=document.createElement('div');nav.className='ob-nav';
+  nav.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-top:28px;flex-wrap:wrap;gap:8px;';
+
+  var leftBtns=document.createElement('div');leftBtns.style.cssText='display:flex;gap:8px;align-items:center;';
+
+  if(obStep>1){
+    var back=document.createElement('button');back.className='ob-btn-ghost';
+    back.textContent='← Back';
+    back.onclick=function(){obStep--;renderObStep();};
+    leftBtns.appendChild(back);
+  }
+
+  // right side buttons
+  var rightBtns=document.createElement('div');rightBtns.style.cssText='display:flex;gap:10px;align-items:center;';
+
+  var laterBtn=document.createElement('button');laterBtn.className='ob-btn-ghost';
+  laterBtn.style.cssText='font-size:13px;color:var(--text-muted);';
+  laterBtn.textContent='Skip this question →';
+  laterBtn.onclick=function(){
+    if(obStep<OB_STEPS){obStep++;renderObStep();}
+    else{completeOnboarding(false);}
+  };
+  rightBtns.appendChild(laterBtn);
+
+  var next=document.createElement('button');next.className='ob-btn-primary';
+  next.textContent=nextLabel||(obStep===OB_STEPS?'Start planning!':'Continue →');
+  next.onclick=function(){if(onNext()){}};
+  rightBtns.appendChild(next);
+
+  nav.appendChild(leftBtns);nav.appendChild(rightBtns);
+  card.appendChild(nav);
+}
+
+// Step 1: Destination
+function renderObStep1(card){
+  var h=document.createElement('h2');h.textContent='Where are you headed? 🌍';card.appendChild(h);
+  var sub=document.createElement('p');sub.className='ob-sub';sub.textContent="Tell us about your destination and travel dates.";card.appendChild(sub);
+
+  var f1=document.createElement('div');f1.className='ob-field';
+  f1.innerHTML='<label>Main destination(s)</label>';
+  var i1=document.createElement('input');i1.placeholder='e.g. Vancouver, BC, Canada';i1.value=obData.destination;
+  i1.oninput=function(){obData.destination=this.value;};
+  f1.appendChild(i1);card.appendChild(f1);
+
+  var f2=document.createElement('div');f2.className='ob-field';
+  f2.innerHTML='<label>Would love to visit... (budget permitting)</label>';
+  var i2=document.createElement('input');i2.placeholder='e.g. Whistler for 3 nights if budget allows';i2.value=obData.maybes;
+  i2.oninput=function(){obData.maybes=this.value;};
+  f2.appendChild(i2);card.appendChild(f2);
+
+  var dr=document.createElement('div');dr.className='ob-row';
+  var f3=document.createElement('div');f3.className='ob-field';
+  f3.innerHTML='<label>Departure date</label>';
+  var i3=document.createElement('input');i3.type='date';i3.value=obData.startDate;
+  i3.oninput=function(){obData.startDate=this.value;updateDayCount();};
+  f3.appendChild(i3);
+
+  var f4=document.createElement('div');f4.className='ob-field';
+  f4.innerHTML='<label>Return date</label>';
+  var i4=document.createElement('input');i4.type='date';i4.value=obData.endDate;
+  i4.oninput=function(){obData.endDate=this.value;updateDayCount();};
+  f4.appendChild(i4);
+  dr.appendChild(f3);dr.appendChild(f4);card.appendChild(dr);
+
+  var dayCount=document.createElement('div');
+  dayCount.style.cssText='font-size:13px;color:var(--green);font-weight:600;margin-top:-8px;margin-bottom:4px;min-height:20px;';
+  card.appendChild(dayCount);
+  function updateDayCount(){
+    if(obData.startDate&&obData.endDate){
+      var d=Math.round((new Date(obData.endDate)-new Date(obData.startDate))/86400000)+1;
+      dayCount.textContent=d>0?'✓ '+d+' days':'';
+    }
+  }
+  updateDayCount();
+
+  obNav(card,function(){
+    if(!obData.destination){showToast('Please enter a destination');return false;}
+    if(!obData.startDate||!obData.endDate){showToast('Please enter travel dates');return false;}
+    obStep++;renderObStep();return true;
+  });
+}
+
+// Step 2: Who's coming
+function renderObStep2(card){
+  var h=document.createElement('h2');h.textContent="Who's joining the trip? 👨‍👩‍👧‍👦";card.appendChild(h);
+  var sub=document.createElement('p');sub.className='ob-sub';sub.textContent="Add everyone who's coming. You can always add or edit people later.";card.appendChild(sub);
+
+  if(obData.travelers.length===0){
+    obData.travelers=[{name:'',lastName:'',age:'',notes:''}];
+  }
+
+  var peopleWrap=document.createElement('div');peopleWrap.id='ob-people-wrap';
+
+  function renderPeople(){
+    peopleWrap.innerHTML='';
+    obData.travelers.forEach(function(t,idx){
+      var row=document.createElement('div');row.className='ob-person-row';
+      row.style.cssText='display:flex;flex-direction:column;gap:8px;padding:14px;background:var(--gray-light);border-radius:12px;margin-bottom:8px;position:relative;';
+
+      var topRow=document.createElement('div');topRow.style.cssText='display:grid;grid-template-columns:1fr 1fr 70px;gap:8px;';
+      var nIn=document.createElement('input');nIn.placeholder='First name';nIn.value=t.name||'';nIn.oninput=function(){obData.travelers[idx].name=this.value;};
+      var lIn=document.createElement('input');lIn.placeholder='Last name';lIn.value=t.lastName||'';lIn.oninput=function(){obData.travelers[idx].lastName=this.value;};
+      var aIn=document.createElement('input');aIn.type='number';aIn.placeholder='Age';aIn.value=t.age||'';aIn.style.textAlign='center';aIn.oninput=function(){obData.travelers[idx].age=this.value;};
+      topRow.appendChild(nIn);topRow.appendChild(lIn);topRow.appendChild(aIn);
+
+      var notesIn=document.createElement('input');notesIn.placeholder='Notes (e.g. dietary needs, birthday...)';notesIn.value=t.notes||'';notesIn.style.width='100%';
+      notesIn.oninput=function(){obData.travelers[idx].notes=this.value;};
+
+      var delBtn=document.createElement('button');
+      delBtn.style.cssText='position:absolute;top:10px;right:10px;background:none;border:none;cursor:pointer;color:var(--gray);font-size:16px;line-height:1;';
+      delBtn.innerHTML='×';
+      delBtn.onclick=function(){if(obData.travelers.length>1){obData.travelers.splice(idx,1);renderPeople();}};
+
+      row.appendChild(topRow);row.appendChild(notesIn);row.appendChild(delBtn);
+      peopleWrap.appendChild(row);
+    });
+
+    var addBtn=document.createElement('button');addBtn.className='ob-add-btn';addBtn.textContent='+ Add another person';
+    addBtn.onclick=function(){obData.travelers.push({name:'',lastName:'',age:'',notes:''});renderPeople();};
+    peopleWrap.appendChild(addBtn);
+  }
+  renderPeople();
+  card.appendChild(peopleWrap);
+
+  obNav(card,function(){
+    var valid=obData.travelers.some(function(t){return t.name.trim();});
+    if(!valid){showToast('Please add at least one traveler');return false;}
+    obStep++;renderObStep();return true;
+  });
+}
+
+// Step 3: Budget
+function renderObStep3(card){
+  var h=document.createElement('h2');h.textContent="What's your budget? 💰";card.appendChild(h);
+  var sub=document.createElement('p');sub.className='ob-sub';sub.textContent="Enter your total trip budget in USD. Then tell us about anything you've already paid for.";card.appendChild(sub);
+
+  var f1=document.createElement('div');f1.className='ob-field';
+  f1.innerHTML='<label>Total trip budget (USD)</label>';
+  var budgetIn=document.createElement('input');budgetIn.type='number';budgetIn.placeholder='e.g. 10000';budgetIn.value=obData.budget||'';
+  budgetIn.oninput=function(){obData.budget=parseFloat(this.value)||null;};
+  f1.appendChild(budgetIn);card.appendChild(f1);
+
+  var f2=document.createElement('div');f2.className='ob-field';
+  f2.innerHTML='<label>Already paid for anything? (flights, tours, deposits)</label>';
+  card.appendChild(f2);
+
+  var costsWrap=document.createElement('div');costsWrap.id='ob-costs-wrap';
+  function renderCosts(){
+    costsWrap.innerHTML='';
+    obData.preCosts.forEach(function(pc,idx){
+      var row=document.createElement('div');row.className='ob-cost-row';
+      var descIn=document.createElement('input');descIn.placeholder='Description (e.g. Flights MNL-YVR)';descIn.value=pc.desc||'';descIn.style.flex='2';
+      descIn.oninput=function(){obData.preCosts[idx].desc=this.value;};
+      var amtIn=document.createElement('input');amtIn.type='number';amtIn.placeholder='USD amount';amtIn.value=pc.amount||'';amtIn.style.width='110px';
+      amtIn.oninput=function(){obData.preCosts[idx].amount=parseFloat(this.value)||0;};
+      var dateIn=document.createElement('input');dateIn.type='date';dateIn.value=pc.date||'';dateIn.style.width='130px';
+      dateIn.oninput=function(){obData.preCosts[idx].date=this.value;};
+      var del=document.createElement('button');del.style.cssText='background:none;border:none;cursor:pointer;color:var(--gray);font-size:16px;flex-shrink:0;';del.innerHTML='×';
+      del.onclick=function(){obData.preCosts.splice(idx,1);renderCosts();};
+      row.appendChild(descIn);row.appendChild(amtIn);row.appendChild(dateIn);row.appendChild(del);
+      costsWrap.appendChild(row);
+    });
+    var addBtn=document.createElement('button');addBtn.className='ob-add-btn';addBtn.style.marginTop='4px';addBtn.textContent='+ Add pre-paid cost';
+    addBtn.onclick=function(){obData.preCosts.push({desc:'',amount:0,date:''});renderCosts();};
+    costsWrap.appendChild(addBtn);
+  }
+  renderCosts();
+  card.appendChild(costsWrap);
+
+  obNav(card,function(){
+    if(!obData.budget){showToast('Please enter a budget');return false;}
+    obStep++;renderObStep();return true;
+  });
+}
+
+// Step 4: Accommodation
+function renderObStep4(card){
+  var h=document.createElement('h2');h.textContent='Where are you staying? 🏨';card.appendChild(h);
+  var sub=document.createElement('p');sub.className='ob-sub';sub.textContent="Tell us about your accommodation situation.";card.appendChild(sub);
+
+  var f1=document.createElement('div');f1.className='ob-field';
+  f1.innerHTML='<label>Type of accommodation (select all that apply)</label>';
+  var stayGrid=document.createElement('div');stayGrid.className='ob-stay-grid';
+  [
+    ['friends','🏡','Staying with friends/family','Free accommodation!'],
+    ['hotel','🏨','Hotel','Booked or planning to book'],
+    ['airbnb','🛋️','Airbnb / Vacation rental','Home away from home'],
+    ['mix','✨','Mix of both','Some nights each']
+  ].forEach(function(o){
+    var card2=document.createElement('div');card2.className='ob-stay-card'+(obData.stayType.includes(o[0])?' selected':'');
+    card2.innerHTML='<div class="ob-stay-emoji">'+o[1]+'</div><div class="ob-stay-label">'+o[2]+'</div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">'+o[3]+'</div>';
+    card2.onclick=function(){
+      var idx=obData.stayType.indexOf(o[0]);
+      if(idx>-1)obData.stayType.splice(idx,1);
+      else obData.stayType.push(o[0]);
+      stayGrid.querySelectorAll('.ob-stay-card').forEach(function(c,i){
+        c.classList.toggle('selected',obData.stayType.includes([['friends','hotel','airbnb','mix'][i]][0]));
+      });
+    };
+    stayGrid.appendChild(card2);
+  });
+  f1.appendChild(stayGrid);card.appendChild(f1);
+
+  var f2=document.createElement('div');f2.className='ob-field';f2.style.marginTop='16px';
+  f2.innerHTML='<label>Already booked any accommodation?</label>';
+  var bookedWrap=document.createElement('div');bookedWrap.style.cssText='display:flex;gap:10px;margin-bottom:8px;';
+  ['Yes','No','Some of it'].forEach(function(opt){
+    var btn=document.createElement('button');
+    btn.style.cssText='padding:8px 16px;border-radius:8px;border:1.5px solid var(--gray-border);background:white;font-family:DM Sans,sans-serif;font-size:13px;cursor:pointer;transition:all .15s;';
+    btn.textContent=opt;
+    if((obData.hotelsBooked===true&&opt==='Yes')||(obData.hotelsBooked===false&&opt==='No')||(obData.hotelsBooked==='some'&&opt==='Some of it')){
+      btn.style.borderColor='var(--green)';btn.style.background='var(--green-pale)';
+    }
+    btn.onclick=function(){
+      obData.hotelsBooked=opt==='Yes'?true:opt==='No'?false:'some';
+      bookedWrap.querySelectorAll('button').forEach(function(b){b.style.borderColor='var(--gray-border)';b.style.background='white';});
+      btn.style.borderColor='var(--green)';btn.style.background='var(--green-pale)';
+      detailsField.style.display=obData.hotelsBooked!==false?'block':'none';
+    };
+    bookedWrap.appendChild(btn);
+  });
+  var detailsField=document.createElement('div');
+  detailsField.style.display=obData.hotelsBooked!==false?'block':'none';
+  var detailsIn=document.createElement('textarea');detailsIn.placeholder='Tell us what you have booked (name, dates, cost)...';detailsIn.value=obData.hotelDetails||'';
+  detailsIn.oninput=function(){obData.hotelDetails=this.value;};
+  detailsField.appendChild(detailsIn);
+  f2.appendChild(bookedWrap);f2.appendChild(detailsField);card.appendChild(f2);
+
+  obNav(card,function(){
+    if(!obData.stayType.length){showToast('Please select at least one option');return false;}
+    obStep++;renderObStep();return true;
+  });
+}
+
+// Step 5: Vibe
+function renderObStep5(card){
+  var h=document.createElement('h2');h.textContent="What's your travel vibe? ✨";card.appendChild(h);
+  var sub=document.createElement('p');sub.className='ob-sub';sub.textContent="How do you like to travel? This helps us suggest the right mix of activities.";card.appendChild(sub);
+
+  var grid=document.createElement('div');grid.className='ob-vibe-grid';
+  [
+    ['chill','🌴','Take it easy','Slow mornings, rest days, light activities'],
+    ['balanced','⚖️','Balanced','Mix of adventures and downtime'],
+    ['active','🏃','Active','Something every day - explore everything!'],
+    ['mix','🎲','Surprise us!','Mix it all up - variety is the spice of life']
+  ].forEach(function(o){
+    var vc=document.createElement('div');vc.className='ob-vibe-card'+(obData.vibe===o[0]?' selected':'');
+    vc.innerHTML='<div class="ob-vibe-emoji">'+o[1]+'</div><div class="ob-vibe-label">'+o[2]+'</div><div class="ob-vibe-desc">'+o[3]+'</div>';
+    vc.onclick=function(){
+      obData.vibe=o[0];
+      grid.querySelectorAll('.ob-vibe-card').forEach(function(c){c.classList.remove('selected');});
+      vc.classList.add('selected');
+    };
+    grid.appendChild(vc);
+  });
+  card.appendChild(grid);
+
+  obNav(card,async function(){
+    if(!obData.vibe){showToast('Pick a vibe!');return false;}
+    await completeOnboarding(false);
+    return true;
+  },'Start planning!');
+}
+
+async function completeOnboarding(skipped){
+  // save travelers to Supabase
+  if(!skipped&&obData.travelers.length){
+    var toInsert=obData.travelers
+      .filter(function(t){return t.name.trim();})
+      .map(function(t,i){
+        return{
+          trip_id:TRIP_ID,
+          name:t.name.trim()+(t.lastName?' '+t.lastName.trim():''),
+          age:parseInt(t.age)||null,
+          avatar:'👤',
+          notes:t.notes||null,
+          group_name:'Travelers',
+          sort_order:100+i,
+          trip_start:obData.startDate||null,
+          trip_end:obData.endDate||null
+        };
+      });
+    if(toInsert.length){
+      await sb.from('travelers').insert(toInsert);
+    }
+  }
+
+  // save trip data
+  if(!skipped&&tripData){
+    var updates={};
+    if(obData.budget)updates.total_budget=obData.budget;
+    if(obData.destination)updates.destination=obData.destination;
+    if(obData.startDate)updates.start_date=obData.startDate;
+    if(obData.endDate)updates.end_date=obData.endDate;
+    if(Object.keys(updates).length){
+      await sb.from('trip').update(updates).eq('id',TRIP_ID);
+    }
+  }
+
+  // save preferences to localStorage
+  if(!skipped){
+    localStorage.setItem('trip_prefs',JSON.stringify({
+      vibe:obData.vibe,
+      stayType:obData.stayType,
+      hotelsBooked:obData.hotelsBooked,
+      hotelDetails:obData.hotelDetails,
+      maybes:obData.maybes,
+      preCosts:obData.preCosts
+    }));
+  }
+
+  localStorage.setItem('onboarding_complete','1');
+  document.getElementById('ob-overlay').classList.add('hidden');
+
+  // reload to get fresh data
+  await loadAll();
+
+  // go to calculator tab
+  if(!skipped){
+    setTimeout(function(){
+      var calcBtn=document.querySelector('[onclick*="calculator"]');
+      if(calcBtn)calcBtn.click();
+      showToast('Welcome! Time to build your trip budget!');
+    },400);
+  }
 }
 
 // ── CALCULATOR ──
@@ -2816,7 +3383,7 @@ function showPlanSummary(){
   container.appendChild(card);
 }
 
-loadAll();
+loadAll().then(function(){checkOnboarding();});
 </script>
 </body>
 </html>
