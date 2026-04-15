@@ -741,6 +741,70 @@ function switchTab(name,btn){
   if(name==='people'){renderPeople();buildAvatarPicker('add-avatar-picker','p-avatar',AVATARS[0]);}
 }
 
+async function generateTripDays(){
+  if(!tripData||!tripData.start_date||!tripData.end_date){
+    showToast('Please set trip dates first!');
+    return;
+  }
+
+  // check if days already exist
+  if(allDays.length>0){
+    if(!confirm('Days already exist. Regenerate from trip dates? This will not delete any activities.'))return;
+  }
+
+  var start=new Date(tripData.start_date+'T12:00:00');
+  var end=new Date(tripData.end_date+'T12:00:00');
+  var toInsert=[];
+  var dayNum=1;
+
+  // get or create phases
+  var phases=allPhases;
+  if(!phases.length){
+    // create default phases
+    var phaseRes=await sb.from('phases').insert([
+      {trip_id:TRIP_ID,title:'Main trip',subtitle:tripData.start_date+' - '+tripData.end_date,color:'green',sort_order:1}
+    ]).select();
+    phases=phaseRes.data||[];
+    allPhases=phases;
+  }
+  var defaultPhaseId=phases[0]&&phases[0].id;
+
+  var cur=new Date(start);
+  while(cur<=end){
+    var dateStr=cur.toISOString().slice(0,10);
+    // check if day already exists
+    var exists=allDays.find(function(d){return d.date===dateStr;});
+    if(!exists){
+      toInsert.push({
+        trip_id:TRIP_ID,
+        phase_id:defaultPhaseId,
+        day_number:dayNum,
+        date:dateStr,
+        title:'Day '+dayNum,
+        notes:'',
+        sort_order:dayNum
+      });
+    }
+    dayNum++;
+    cur.setDate(cur.getDate()+1);
+  }
+
+  if(toInsert.length===0){
+    showToast('All days already exist!');
+    return;
+  }
+
+  var res=await sb.from('itinerary_days').insert(toInsert).select();
+  if(res.error){showToast('Error: '+res.error.message);return;}
+
+  showToast('Generated '+toInsert.length+' days!');
+  await loadAll();
+
+  // switch to itinerary
+  var iBtn=document.querySelector('[onclick*="itinerary"]');
+  if(iBtn)iBtn.click();
+}
+
 async function loadAll(){
   // returns promise implicitly since async
   await loadFxRates();
@@ -989,6 +1053,34 @@ function renderDays(){
   var container=document.getElementById('phases-container');
   if(!container)return;
   container.innerHTML='';
+
+  // show generate button if no days exist
+  if(allDays.length===0){
+    var empty=document.createElement('div');
+    empty.style.cssText='text-align:center;padding:60px 20px;';
+    empty.innerHTML='<div style="font-size:48px;margin-bottom:16px;">📅</div>'+
+      '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">No days yet</div>'+
+      '<div style="font-size:14px;color:var(--text-muted);margin-bottom:24px;">Generate your trip days from your travel dates to get started.</div>';
+    var genBtn=document.createElement('button');
+    genBtn.className='btn btn-primary';
+    genBtn.textContent='Generate trip days';
+    genBtn.onclick=generateTripDays;
+    empty.appendChild(genBtn);
+
+    // also show if no dates set
+    if(!tripData||!tripData.start_date){
+      empty.innerHTML='<div style="font-size:48px;margin-bottom:16px;">📅</div>'+
+        '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">No trip dates set</div>'+
+        '<div style="font-size:14px;color:var(--text-muted);margin-bottom:24px;">Go to Setup tab to enter your travel dates first.</div>';
+      var setupBtn=document.createElement('button');
+      setupBtn.className='btn btn-primary';
+      setupBtn.textContent='Go to Setup';
+      setupBtn.onclick=function(){document.getElementById('setup-tab-btn').click();};
+      empty.appendChild(setupBtn);
+    }
+    container.appendChild(empty);
+    return;
+  }
 
   var phases=allPhases.length>0
     ? allPhases.slice().sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);})
