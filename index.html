@@ -743,66 +743,55 @@ function switchTab(name,btn){
 
 async function generateTripDays(){
   if(!tripData||!tripData.start_date||!tripData.end_date){
-    showToast('Please set trip dates first!');
+    showToast('Please set trip dates in Setup first!');
+    document.getElementById('setup-tab-btn').click();
     return;
   }
 
-  // check if days already exist
   if(allDays.length>0){
-    if(!confirm('Days already exist. Regenerate from trip dates? This will not delete any activities.'))return;
+    if(!confirm('Days already exist. Regenerate? Activities will not be deleted.'))return;
+    await sb.from('itinerary_days').delete().eq('trip_id',TRIP_ID);
+  }
+
+  // ensure at least one phase exists
+  var phaseId=null;
+  if(allPhases.length>0){
+    phaseId=allPhases[0].id;
+  } else {
+    var pr=await sb.from('phases').insert({
+      trip_id:TRIP_ID,title:'My Trip',subtitle:'',color:'green',sort_order:1
+    }).select().single();
+    if(pr.data){phaseId=pr.data.id;allPhases=[pr.data];}
   }
 
   var start=new Date(tripData.start_date+'T12:00:00');
   var end=new Date(tripData.end_date+'T12:00:00');
   var toInsert=[];
+  var cur=new Date(start);
   var dayNum=1;
 
-  // get or create phases
-  var phases=allPhases;
-  if(!phases.length){
-    // create default phases
-    var phaseRes=await sb.from('phases').insert([
-      {trip_id:TRIP_ID,title:'Main trip',subtitle:tripData.start_date+' - '+tripData.end_date,color:'green',sort_order:1}
-    ]).select();
-    phases=phaseRes.data||[];
-    allPhases=phases;
-  }
-  var defaultPhaseId=phases[0]&&phases[0].id;
-
-  var cur=new Date(start);
   while(cur<=end){
-    var dateStr=cur.toISOString().slice(0,10);
-    // check if day already exists
-    var exists=allDays.find(function(d){return d.date===dateStr;});
-    if(!exists){
-      toInsert.push({
-        trip_id:TRIP_ID,
-        phase_id:defaultPhaseId,
-        day_number:dayNum,
-        date:dateStr,
-        title:'Day '+dayNum,
-        notes:'',
-        sort_order:dayNum
-      });
-    }
+    var dateStr=cur.getFullYear()+'-'+
+      String(cur.getMonth()+1).padStart(2,'0')+'-'+
+      String(cur.getDate()).padStart(2,'0');
+    toInsert.push({
+      trip_id:TRIP_ID,
+      phase_id:phaseId,
+      day_number:dayNum,
+      date:dateStr,
+      title:'Day '+dayNum,
+      notes:'',
+      sort_order:dayNum
+    });
     dayNum++;
     cur.setDate(cur.getDate()+1);
   }
 
-  if(toInsert.length===0){
-    showToast('All days already exist!');
-    return;
-  }
-
-  var res=await sb.from('itinerary_days').insert(toInsert).select();
-  if(res.error){showToast('Error: '+res.error.message);return;}
+  var res=await sb.from('itinerary_days').insert(toInsert);
+  if(res.error){showToast('Error: '+res.error.message);console.error(res.error);return;}
 
   showToast('Generated '+toInsert.length+' days!');
   await loadAll();
-
-  // switch to itinerary
-  var iBtn=document.querySelector('[onclick*="itinerary"]');
-  if(iBtn)iBtn.click();
 }
 
 async function loadAll(){
@@ -810,7 +799,7 @@ async function loadAll(){
   await loadFxRates();
   var results=await Promise.all([
     sb.from('trip').select('*').eq('id',TRIP_ID).single(),
-    sb.from('phases').select('*').eq('trip_id',TRIP_ID).order('sort_order'),
+    sb.from('phases').select('*').eq('trip_id',TRIP_ID),
     sb.from('itinerary_days').select('*').eq('trip_id',TRIP_ID).order('day_number'),
     sb.from('itinerary_items').select('*').order('sort_order'),
     sb.from('packing_items').select('*').eq('trip_id',TRIP_ID),
