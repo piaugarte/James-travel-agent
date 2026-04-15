@@ -2756,22 +2756,48 @@ async function addSuggToItinerary(item, category, btn){
   }
 }
 
+var calcSaveTimer=null;
+var calcScenarioId=null; // current active scenario in DB
+
 function saveCalcState(){
-  try{
-    localStorage.setItem('calc_state',JSON.stringify({
-      budget:calcBudget,
-      items:calcItems,
-      days:window.calcDays,
-      people:window.calcPeople
-    }));
-  }catch(e){}
+  // debounce - wait 800ms after last change before saving
+  clearTimeout(calcSaveTimer);
+  calcSaveTimer=setTimeout(function(){_doSaveCalcState();},800);
 }
 
-function loadCalcState(){
+async function _doSaveCalcState(){
   try{
-    var saved=localStorage.getItem('calc_state');
-    if(!saved)return false;
-    var s=JSON.parse(saved);
+    var payload={
+      trip_id:TRIP_ID,
+      name:'My Scenario',
+      budget:calcBudget,
+      items:calcItems,
+      days:window.calcDays||17,
+      people:window.calcPeople||4,
+      is_active:true,
+      updated_at:new Date().toISOString()
+    };
+    if(calcScenarioId){
+      await sb.from('calculator_scenarios').update(payload).eq('id',calcScenarioId);
+    }else{
+      var res=await sb.from('calculator_scenarios').insert(payload).select().single();
+      if(res.data)calcScenarioId=res.data.id;
+    }
+  }catch(e){console.error('calc save error:',e);}
+}
+
+async function loadCalcState(){
+  try{
+    var res=await sb.from('calculator_scenarios')
+      .select('*')
+      .eq('trip_id',TRIP_ID)
+      .eq('is_active',true)
+      .order('updated_at',{ascending:false})
+      .limit(1)
+      .single();
+    if(res.error||!res.data)return false;
+    var s=res.data;
+    calcScenarioId=s.id;
     if(s.budget)calcBudget=s.budget;
     if(s.items&&s.items.length)calcItems=s.items;
     if(s.days)window.calcDays=s.days;
@@ -2781,22 +2807,48 @@ function loadCalcState(){
   }catch(e){return false;}
 }
 
+var calcSaveTimer=null;
+var calcScenarioId=null; // current active scenario in DB
+
 function saveCalcState(){
-  try{
-    localStorage.setItem('calc_state',JSON.stringify({
-      budget:calcBudget,
-      items:calcItems,
-      days:window.calcDays,
-      people:window.calcPeople
-    }));
-  }catch(e){}
+  // debounce - wait 800ms after last change before saving
+  clearTimeout(calcSaveTimer);
+  calcSaveTimer=setTimeout(function(){_doSaveCalcState();},800);
 }
 
-function loadCalcState(){
+async function _doSaveCalcState(){
   try{
-    var saved=localStorage.getItem('calc_state');
-    if(!saved)return false;
-    var s=JSON.parse(saved);
+    var payload={
+      trip_id:TRIP_ID,
+      name:'My Scenario',
+      budget:calcBudget,
+      items:calcItems,
+      days:window.calcDays||17,
+      people:window.calcPeople||4,
+      is_active:true,
+      updated_at:new Date().toISOString()
+    };
+    if(calcScenarioId){
+      await sb.from('calculator_scenarios').update(payload).eq('id',calcScenarioId);
+    }else{
+      var res=await sb.from('calculator_scenarios').insert(payload).select().single();
+      if(res.data)calcScenarioId=res.data.id;
+    }
+  }catch(e){console.error('calc save error:',e);}
+}
+
+async function loadCalcState(){
+  try{
+    var res=await sb.from('calculator_scenarios')
+      .select('*')
+      .eq('trip_id',TRIP_ID)
+      .eq('is_active',true)
+      .order('updated_at',{ascending:false})
+      .limit(1)
+      .single();
+    if(res.error||!res.data)return false;
+    var s=res.data;
+    calcScenarioId=s.id;
     if(s.budget)calcBudget=s.budget;
     if(s.items&&s.items.length)calcItems=s.items;
     if(s.days)window.calcDays=s.days;
@@ -3784,7 +3836,7 @@ function showPlanSummary(){
   container.appendChild(card);
 }
 
-loadAll().then(function(){initCalculator();checkOnboarding();});
+loadAll().then(function(){initCalculator().then(function(){checkOnboarding();});});
 </script>
 </body>
 </html>
