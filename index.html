@@ -2766,6 +2766,7 @@ function saveCalcState(){
 }
 
 async function _doSaveCalcState(){
+  console.log('Saving calc state... budget:',calcBudget,'items:',calcItems.length,'id:',calcScenarioId);
   try{
     var payload={
       trip_id:TRIP_ID,
@@ -2781,7 +2782,7 @@ async function _doSaveCalcState(){
       await sb.from('calculator_scenarios').update(payload).eq('id',calcScenarioId);
     }else{
       var res=await sb.from('calculator_scenarios').insert(payload).select().single();
-      if(res.data)calcScenarioId=res.data.id;
+      if(res.data){calcScenarioId=res.data.id;console.log('Saved new scenario:',calcScenarioId);}
     }
   }catch(e){console.error('calc save error:',e);}
 }
@@ -2806,9 +2807,6 @@ async function loadCalcState(){
     return true;
   }catch(e){return false;}
 }
-
-var calcSaveTimer=null;
-var calcScenarioId=null; // current active scenario in DB
 
 // ── CALCULATOR ──
 var calcItems=[
