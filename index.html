@@ -557,7 +557,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
   <div id="tab-costs" class="tab-content">
     <div class="section-header">
       <h2 class="section-title">Trip costs</h2>
-      <span style="font-size:13px;color:var(--text-muted);">Excludes flights. Estimates only.</span>
+      <span style="font-size:13px;color:var(--text-muted);">All trip expenses. Estimates only.</span>
     </div>
     <div class="budget-grid" id="costs-summary-cards"></div>
     <h3 style="font-size:15px;font-weight:700;margin:4px 0 12px;">By day</h3>
@@ -1545,7 +1545,7 @@ async function deleteItem(itemId){
 
 // PUBLIC COSTS
 function renderCosts(){
-  var nonFlight=allItems.filter(function(i){return i.category!=='flight';});
+  var nonFlight=allItems; // include all categories including flights and travel
   var totalCost=nonFlight.reduce(function(s,i){return s+(Number(i.cost)||0);},0);
   var cats={};
   nonFlight.forEach(function(i){var c=i.category||'other';cats[c]=(cats[c]||0)+(Number(i.cost)||0);});
@@ -1557,7 +1557,7 @@ function renderCosts(){
     '<div class="budget-card"><div class="label">Per family</div><div class="amount">'+fmtMoney(perFamily)+'</div><div class="sub">split 3 ways</div></div>';
   var byDay=document.getElementById('costs-by-day');
   var daysWithCosts=allDays.map(function(d){
-    var items=nonFlight.filter(function(i){return i.day_id===d.id;});
+    var items=allItems.filter(function(i){return i.day_id===d.id;});
     var total=items.reduce(function(s,i){return s+(Number(i.cost)||0);},0);
     return{day:d,items:items,total:total};
   }).filter(function(x){return x.total>0;});
