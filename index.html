@@ -663,7 +663,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 
 <button class="chat-fab" id="chat-fab" onclick="toggleChat()" title="Trip assistant">&#127757;</button>
 <div class="chat-panel" id="chat-panel">
-  <div class="chat-header"><div><h3>Trip assistant</h3><p>Ask anything or make changes</p></div><button class="chat-close" onclick="toggleChat()">&#10005;</button></div>
+  <div class="chat-header"><div><h3>Trip assistant</h3><p>Ask anything or make changes</p></div><button onclick="clearChat()" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:11px;cursor:pointer;padding:0 8px;">Clear</button><button class="chat-close" onclick="toggleChat()">&#10005;</button></div>
   <div class="chat-messages" id="chat-messages"></div>
   <div class="chat-chips" id="chat-chips"></div>
   <div class="chat-input-row"><input type="text" id="chat-input" placeholder="Ask something or make a change..." onkeydown="if(event.key==='Enter')sendChat()"/><button class="chat-send" id="chat-send" onclick="sendChat()">&#10148;</button></div>
@@ -685,6 +685,19 @@ const GROUP_EMOJI = {'Pia family':'🏡','Andy family':'✈️','Ines family':'�
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let tripData=null,allDays=[],allItems=[],allPacking=[],allPeople=[],allBudgetItems=[],allParticipants=[],allPhases=[];
 let chatHistory=[],chatOpen=false,currentItinView='list',activeBudgetCat='all',editingPersonId=null;
+
+// load saved chat history
+try{
+  var savedChat=localStorage.getItem('chat_history');
+  if(savedChat)chatHistory=JSON.parse(savedChat);
+}catch(e){}
+
+function saveChatHistory(){
+  try{
+    // keep last 50 messages
+    localStorage.setItem('chat_history',JSON.stringify(chatHistory.slice(-200)));
+  }catch(e){}
+}
 let activeCurrency='USD',fxRates={CAD:1,USD:0.72,PHP:41};
 
 async function loadFxRates(){
@@ -1927,6 +1940,13 @@ async function addPackItem(){
 }
 
 // CHAT
+function clearChat(){
+  chatHistory=[];
+  saveChatHistory();
+  document.getElementById('chat-messages').innerHTML='';
+  appendMsg('assistant','Hi Pia! How can I help with your Vancouver trip?');
+}
+
 function toggleChat(){
   chatOpen=!chatOpen;
   document.getElementById('chat-panel').classList.toggle('open',chatOpen);
@@ -1938,6 +1958,17 @@ function toggleChat(){
     if(!chatHistory.length){
       appendMsg('assistant','Hi Pia! Scanning your trip... &#128269;');
       triggerProactiveScan();
+    } else {
+      // restore previous messages to UI
+      var container=document.getElementById('chat-messages');
+      if(container&&container.children.length===0){
+        chatHistory.forEach(function(m){
+          var div=document.createElement('div');div.className='msg '+m.role;
+          div.innerHTML=m.content.replace(/\n/g,'<br/>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+          container.appendChild(div);
+        });
+        container.scrollTop=container.scrollHeight;
+      }
     }
     renderChips();
   }else{
@@ -2079,6 +2110,7 @@ function renderChips(){
 
 function appendMsg(role,text){
   chatHistory.push({role:role,content:text});
+  saveChatHistory();
   var container=document.getElementById('chat-messages');
   var div=document.createElement('div');div.className='msg '+role;
   div.innerHTML=text.replace(/\n/g,'<br/>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
@@ -2586,12 +2618,17 @@ async function completeOnboarding(skipped){
   // reload to get fresh data
   await loadAll();
 
+  // auto-generate days if dates were provided
+  if(!skipped&&obData.startDate&&obData.endDate){
+    await generateTripDays();
+  }
+
   // go to calculator tab
   if(!skipped){
     setTimeout(function(){
       var calcBtn=document.querySelector('[onclick*="calculator"]');
       if(calcBtn)calcBtn.click();
-      showToast('Welcome! Time to build your budget!');
+      showToast('Welcome! Your trip is set up!');
     },400);
   }
 }
