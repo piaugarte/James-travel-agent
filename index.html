@@ -408,7 +408,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .cat-tab.active{color:var(--white);border-color:transparent;}
 .cat-tab.active.transport{background:#1565c0;}.cat-tab.active.food{background:#e76f00;}
 .cat-tab.active.activity{background:#5e35b1;}.cat-tab.active.hotel{background:#00695c;}
-.cat-tab.active.flight{background:#c62828;}.cat-tab.active.all{background:var(--green);}
+.cat-tab.active.flight{background:#c62828;}.cat-tab.active.travel{background:#0277bd;}.cat-tab.active.all{background:var(--green);}
 .category-breakdown{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;}
 .cat-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--gray-border);font-size:14px;}
 .cat-row:last-child{border-bottom:none;}
@@ -503,12 +503,13 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 <nav>
   <div class="nav-inner">
     <span class="nav-brand">&#128329; Vancouver 2026</span>
-    <button class="nav-tab" id="setup-tab-btn" onclick="switchTab('setup',this)">&#9881;&#65039; Setup</button>
-    <button class="nav-tab active" onclick="switchTab('calculator',this)">&#129518; Calculator</button>
-    <button class="nav-tab" onclick="switchTab('itinerary',this)">Itinerary</button>
+    <button class="nav-tab active" onclick="switchTab('itinerary',this)">Itinerary</button>
+    <button class="nav-tab" onclick="switchTab('costs',this)">Expenses</button>
+    <button class="nav-tab" onclick="switchTab('calculator',this)">&#129518; Calculator</button>
     <button class="nav-tab" id="suggestions-tab-btn" style="display:none;" onclick="switchTab('suggestions',this)">&#10024; Suggestions</button>
-    <button class="nav-tab" onclick="switchTab('people',this)">People</button>
-    <button class="nav-tab" onclick="switchTab('costs',this)">Costs</button>
+    <span class="nav-spacer"></span>
+    <button class="nav-tab" id="setup-tab-btn" onclick="switchTab('setup',this)">&#9881;&#65039; Setup</button>
+    <button class="nav-tab" onclick="switchTab('people',this)">Travelers</button>
     <span class="nav-spacer"></span>
     <button class="nav-tab" onclick="switchTab('packing',this)">&#127876; Packing</button>
     <button class="nav-tab" onclick="switchTab('budget',this)">&#128274; Budget</button>
@@ -517,7 +518,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 </nav>
 <main>
   <!-- ITINERARY -->
-  <div id="tab-itinerary" class="tab-content">
+  <div id="tab-itinerary" class="tab-content active">
     <div class="hero">
       <h1 id="hero-title">Loading trip...</h1>
       <p id="hero-subtitle">Vancouver, BC, Canada</p>
@@ -547,7 +548,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
   </div>
 
   <!-- CALCULATOR -->
-  <div id="tab-calculator" class="tab-content active">
+  <div id="tab-calculator" class="tab-content">
     <div id="calculator-container" style="max-width:720px;margin:0 auto;padding:0 4px;"></div>
   </div>
 
@@ -600,6 +601,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
         <button class="cat-tab activity" onclick="filterBudgetCat('activity',this)">&#127914; Activities</button>
         <button class="cat-tab hotel" onclick="filterBudgetCat('hotel',this)">&#127968; Hotel</button>
         <button class="cat-tab flight" onclick="filterBudgetCat('flight',this)">&#9992; Flights</button>
+        <button class="cat-tab travel" onclick="filterBudgetCat('travel',this)">&#9992; Travel</button>
       </div>
       <div class="budget-items-table" id="budget-items-table"></div>
     </div>
@@ -677,8 +679,8 @@ const TRIP_ID = 'a1b2c3d4-0000-0000-0000-000000000001';
 const BUDGET_PASSWORD = 'pach2026';
 
 const AVATARS = ['🧑','👩','👨','👧','👦','🧒','👶','🧓','👴','👵','🧔','👱','🧕','🎅','🤶','🤠','🥷','👮','🕵','🧑‍🍳','🧑‍🎤','🦊','🐻','🐼','🐨','🦁','🐯','🐸','🐙','🦋'];
-const CAT_COLORS = {activity:'#5e35b1',hotel:'#00695c',food:'#e76f00',flight:'#c62828',transport:'#1565c0',other:'#6b7280'};
-const CAT_LABELS = {activity:'Activity',hotel:'Hotel',food:'Food',flight:'Flight',transport:'Transport',other:'Other'};
+const CAT_COLORS = {activity:'#5e35b1',hotel:'#00695c',food:'#e76f00',flight:'#c62828',transport:'#1565c0',travel:'#0277bd',other:'#6b7280'};
+const CAT_LABELS = {activity:'Activity',hotel:'Hotel',food:'Food',flight:'Flight',transport:'Transport',travel:'Travel',other:'Other'};
 const GROUP_EMOJI = {'Pia family':'🏡','Andy family':'✈️','Ines family':'🏡','Relatives':'👥'};
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1121,7 +1123,7 @@ function buildDayBlock(day, phaseColor){
   var timeIn=document.createElement('input');timeIn.type='time';timeIn.id='aa-time-'+day.id;
   var costIn=document.createElement('input');costIn.type='number';costIn.placeholder='Cost (US$)';costIn.id='aa-cost-'+day.id;
   var catSel=document.createElement('select');catSel.id='aa-cat-'+day.id;
-  ['activity','food','hotel','transport','flight','other'].forEach(function(cat){
+  ['activity','food','hotel','transport','flight','travel','other'].forEach(function(cat){
     var opt=document.createElement('option');opt.value=cat;opt.textContent=cat.charAt(0).toUpperCase()+cat.slice(1);catSel.appendChild(opt);
   });
   var btnRow=document.createElement('div');btnRow.className='act-add-form-row';
@@ -3865,7 +3867,7 @@ function showPlanSummary(){
   container.appendChild(card);
 }
 
-loadAll().then(async function(){await initCalculator();checkOnboarding();});
+loadAll().then(async function(){initCalculator();checkOnboarding();});
 </script>
 </body>
 </html>
