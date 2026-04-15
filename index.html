@@ -2839,20 +2839,30 @@ function updateCalcStatus(){
   }
 }
 
-function initCalculator(){
-  // only pre-fill if user hasn't set a budget yet
+
+async function initCalculator(){
   if(!window.calcBudgetSet){
-    if(wizardData&&wizardData.budget)calcBudget=wizardData.budget;
-    else calcBudget=10000;
-    window.calcBudgetSet=true;
-  }
-  if(wizardData&&wizardData.breakdown){
-    calcItems=Object.entries(wizardData.breakdown).map(function(e,i){
-      return{id:i+1,label:e[0].charAt(0).toUpperCase()+e[0].slice(1),amount:e[1].amount,color:CAT_COLORS_BUDGET[e[0]]||'#6b7280'};
-    });
+    var loaded=await loadCalcState();
+    if(!loaded){
+      calcBudget=10000;
+      window.calcBudgetSet=true;
+      // check for pre-costs from onboarding
+      try{
+        var pcs=JSON.parse(localStorage.getItem('calc_precosts')||'[]');
+        var colors=['#c62828','#5e35b1','#1565c0','#00695c','#6b7280'];
+        pcs.filter(function(pc){return pc.desc&&pc.amount>0;}).forEach(function(pc,i){
+          if(pc.desc.toLowerCase().includes('flight')){
+            var row=calcItems.find(function(x){return x.label==='Flights';});
+            if(row){row.amount=pc.amount;row.locked=true;return;}
+          }
+          calcItems.push({id:calcNextId++,label:pc.desc,amount:pc.amount,color:colors[i%colors.length],locked:true});
+        });
+      }catch(e){}
+    }
   }
   renderCalculator();
 }
+
 
 function fmt$(n){
   if(!n&&n!==0)return 'US$0';
@@ -3788,7 +3798,7 @@ function showPlanSummary(){
   container.appendChild(card);
 }
 
-loadAll().then(function(){initCalculator().then(function(){checkOnboarding();});});
+loadAll().then(async function(){await initCalculator();checkOnboarding();});
 </script>
 </body>
 </html>
