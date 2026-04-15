@@ -2810,54 +2810,6 @@ async function loadCalcState(){
 var calcSaveTimer=null;
 var calcScenarioId=null; // current active scenario in DB
 
-function saveCalcState(){
-  // debounce - wait 800ms after last change before saving
-  clearTimeout(calcSaveTimer);
-  calcSaveTimer=setTimeout(function(){_doSaveCalcState();},800);
-}
-
-async function _doSaveCalcState(){
-  try{
-    var payload={
-      trip_id:TRIP_ID,
-      name:'My Scenario',
-      budget:calcBudget,
-      items:calcItems,
-      days:window.calcDays||17,
-      people:window.calcPeople||4,
-      is_active:true,
-      updated_at:new Date().toISOString()
-    };
-    if(calcScenarioId){
-      await sb.from('calculator_scenarios').update(payload).eq('id',calcScenarioId);
-    }else{
-      var res=await sb.from('calculator_scenarios').insert(payload).select().single();
-      if(res.data)calcScenarioId=res.data.id;
-    }
-  }catch(e){console.error('calc save error:',e);}
-}
-
-async function loadCalcState(){
-  try{
-    var res=await sb.from('calculator_scenarios')
-      .select('*')
-      .eq('trip_id',TRIP_ID)
-      .eq('is_active',true)
-      .order('updated_at',{ascending:false})
-      .limit(1)
-      .single();
-    if(res.error||!res.data)return false;
-    var s=res.data;
-    calcScenarioId=s.id;
-    if(s.budget)calcBudget=s.budget;
-    if(s.items&&s.items.length)calcItems=s.items;
-    if(s.days)window.calcDays=s.days;
-    if(s.people)window.calcPeople=s.people;
-    window.calcBudgetSet=true;
-    return true;
-  }catch(e){return false;}
-}
-
 // ── CALCULATOR ──
 var calcItems=[
   {id:1,label:'Flights',amount:0,color:'#c62828',locked:false},
