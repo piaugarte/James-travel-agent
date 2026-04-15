@@ -533,7 +533,6 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
     </div>
     <div id="itin-list">
       <div id="phases-container"></div>
-      <button class="btn btn-ghost btn-sm" style="margin-top:4px;" onclick="addPhase()">+ Add phase</button>
     </div>
     <div id="itin-calendar" style="display:none;"></div>
   </div>
@@ -700,19 +699,12 @@ function saveChatHistory(){
 }
 let activeCurrency='USD',fxRates={CAD:1,USD:0.72,PHP:41};
 
-async function loadFxRates(){
-  try{
-    const r=await fetch('https://open.er-api.com/v6/latest/CAD');
-    const d=await r.json();
-    if(d&&d.rates){fxRates.USD=d.rates.USD||0.72;fxRates.PHP=d.rates.PHP||41;}
-  }catch(e){}
-}
+function loadFxRates(){return Promise.resolve();}
 
-function fmtMoney(cadAmt){
-  const n=Number(cadAmt)||0;
-  return 'US$'+Math.round(n*fxRates.USD).toLocaleString();
+function fmtMoney(n){
+  return 'US$'+(Math.round(Number(n)||0)).toLocaleString();
 }
-function fmtCAD(n){return 'US$'+Math.round((Number(n)||0)*fxRates.USD).toLocaleString();}
+function fmtCAD(n){return 'US$'+(Math.round(Number(n)||0)).toLocaleString();}
 
 function setCurrency(cur){
   activeCurrency=cur;
@@ -1060,81 +1052,30 @@ function renderDays(){
   if(allDays.length===0){
     var empty=document.createElement('div');
     empty.style.cssText='text-align:center;padding:60px 20px;';
-    empty.innerHTML='<div style="font-size:48px;margin-bottom:16px;">📅</div>'+
-      '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">No days yet</div>'+
-      '<div style="font-size:14px;color:var(--text-muted);margin-bottom:24px;">Generate your trip days from your travel dates to get started.</div>';
-    var genBtn=document.createElement('button');
-    genBtn.className='btn btn-primary';
-    genBtn.textContent='Generate trip days';
-    genBtn.onclick=generateTripDays;
-    empty.appendChild(genBtn);
-
-    // also show if no dates set
     if(!tripData||!tripData.start_date){
       empty.innerHTML='<div style="font-size:48px;margin-bottom:16px;">📅</div>'+
         '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">No trip dates set</div>'+
         '<div style="font-size:14px;color:var(--text-muted);margin-bottom:24px;">Go to Setup tab to enter your travel dates first.</div>';
-      var setupBtn=document.createElement('button');
-      setupBtn.className='btn btn-primary';
+      var setupBtn=document.createElement('button');setupBtn.className='btn btn-primary';
       setupBtn.textContent='Go to Setup';
       setupBtn.onclick=function(){document.getElementById('setup-tab-btn').click();};
       empty.appendChild(setupBtn);
+    } else {
+      empty.innerHTML='<div style="font-size:48px;margin-bottom:16px;">📅</div>'+
+        '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">No days yet</div>'+
+        '<div style="font-size:14px;color:var(--text-muted);margin-bottom:24px;">Generate your trip days to get started.</div>';
+      var genBtn=document.createElement('button');genBtn.className='btn btn-primary';
+      genBtn.textContent='Generate trip days';genBtn.onclick=generateTripDays;
+      empty.appendChild(genBtn);
     }
     container.appendChild(empty);
     return;
   }
 
-  var phases=allPhases.length>0
-    ? allPhases.slice().sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);})
-    : [
-        {id:'_s',title:'Surrey base camp',subtitle:'Jun 15-24',color:'green',sort_order:1},
-        {id:'_w',title:'Whistler escape',subtitle:'Jun 25-28',color:'purple',sort_order:2},
-        {id:'_b',title:'Birthday week + Canada Day',subtitle:'Jun 29 - Jul 1',color:'amber',sort_order:3}
-      ];
-
-  phases.forEach(function(phase){
-    var phaseEl=document.createElement('div');
-    phaseEl.className='phase-block';
-
-    // phase header
-    var hdr=document.createElement('div');
-    hdr.className='phase-header '+(phase.color||'green');
-    var textWrap=document.createElement('div');textWrap.style.flex='1';textWrap.style.minWidth='0';
-    var titleIn=document.createElement('input');
-    titleIn.className='phase-title-input';titleIn.value=phase.title||'';titleIn.placeholder='Phase title...';
-    titleIn.onclick=function(e){e.stopPropagation();};
-    titleIn.onblur=function(){var v=titleIn.value.trim();if(v&&v!==phase.title){phase.title=v;if(!phase.id.startsWith('_'))sb.from('phases').update({title:v}).eq('id',phase.id);showToast('Saved!');}};
-    titleIn.onkeydown=function(e){if(e.key==='Enter')titleIn.blur();};
-    var subIn=document.createElement('input');
-    subIn.className='phase-subtitle-input';subIn.value=phase.subtitle||'';subIn.placeholder='Dates...';
-    subIn.onclick=function(e){e.stopPropagation();};
-    subIn.onblur=function(){if(subIn.value!==phase.subtitle){phase.subtitle=subIn.value;if(!phase.id.startsWith('_'))sb.from('phases').update({subtitle:subIn.value}).eq('id',phase.id);}};
-    textWrap.appendChild(titleIn);textWrap.appendChild(subIn);
-    hdr.appendChild(textWrap);
-    var colorWrap=document.createElement('div');colorWrap.className='phase-color-picker';
-    [{c:'green',bg:'#2d6a4f'},{c:'purple',bg:'#5e35b1'},{c:'amber',bg:'#e76f00'},{c:'blue',bg:'#1565c0'},{c:'red',bg:'#c62828'}].forEach(function(col){
-      var dot=document.createElement('div');dot.className='phase-color-dot'+(phase.color===col.c?' active':'');dot.style.background=col.bg;dot.title=col.c;
-      dot.onclick=function(){phase.color=col.c;hdr.className='phase-header '+col.c;colorWrap.querySelectorAll('.phase-color-dot').forEach(function(d){d.classList.remove('active');});dot.classList.add('active');if(!phase.id.startsWith('_'))sb.from('phases').update({color:col.c}).eq('id',phase.id);};
-      colorWrap.appendChild(dot);
-    });
-    hdr.appendChild(colorWrap);
-    var delBtn=document.createElement('button');delBtn.className='phase-del-btn';delBtn.innerHTML='&#128465;';
-    delBtn.onclick=function(){if(!phase.id.startsWith('_'))deletePhase(phase.id);};
-    hdr.appendChild(delBtn);
-    phaseEl.appendChild(hdr);
-
-    // days
-    var phaseDays=allDays.filter(function(d){
-      if(phase.id==='_s')return d.day_number<=10;
-      if(phase.id==='_w')return d.day_number>10&&d.day_number<=14;
-      if(phase.id==='_b')return d.day_number>14;
-      return d.phase_id===phase.id;
-    }).sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0)||(a.day_number||0)-(b.day_number||0);});
-
-    phaseDays.forEach(function(day){
-      phaseEl.appendChild(buildDayBlock(day, phase.color||'green'));
-    });
-    container.appendChild(phaseEl);
+  // render days flat, no phases
+  var sortedDays=allDays.slice().sort(function(a,b){return (a.day_number||0)-(b.day_number||0);});
+  sortedDays.forEach(function(day){
+    container.appendChild(buildDayBlock(day,'green'));
   });
 
   // render activities after all blocks in DOM
