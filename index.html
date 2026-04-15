@@ -217,6 +217,37 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .ob-btn-ghost:hover{color:var(--text);}
 .ob-progress-bar{height:3px;background:var(--gray-border);border-radius:2px;margin-bottom:16px;overflow:hidden;}
 .ob-progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s;}
+/* suggestions tab */
+.sugg-section{margin-bottom:32px;}
+.sugg-section-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--gray-border);}
+.sugg-section-header h3{font-size:18px;font-weight:700;font-family:'Funnel Display',sans-serif;}
+.sugg-section-header span{font-size:13px;color:var(--text-muted);}
+.sugg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.sugg-card{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);transition:all .15s;position:relative;display:flex;flex-direction:column;}
+.sugg-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.sugg-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.sugg-card-name{font-weight:700;font-size:15px;color:var(--text);line-height:1.3;flex:1;}
+.sugg-card-emoji{font-size:22px;flex-shrink:0;}
+.sugg-card-desc{font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:12px;flex:1;}
+.sugg-card-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.sugg-meta-tag{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.sugg-meta-cost{background:var(--amber-pale);color:var(--amber);}
+.sugg-meta-kid{background:var(--green-pale);color:var(--green);}
+.sugg-meta-time{background:var(--gray-light);color:var(--text-muted);}
+.sugg-meta-book{background:var(--red-pale);color:var(--red);}
+.sugg-meta-hotel{background:var(--purple-pale);color:var(--purple);}
+.sugg-card-add{width:100%;padding:9px;border:none;border-radius:var(--radius-sm);background:var(--green);color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;margin-top:auto;}
+.sugg-card-add:hover{background:#1b4332;}
+.sugg-card-add.added{background:var(--gray-light);color:var(--text-muted);cursor:default;}
+.sugg-loading{text-align:center;padding:60px 20px;color:var(--text-muted);}
+.sugg-loading .typing-dots{justify-content:center;margin-top:12px;}
+.sugg-hero{background:linear-gradient(135deg,var(--green) 0%,#1b4332 100%);border-radius:var(--radius);padding:24px;margin-bottom:24px;color:white;}
+.sugg-hero h2{font-size:22px;font-weight:700;margin-bottom:6px;}
+.sugg-hero p{font-size:13px;opacity:0.85;margin-bottom:16px;}
+.sugg-hero-stats{display:flex;gap:12px;flex-wrap:wrap;}
+.sugg-hero-stat{background:rgba(255,255,255,0.15);border-radius:8px;padding:8px 14px;}
+.sugg-hero-stat .lbl{font-size:11px;opacity:0.75;}
+.sugg-hero-stat .val{font-weight:700;font-size:15px;}
 /* suggestion cards */
 .suggestions-wrap{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
 .suggestion-card{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:12px;font-size:12px;transition:box-shadow .15s;}
@@ -246,6 +277,27 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .calc-row{display:grid;grid-template-columns:1fr 110px 90px 90px 36px;gap:8px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--gray-border);}
 .calc-row:last-child{border-bottom:none;}
 .calc-row-label{display:flex;align-items:center;gap:8px;}
+@media(max-width:600px){
+  .calc-table-header{grid-template-columns:1fr 90px 36px;gap:6px;padding:8px 12px;}
+  .calc-table-header span:nth-child(3),.calc-table-header span:nth-child(4){display:none;}
+  .calc-row{grid-template-columns:1fr 90px 36px;gap:6px;padding:8px 12px;}
+  .calc-row input:nth-child(3),.calc-row input:nth-child(4){display:none;}
+  .calc-row .calc-derived:nth-child(3){display:none;}
+  .calc-total-row{grid-template-columns:1fr 90px 36px;gap:6px;padding:10px 12px;}
+  .calc-total-row span:nth-child(3),.calc-total-row span:nth-child(4){display:none;}
+  .calc-amount-input{padding:6px 8px;font-size:13px;}
+  .calc-label-input{font-size:13px;}
+  .calc-header{padding:14px;}
+  .calc-budget-fixed,.calc-budget-display input{font-size:22px !important;}
+  .calc-status{font-size:12px;padding:6px 12px;}
+  .sugg-grid{grid-template-columns:1fr;}
+  .ob-row{grid-template-columns:1fr;}
+  .ob-vibe-grid{grid-template-columns:1fr 1fr;}
+  .ob-stay-grid{grid-template-columns:1fr 1fr;}
+  main{padding:12px 12px 80px;}
+  .nav-inner{gap:4px;padding:0 12px;}
+  .nav-tab{padding:5px 10px;font-size:12px;}
+}
 .calc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
 .calc-label-input{border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text);width:100%;padding:2px 4px;border-radius:4px;}
 .calc-label-input:focus{outline:none;background:var(--gray-light);}
@@ -458,10 +510,11 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 <nav>
   <div class="nav-inner">
     <span class="nav-brand">&#128329; Vancouver 2026</span>
-    <button class="nav-tab active" onclick="switchTab('itinerary',this)">Itinerary</button>
+    <button class="nav-tab active" onclick="switchTab('calculator',this)">&#129518; Calculator</button>
+    <button class="nav-tab" onclick="switchTab('itinerary',this)">Itinerary</button>
+    <button class="nav-tab" id="suggestions-tab-btn" style="display:none;" onclick="switchTab('suggestions',this)">&#10024; Suggestions</button>
     <button class="nav-tab" onclick="switchTab('people',this)">People</button>
     <button class="nav-tab" onclick="switchTab('costs',this)">Costs</button>
-    <button class="nav-tab" onclick="switchTab('calculator',this)">&#129518; Calculator</button>
     <span class="nav-spacer"></span>
     <button class="nav-tab" onclick="switchTab('packing',this)">&#127876; Packing</button>
     <button class="nav-tab" onclick="switchTab('budget',this)">&#128274; Budget</button>
@@ -470,7 +523,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 </nav>
 <main>
   <!-- ITINERARY -->
-  <div id="tab-itinerary" class="tab-content active">
+  <div id="tab-itinerary" class="tab-content">
     <div class="hero">
       <h1 id="hero-title">Loading trip...</h1>
       <p id="hero-subtitle">Vancouver, BC, Canada</p>
@@ -492,8 +545,13 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
   </div>
 
   <!-- CALCULATOR -->
-  <div id="tab-calculator" class="tab-content">
-    <div id="calculator-container" style="max-width:720px;margin:0 auto;"></div>
+  <div id="tab-calculator" class="tab-content active">
+    <div id="calculator-container" style="max-width:720px;margin:0 auto;padding:0 4px;"></div>
+  </div>
+
+  <!-- SUGGESTIONS -->
+  <div id="tab-suggestions" class="tab-content">
+    <div id="suggestions-container" style="max-width:900px;margin:0 auto;"></div>
   </div>
 
   <!-- COSTS (public) -->
@@ -673,6 +731,7 @@ function switchTab(name,btn){
   btn.classList.add('active');
   if(name==='budget')renderBudget();
   if(name==='calculator')initCalculator();
+  if(name==='suggestions')renderSuggestions();
   if(name==='packing')renderPacking();
   if(name==='costs')renderCosts();
   if(name==='people'){renderPeople();buildAvatarPicker('add-avatar-picker','p-avatar',AVATARS[0]);}
@@ -1846,7 +1905,7 @@ function buildTripContext(){
       var its=allItems.filter(function(i){return i.day_id===d.id;});
       return 'Day '+d.day_number+' ('+d.date+'): '+(its.length?its.map(function(i){return i.activity;}).join(', '):'EMPTY');
     }).join(' | ')
-  ].join('\n');
+  ].join(' ');
 }
 
 function renderSuggestionCards(suggestions, afterEl){
@@ -1960,7 +2019,7 @@ async function sendChat(){
       return 'Day '+d.day_number+' ('+d.date+'): '+d.title+(items.length?' - '+items.map(function(i){return i.activity+(i.cost?' US$'+i.cost:'');}).join(', '):'');
     }).join(' | '),
     'People: '+allPeople.map(function(p){return p.name+(p.age?' age '+p.age:'');}).join(', ')
-  ].join('\n');
+  ].join(' ');
   try{
     var res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatHistory.filter(function(m){return m.role!=='system';}).slice(-20).map(function(m){return{role:m.role,content:m.content};}),tripContext:context})});
     var data=await res.json();
@@ -2391,7 +2450,8 @@ async function completeOnboarding(skipped){
   }
 
   localStorage.setItem('onboarding_complete','1');
-  localStorage.removeItem('calc_explainer_dismissed'); // show explainer fresh
+  localStorage.removeItem('calc_explainer_dismissed');
+  localStorage.setItem('show_calc_explainer','1');
 
   // push pre-costs into calculator as locked rows BEFORE loadAll
   if(!skipped&&obData.preCosts&&obData.preCosts.length){
@@ -2442,6 +2502,257 @@ async function completeOnboarding(skipped){
       if(calcBtn)calcBtn.click();
       showToast('Welcome! Time to build your budget!');
     },400);
+  }
+}
+
+// ── SUGGESTIONS ──
+var suggestionsData = null;
+var suggestionsGenerated = false;
+
+function showSuggestionsTab(){
+  var btn=document.getElementById('suggestions-tab-btn');
+  if(btn){btn.style.display='';btn.style.animation='none';}
+}
+
+function renderSuggestions(){
+  var container=document.getElementById('suggestions-container');
+  if(!container)return;
+
+  if(!suggestionsGenerated){
+    renderSuggestionsLoading(container);
+    generateSuggestions(container);
+    return;
+  }
+  renderSuggestionsContent(container, suggestionsData);
+}
+
+function renderSuggestionsLoading(container){
+  container.innerHTML='';
+  var load=document.createElement('div');load.className='sugg-loading';
+  load.innerHTML='<div style="font-size:32px;">&#10024;</div>'+
+    '<div style="font-size:16px;font-weight:700;margin:12px 0 4px;">Generating suggestions for your trip...</div>'+
+    '<div style="font-size:13px;">Finding the best activities, restaurants and hotels based on your budget</div>'+
+    '<div class="typing-dots" style="display:flex;gap:6px;justify-content:center;margin-top:16px;"><span style="width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block;animation:bounce .8s infinite;"></span><span style="width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block;animation:bounce .8s infinite .15s;"></span><span style="width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block;animation:bounce .8s infinite .3s;"></span></div>';
+  container.appendChild(load);
+}
+
+async function generateSuggestions(container){
+  // build context from calculator + trip data
+  var budget=calcBudget||10000;
+  var actBudget=calcItems.find(function(i){return i.label.toLowerCase().includes('activ');})||{amount:0};
+  var foodBudget=calcItems.find(function(i){return i.label.toLowerCase().includes('food')||i.label.toLowerCase().includes('din');})||{amount:0};
+  var accomBudget=calcItems.find(function(i){return i.label.toLowerCase().includes('accom');})||{amount:0};
+  var days=window.calcDays||17;
+  var people=window.calcPeople||4;
+
+  // load prefs
+  var prefs={};
+  try{prefs=JSON.parse(localStorage.getItem('trip_prefs')||'{}');}catch(e){}
+
+  var prompt=[
+    'You are a Vancouver/Whistler travel expert. Generate suggestions for a family trip.',
+    '',
+    'FAMILY: 4 people - 2 adults (Pia birthday Jun 29, Pach) + 2 kids (Joaquin age 8, Alba age 6)',
+    'TRIP: Jun 15 - Jul 1 2026, 17 days, based in Surrey BC (free stay with friends)',
+    'WHISTLER: Jun 25-28 (need accommodation)',
+    'BUDGET BREAKDOWN:',
+    '- Activities budget: US$'+Math.round(actBudget.amount||2500),
+    '- Food budget: US$'+Math.round(foodBudget.amount||1500),
+    '- Accommodation budget (Whistler only): US$'+Math.round(accomBudget.amount||1500),
+    '- Total: US$'+Math.round(budget),
+    'VIBE: '+(prefs.vibe||'balanced'),
+    'STAY: Surrey base with friends (free), need Whistler accommodation Jun 25-28',
+    '',
+    'Generate suggestions in 3 categories. Return ONLY valid JSON:',
+    '{',
+    '  "activities": [ /* 8 activity suggestions */ ],',
+    '  "restaurants": [ /* 6 restaurant suggestions */ ],',
+    '  "accommodation": [ /* 4 Whistler accommodation options */ ]',
+    '}',
+    '',
+    'Each activity item:',
+    '{ "name": "", "emoji": "", "description": "2-3 sentences, mention kid-friendliness", "location": "", "cost_total": 0, "cost_per_person": 0, "duration_hours": 0, "best_time": "", "kid_rating": 5, "book_in_advance": false, "category": "activity", "suggested_area": "Vancouver|Whistler|Surrey|Day trip" }',
+    '',
+    'Each restaurant item:',
+    '{ "name": "", "emoji": "", "description": "2-3 sentences", "location": "", "cuisine": "", "cost_per_person": 0, "cost_total": 0, "kid_friendly": true, "occasion": "casual|special|breakfast|lunch", "book_in_advance": false, "category": "food" }',
+    '',
+    'Each accommodation item:',
+    '{ "name": "", "emoji": "", "description": "2-3 sentences, mention rooms/beds/type", "location": "", "cost_per_night": 0, "total_cost": 0, "nights": 3, "type": "hotel|airbnb|resort", "kid_friendly": true, "category": "hotel" }',
+    '',
+    'Use REAL places in Vancouver/Whistler. Be specific with names and costs in USD.',
+    'Kid-rating 1-5 (5=perfect for kids). Activities should be mix of free and paid.',
+    'Include Pia birthday dinner suggestion (Jun 29) in restaurants.',
+    'Whistler accommodation should sleep 4, budget ~US$'+Math.round((accomBudget.amount||1500)/3)+'/night.'
+  ].join(' ');
+
+  try{
+    var res=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        messages:[{role:'user',content:prompt}],
+        tripContext:''
+      })
+    });
+    var data=await res.json();
+    var text=data.reply||'';
+    var clean=text.replace(/```json|```/g,'').trim();
+    var jsonStart=clean.indexOf('{');
+    var jsonEnd=clean.lastIndexOf('}');
+    if(jsonStart>-1&&jsonEnd>-1)clean=clean.slice(jsonStart,jsonEnd+1);
+    var parsed=JSON.parse(clean);
+    suggestionsData=parsed;
+    suggestionsGenerated=true;
+    renderSuggestionsContent(container,parsed);
+  }catch(e){
+    container.innerHTML='<div class="sugg-loading"><div style="font-size:32px;">😕</div><div style="font-size:16px;font-weight:700;margin:12px 0 4px;">Could not generate suggestions</div><div style="font-size:13px;color:var(--red);">'+e.message+'</div><button class="btn btn-primary" style="margin-top:16px;" onclick="suggestionsGenerated=false;renderSuggestions();">Try again</button></div>';
+  }
+}
+
+function renderSuggestionsContent(container, data){
+  container.innerHTML='';
+
+  // hero banner
+  var hero=document.createElement('div');hero.className='sugg-hero';
+  hero.innerHTML='<h2>&#10024; Your trip suggestions</h2>'+
+    '<p>Based on your budget and family profile. Click "+ Add to Itinerary" on anything that looks good!</p>'+
+    '<div class="sugg-hero-stats">'+
+      '<div class="sugg-hero-stat"><div class="lbl">Activities</div><div class="val">'+(data.activities||[]).length+' suggestions</div></div>'+
+      '<div class="sugg-hero-stat"><div class="lbl">Restaurants</div><div class="val">'+(data.restaurants||[]).length+' suggestions</div></div>'+
+      '<div class="sugg-hero-stat"><div class="val">'+(data.accommodation||[]).length+' options</div><div class="lbl">Accommodation</div></div>'+
+      '<div class="sugg-hero-stat"><div class="lbl">Budget</div><div class="val">US$'+(calcBudget||10000).toLocaleString()+'</div></div>'+
+    '</div>';
+
+  var regenBtn=document.createElement('button');
+  regenBtn.style.cssText='margin-top:14px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:white;border-radius:8px;padding:7px 16px;font-family:DM Sans,sans-serif;font-size:12px;cursor:pointer;';
+  regenBtn.textContent='↻ Regenerate suggestions';
+  regenBtn.onclick=function(){suggestionsGenerated=false;renderSuggestions();};
+  hero.appendChild(regenBtn);
+  container.appendChild(hero);
+
+  // Activities section
+  if(data.activities&&data.activities.length){
+    container.appendChild(buildSuggSection('🎯 Activities & Experiences', 'Things to do with the family', data.activities, 'activity'));
+  }
+  // Restaurants section
+  if(data.restaurants&&data.restaurants.length){
+    container.appendChild(buildSuggSection("🍽️ Restaurants", "From family lunches to Pia's birthday dinner", data.restaurants, "food"));
+  }
+  // Accommodation section
+  if(data.accommodation&&data.accommodation.length){
+    container.appendChild(buildSuggSection('🏨 Whistler Accommodation', 'For your Jun 25-28 stay', data.accommodation, 'hotel'));
+  }
+}
+
+function buildSuggSection(title, subtitle, items, defaultCat){
+  var section=document.createElement('div');section.className='sugg-section';
+
+  var hdr=document.createElement('div');hdr.className='sugg-section-header';
+  hdr.innerHTML='<h3>'+title+'</h3><span>'+subtitle+'</span>';
+  section.appendChild(hdr);
+
+  var grid=document.createElement('div');grid.className='sugg-grid';
+
+  items.forEach(function(item){
+    var card=document.createElement('div');card.className='sugg-card';
+
+    var top=document.createElement('div');top.className='sugg-card-top';
+    var name=document.createElement('div');name.className='sugg-card-name';name.textContent=item.name;
+    var emoji=document.createElement('div');emoji.className='sugg-card-emoji';emoji.textContent=item.emoji||'✨';
+    top.appendChild(name);top.appendChild(emoji);
+    card.appendChild(top);
+
+    var desc=document.createElement('div');desc.className='sugg-card-desc';desc.textContent=item.description;
+    card.appendChild(desc);
+
+    var meta=document.createElement('div');meta.className='sugg-card-meta';
+
+    if(item.cost_total||item.total_cost){
+      var cost=document.createElement('span');cost.className='sugg-meta-tag sugg-meta-cost';
+      cost.textContent='US$'+(item.cost_total||item.total_cost||0).toLocaleString()+' total';
+      meta.appendChild(cost);
+    }
+    if(item.cost_per_person||item.cost_per_night){
+      var cpp=document.createElement('span');cpp.className='sugg-meta-tag sugg-meta-cost';
+      cpp.textContent=item.cost_per_night?'US$'+(item.cost_per_night||0)+'/night':'US$'+(item.cost_per_person||0)+'/person';
+      meta.appendChild(cpp);
+    }
+    if(item.kid_rating){
+      var kid=document.createElement('span');kid.className='sugg-meta-tag sugg-meta-kid';
+      kid.textContent='Kids '+'⭐'.repeat(Math.min(item.kid_rating,5));
+      meta.appendChild(kid);
+    }
+    if(item.duration_hours){
+      var dur=document.createElement('span');dur.className='sugg-meta-tag sugg-meta-time';
+      dur.textContent=item.duration_hours+'h';
+      meta.appendChild(dur);
+    }
+    if(item.best_time||item.occasion){
+      var bt=document.createElement('span');bt.className='sugg-meta-tag sugg-meta-time';
+      bt.textContent=item.best_time||item.occasion;
+      meta.appendChild(bt);
+    }
+    if(item.suggested_area){
+      var area=document.createElement('span');area.className='sugg-meta-tag sugg-meta-hotel';
+      area.textContent=item.suggested_area;
+      meta.appendChild(area);
+    }
+    if(item.book_in_advance){
+      var book=document.createElement('span');book.className='sugg-meta-tag sugg-meta-book';
+      book.textContent='📅 Book ahead!';
+      meta.appendChild(book);
+    }
+    card.appendChild(meta);
+
+    var addBtn=document.createElement('button');addBtn.className='sugg-card-add';
+    addBtn.textContent='+ Add to Itinerary';
+    addBtn.onclick=function(){addSuggToItinerary(item,defaultCat,addBtn);};
+    card.appendChild(addBtn);
+    grid.appendChild(card);
+  });
+
+  section.appendChild(grid);
+  return section;
+}
+
+async function addSuggToItinerary(item, category, btn){
+  btn.textContent='Adding...';btn.disabled=true;
+
+  // Add to itinerary via AI agent - it will find the right day
+  try{
+    var res=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        messages:[{
+          role:'user',
+          content:'Please add "'+item.name+'" to the itinerary. '+
+            'Location: '+(item.location||'')+'. '+
+            'Cost: US$'+(item.cost_total||item.total_cost||0)+'. '+
+            'Category: '+(item.category||category)+'. '+
+            (item.suggested_area==='Whistler'?'This is a Whistler activity, add it to a Whistler day (Jun 25-28).':
+             item.occasion==='special'?'This is a special occasion restaurant - add to Jun 29 (Pia birthday).':
+             'Add it to the first available day that makes sense.')+
+            ' Just add it and confirm.'
+        }],
+        tripContext:'Trip: Vancouver Jun 15 - Jul 1 2026. Surrey base Jun 15-24, Whistler Jun 25-28, back to Surrey Jun 29 - Jul 1.'
+      })
+    });
+    var data=await res.json();
+    if(data.madeChanges||data.reply){
+      btn.textContent='✓ Added!';
+      btn.className='sugg-card-add added';
+      showToast(item.name+' added to itinerary!');
+      await loadAll();
+    }else{
+      btn.textContent='+ Add to Itinerary';
+      btn.disabled=false;
+      showToast('Could not add - try again');
+    }
+  }catch(e){
+    btn.textContent='+ Add to Itinerary';
+    btn.disabled=false;
+    showToast('Error: '+e.message);
   }
 }
 
@@ -3177,7 +3488,7 @@ function renderScenarios(){
     'Generate 3 scenarios with different philosophies. Each allocates REMAINING US$'+remaining+' across categories.',
     'Return ONLY valid JSON, no markdown:',
     '{"scenarios":[{"id":"s1","name":"Name","emoji":"emoji","tagline":"one line","description":"2-3 sentences","breakdown":{"accommodation":{"pct":40,"amount":1200},"food":{"pct":20,"amount":600},"activities":{"pct":25,"amount":750},"transport":{"pct":10,"amount":300},"misc":{"pct":5,"amount":150}}}]}'
-  ].join('\n');
+  ].join(' ');
 
   fetch('/api/chat',{
     method:'POST',
@@ -3422,7 +3733,7 @@ function showPlanSummary(){
   container.appendChild(card);
 }
 
-loadAll().then(function(){checkOnboarding();});
+loadAll().then(function(){initCalculator();checkOnboarding();});
 </script>
 </body>
 </html>
