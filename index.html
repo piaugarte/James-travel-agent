@@ -3118,11 +3118,12 @@ function buildCalcBlock(sc, idx, container){
   totRow.appendChild(totAmt);totRow.appendChild(totDay);totRow.appendChild(totPerson);
   totRow.appendChild(document.createElement('span'));
   tbl.appendChild(totRow);
-  block.appendChild(tbl);
 
   function refreshTotals(){
     var t=getTotal();
-    totAmt.textContent=fmt$(t);totDay.textContent=fmt$(t/days);totPerson.textContent=fmt$(t/people);
+    if(totAmt)totAmt.textContent=fmt$(t);
+    if(totDay)totDay.textContent=fmt$(t/days);
+    if(totPerson)totPerson.textContent=fmt$(t/people);
   }
   function refreshAllDerived(){
     sc.items.forEach(function(item){
@@ -3137,9 +3138,6 @@ function buildCalcBlock(sc, idx, container){
     refreshTotals();
     updateStatus();
   }
-  refreshTotals();
-  refreshAllDerived();
-
   // sortable
   if(typeof Sortable!=='undefined'){
     Sortable.create(tbl,{handle:'.act-drag',animation:150,ghostClass:'sortable-ghost',filter:'.calc-table-header,.calc-total-row'});
