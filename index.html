@@ -855,7 +855,7 @@ async function loadAll(){
   allParticipants=results[6].data||[];
   allBudgetItems=JSON.parse(localStorage.getItem('trip_budget_items')||'[]');
   if(allPeople.length===0)await seedPeople();
-  renderHero();renderDays();renderCalendar();
+  renderHero();renderDays();renderCalendar();initWaitingBayDrop();
   if(document.getElementById('tab-people').classList.contains('active'))renderPeople();
 }
 
@@ -1079,29 +1079,32 @@ function getBadge(day){
 }
 
 function initWaitingBayDrop(){
-  // allow dragging waiting bay items into day lists
-  document.querySelectorAll('.items-list').forEach(function(list){
-    list.addEventListener('dragover',function(e){
-      e.preventDefault();
-      list.style.background='rgba(45,106,79,0.05)';
-      list.style.outline='2px dashed var(--green)';
-      list.style.borderRadius='8px';
+  // target day blocks - works even if items-list is empty
+  document.querySelectorAll('.day-card').forEach(function(dayCard){
+    var dayId=dayCard.id.replace('day-','');
+    dayCard.addEventListener('dragover',function(e){
+      if(e.dataTransfer.types.includes('text/plain')){
+        e.preventDefault();
+        dayCard.style.outline='2px dashed var(--green)';
+        dayCard.style.background='rgba(45,106,79,0.04)';
+      }
     });
-    list.addEventListener('dragleave',function(){
-      list.style.background='';list.style.outline='';
+    dayCard.addEventListener('dragleave',function(e){
+      // only clear if leaving the day card entirely
+      if(!dayCard.contains(e.relatedTarget)){
+        dayCard.style.outline='';dayCard.style.background='';
+      }
     });
-    list.addEventListener('drop',async function(e){
+    dayCard.addEventListener('drop',async function(e){
       e.preventDefault();
-      list.style.background='';list.style.outline='';
+      dayCard.style.outline='';dayCard.style.background='';
       var itemId=e.dataTransfer.getData('text/plain');
       var fromWB=e.dataTransfer.getData('from-waiting-bay');
       if(!fromWB||!itemId)return;
-      var dayCard=list.closest('.day-card');
-      if(!dayCard)return;
-      var dayId=dayCard.id.replace('day-','');
       await sb.from('itinerary_items').update({day_id:dayId}).eq('id',itemId);
-      showToast('Added to day!');
+      showToast('Moved to day!');
       await loadAll();
+      initWaitingBayDrop();
     });
   });
 }
