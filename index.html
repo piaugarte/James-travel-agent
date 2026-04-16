@@ -2990,9 +2990,9 @@ function spBuildBlock(sc, idx){
   totRow.className = 'calc-total-row';
   totRow.innerHTML = '<span>Total</span><span id="sp-tot-'+idx+'"></span><span id="sp-day-'+idx+'"></span><span id="sp-pp-'+idx+'"></span><span></span>';
 
-  spRenderRows(sc, tbl, totRow, statusEl);
   tbl.appendChild(totRow);
   block.appendChild(tbl);
+  spRenderRows(sc, tbl, totRow, statusEl);
 
   // ── ACTIONS ──
   var actRow = document.createElement('div');
