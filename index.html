@@ -3065,7 +3065,7 @@ function renderCalculator(){
         updateStatus();refreshSummary();
       }
 
-      aIn.oninput=function(){item.amount=parseFloat(this.value)||0;syncAll('total');saveCalcState();};
+      aIn.oninput=function(){item.amount=parseFloat(this.value)||0;syncAll('total');console.log('input fired, saving...');saveCalcState();};
       pdIn.oninput=function(){syncAll('day');saveCalcState();};
       ppCell.oninput=function(){syncAll('person');saveCalcState();};
 
