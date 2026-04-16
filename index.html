@@ -2799,7 +2799,6 @@ async function generatePlan(sc){
 async function addToWaitingBay(item){
   // Add to itinerary_items with no day_id (waiting bay)
   var res=await sb.from('itinerary_items').insert({
-    trip_id:TRIP_ID,
     day_id:null,
     activity:item.name,
     location:item.location||'',
