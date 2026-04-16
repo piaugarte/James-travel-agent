@@ -2156,8 +2156,10 @@ var obData = {
 };
 
 function checkOnboarding(){
+  // skip onboarding if trip already has data
+  var hasTrip=tripData&&tripData.start_date&&tripData.destination;
+  if(hasTrip)localStorage.setItem('onboarding_complete','1');
   if(!localStorage.getItem('onboarding_complete')){
-    // switch to setup tab
     document.querySelectorAll('.nav-tab').forEach(function(b){b.classList.remove('active');});
     document.getElementById('setup-tab-btn').classList.add('active');
     document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
@@ -2903,6 +2905,8 @@ async function initCalculator(){
       });
     }catch(e){}
   }
+  // reset calcItems to clean defaults before loading
+  calcItems=[{id:1,label:'Flights',amount:0,color:'#c62828',locked:false,category:'flight'},{id:2,label:'Accommodation',amount:0,color:'#5e35b1',locked:false,category:'accommodation'},{id:3,label:'Food',amount:0,color:'#e76f00',locked:false,category:'food'},{id:4,label:'Activity',amount:0,color:'#2d6a4f',locked:false,category:'activity'},{id:5,label:'Transport',amount:0,color:'#1565c0',locked:false,category:'transport'},{id:6,label:'Misc / Other',amount:0,color:'#6b7280',locked:false,category:'other'}];
   // load saved scenarios from Supabase
   var saved=await loadSavedScenarios();
   if(saved.length){
