@@ -2991,7 +2991,6 @@ function renderCalculator(){
 }
 
 function buildCalcBlock(sc, idx, container){
-  console.log('buildCalcBlock sc.items:',sc.items,sc.items?sc.items.length:0);
   var days=sc.days||17;
   var people=sc.people||4;
 
@@ -3155,6 +3154,10 @@ function buildCalcBlock(sc, idx, container){
     refreshTotals();
     updateStatus();
   }
+  block.appendChild(tbl);
+  refreshTotals();
+  refreshAllDerived();
+
   // sortable
   if(typeof Sortable!=='undefined'){
     Sortable.create(tbl,{handle:'.act-drag',animation:150,ghostClass:'sortable-ghost',filter:'.calc-table-header,.calc-total-row'});
