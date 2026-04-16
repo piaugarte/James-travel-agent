@@ -3359,10 +3359,12 @@ function buildCalcBlock(sc, idx, container){
     if(item.locked){aIn.readOnly=true;aIn.style.background='var(--gray-light)';}
 
     var pdIn=document.createElement('input');pdIn.className='calc-amount-input';pdIn.type='number';
-    pdIn.value=item.amount?Math.round(item.amount/days):'';pdIn.placeholder='0';pdIn.style.cssText+='font-size:11px;';
+    pdIn.value=item.amount&&days?Math.round(item.amount/days):'';pdIn.placeholder='0';pdIn.style.cssText+='font-size:11px;';
+    if(item.locked){pdIn.readOnly=true;pdIn.style.background='var(--gray-light)';}
 
     var ppIn=document.createElement('input');ppIn.className='calc-amount-input';ppIn.type='number';
-    ppIn.value=item.amount?Math.round(item.amount/people):'';ppIn.placeholder='0';ppIn.style.cssText+='font-size:11px;';
+    ppIn.value=item.amount&&people?Math.round(item.amount/people):'';ppIn.placeholder='0';ppIn.style.cssText+='font-size:11px;';
+    if(item.locked){ppIn.readOnly=true;ppIn.style.background='var(--gray-light)';}
 
     function syncFrom(source){
       if(source==='total'){
@@ -3531,10 +3533,16 @@ function buildCalcBlock(sc, idx, container){
       name:sc.name||'My Budget',
       budget:sc.budget||0,
       items:(function(){
-        // deduplicate by id before saving
         var seen={};
         return JSON.parse(JSON.stringify(sc.items)).filter(function(x){
           if(seen[x.id])return false;seen[x.id]=true;return true;
+        }).map(function(x){
+          // ensure category is always set
+          if(!x.category){
+            var l=(x.label||'').toLowerCase();
+            x.category=l.includes('flight')?'flight':l.includes('accom')?'accommodation':l.includes('food')||l.includes('din')?'food':l.includes('activ')?'activity':l.includes('transport')||l.includes('uber')||l.includes('taxi')?'transport':'other';
+          }
+          return x;
         });
       })(),
       days:days,people:people,
@@ -3543,12 +3551,12 @@ function buildCalcBlock(sc, idx, container){
     };
     if(sc.id){
       var r=await sb.from('calculator_scenarios').update(payload).eq('id',sc.id);
-      if(r.error)showToast('Error: '+r.error.message);
-      else{showToast('Saved: '+sc.name+'!');saveBtn.textContent='✓ Saved!';}
+      if(r.error){console.error('Save error:',r.error);showToast('Save error: '+r.error.message);}
+      else{showToast('✓ Saved: '+sc.name+'!');saveBtn.textContent='✓ Saved!';}
     }else{
       var r=await sb.from('calculator_scenarios').insert(payload).select().single();
-      if(r.error)showToast('Error: '+r.error.message);
-      else{sc.id=r.data.id;showToast('Saved: '+sc.name+'!');saveBtn.textContent='✓ Saved!';}
+      if(r.error){console.error('Save error:',r.error);showToast('Save error: '+r.error.message);}
+      else if(r.data){sc.id=r.data.id;showToast('✓ Saved: '+sc.name+'!');saveBtn.textContent='✓ Saved!';}
     }
     saveBtn.disabled=false;
     setTimeout(function(){saveBtn.textContent='💾 Save';},2000);
