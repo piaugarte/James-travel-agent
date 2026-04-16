@@ -3507,35 +3507,10 @@ function buildCalcBlock(sc, idx, container){
       var name=nameIn.value.trim();if(!name){nameIn.focus();return;}
       var cat=catSel.value;
       var catColors={flight:'#c62828',accommodation:'#5e35b1',food:'#e76f00',activity:'#2d6a4f',transport:'#1565c0',other:'#6b7280'};
-      var ni={id:calcNextId++,label:name,amount:0,color:catColors[cat],locked:false,category:cat};
-      sc.items.push(ni);
+      sc.items.push({id:calcNextId++,label:name,amount:0,color:catColors[cat],locked:false,category:cat});
       form.remove();
-      // build proper row
-      var row=document.createElement('div');row.className='calc-row';row.setAttribute('data-calc-id',ni.id);
-      var lc2=document.createElement('div');lc2.className='calc-row-label';
-      var dot2=document.createElement('div');dot2.className='calc-dot';dot2.style.background=catColors[cat]||'#6b7280';
-      var lIn2=document.createElement('input');lIn2.className='calc-label-input';lIn2.value=name;lIn2.onblur=function(){ni.label=this.value;};
-      lc2.appendChild(dot2);lc2.appendChild(lIn2);row.appendChild(lc2);
-      var a2=document.createElement('input');a2.className='calc-amount-input';a2.type='number';a2.placeholder='0';
-      var pd2=document.createElement('input');pd2.className='calc-amount-input';pd2.type='number';pd2.placeholder='0';pd2.style.fontSize='11px';
-      var pp2=document.createElement('input');pp2.className='calc-amount-input';pp2.type='number';pp2.placeholder='0';pp2.style.fontSize='11px';
-      function doSync(src){
-        var d=sc.days||17;var p=sc.people||4;
-        if(src==='total'){ni.amount=parseFloat(a2.value)||0;pd2.value=ni.amount?Math.round(ni.amount/d):'';pp2.value=ni.amount?Math.round(ni.amount/p):'';}
-        else if(src==='day'){ni.amount=(parseFloat(pd2.value)||0)*d;a2.value=ni.amount||'';pp2.value=ni.amount?Math.round(ni.amount/p):'';}
-        else if(src==='person'){ni.amount=(parseFloat(pp2.value)||0)*p;a2.value=ni.amount||'';pd2.value=ni.amount?Math.round(ni.amount/d):'';}
-        updateStatus();refreshTotals();
-      }
-      a2.oninput=function(){doSync('total');};pd2.oninput=function(){doSync('day');};pp2.oninput=function(){doSync('person');};
-      row.appendChild(a2);row.appendChild(pd2);row.appendChild(pp2);
-      var ctrl=document.createElement('div');ctrl.style.cssText='display:flex;align-items:center;gap:2px;';
-      var lkBtn=document.createElement('button');lkBtn.style.cssText='background:none;border:none;cursor:pointer;font-size:12px;padding:1px;opacity:0.3;';lkBtn.innerHTML='🔓';
-      lkBtn.onclick=function(){ni.locked=!ni.locked;lkBtn.innerHTML=ni.locked?'🔒':'🔓';lkBtn.style.opacity=ni.locked?'1':'0.3';a2.readOnly=ni.locked;a2.style.background=ni.locked?'var(--gray-light)':'var(--white)';};
-      var drg=document.createElement('span');drg.className='act-drag';drg.innerHTML='≡';drg.style.cssText='font-size:13px;opacity:0.3;cursor:grab;';
-      var del=document.createElement('button');del.className='act-del';del.innerHTML='×';del.onclick=function(){sc.items=sc.items.filter(function(x){return x.id!==ni.id;});row.remove();updateStatus();};
-      ctrl.appendChild(lkBtn);ctrl.appendChild(drg);ctrl.appendChild(del);row.appendChild(ctrl);
-      tbl.insertBefore(row,totRow);
-      updateStatus();refreshTotals();
+      // re-render the whole calculator so new item gets full working inputs
+      renderCalculator();
     };
     form.appendChild(nameIn);form.appendChild(catSel);form.appendChild(addItemBtn);form.appendChild(cancelBtn);
     actRow.parentNode.insertBefore(form,actRow.nextSibling);
