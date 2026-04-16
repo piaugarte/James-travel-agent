@@ -675,8 +675,8 @@ const TRIP_ID = 'a1b2c3d4-0000-0000-0000-000000000001';
 const BUDGET_PASSWORD = 'pach2026';
 
 const AVATARS = ['🧑','👩','👨','👧','👦','🧒','👶','🧓','👴','👵','🧔','👱','🧕','🎅','🤶','🤠','🥷','👮','🕵','🧑‍🍳','🧑‍🎤','🦊','🐻','🐼','🐨','🦁','🐯','🐸','🐙','🦋'];
-const CAT_COLORS = {flight:'#c62828',accommodation:'#5e35b1',food:'#e76f00',activity:'#2d6a4f',transport:'#1565c0',other:'#6b7280'};
-const CAT_LABELS = {flight:'Flights',accommodation:'Accommodation',food:'Food',activity:'Activity',transport:'Transport',other:'Misc / Other'};
+const CAT_COLORS = {flight:'#c62828',accommodation:'#5e35b1',food:'#e76f00',activity:'#2d6a4f',transport:'#1565c0',other:'#6b7280',hotel:'#5e35b1',travel:'#1565c0',shopping:'#6b7280'};
+const CAT_LABELS = {flight:'Flights',accommodation:'Accommodation',food:'Food',activity:'Activity',transport:'Transport',other:'Misc / Other',hotel:'Accommodation',travel:'Transport',shopping:'Misc / Other'};
 const GROUP_EMOJI = {'Pia family':'🏡','Andy family':'✈️','Ines family':'🏡','Relatives':'👥'};
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -3077,7 +3077,30 @@ function buildCalcBlock(sc, idx, container){
   sc.items.forEach(function(item){
     var row=document.createElement('div');row.className='calc-row';row.setAttribute('data-calc-id',item.id);
     var lc=document.createElement('div');lc.className='calc-row-label';
-    var dot=document.createElement('div');dot.className='calc-dot';dot.style.background=item.color;
+    var dot=document.createElement('div');dot.className='calc-dot';
+    dot.style.cssText='width:10px;height:10px;border-radius:50%;flex-shrink:0;cursor:pointer;background:'+(CAT_COLORS[item.category]||item.color||'#6b7280')+';';
+    dot.title='Click to change category';
+    dot.onclick=function(){
+      var sel=document.createElement('select');
+      sel.style.cssText='border:1px solid var(--green);border-radius:4px;font-size:11px;padding:2px 4px;font-family:DM Sans,sans-serif;position:absolute;z-index:10;background:white;';
+      [['flight','✈️ Flights'],['accommodation','🏨 Accommodation'],['food','🍽️ Food'],['activity','🎯 Activity'],['transport','🚌 Transport'],['other','📦 Misc / Other']].forEach(function(opt){
+        var o=document.createElement('option');o.value=opt[0];o.textContent=opt[1];
+        if(opt[0]===item.category)o.selected=true;
+        sel.appendChild(o);
+      });
+      sel.onchange=function(){
+        item.category=sel.value;
+        item.color=CAT_COLORS[sel.value]||'#6b7280';
+        dot.style.background=item.color;
+        sel.remove();
+      };
+      sel.onblur=function(){sel.remove();};
+      dot.parentNode.insertBefore(sel,dot.nextSibling);
+      setTimeout(function(){sel.focus();},10);
+    };
+    // update color from category
+    item.color=CAT_COLORS[item.category]||item.color||'#6b7280';
+    dot.style.background=item.color;
     var lIn=document.createElement('input');lIn.className='calc-label-input';lIn.value=item.label;lIn.onblur=function(){item.label=this.value;};
     lc.appendChild(dot);lc.appendChild(lIn);row.appendChild(lc);
 
@@ -3181,18 +3204,25 @@ function buildCalcBlock(sc, idx, container){
   // Generate
   var genBtn=document.createElement('button');genBtn.className='btn btn-primary btn-sm';genBtn.textContent='✨ Generate';
   genBtn.onclick=function(){
-    var locked=sc.items.reduce(function(s,i){return s+(i.locked?i.amount:0);},0);
+    // sync locked state from DOM before generating
+    tbl.querySelectorAll('.calc-row').forEach(function(row){
+      var id=parseInt(row.getAttribute('data-calc-id'));
+      var item=sc.items.find(function(x){return x.id===id;});
+      if(!item)return;
+      var ins=row.querySelectorAll('input[type=number]');
+      if(ins[0])item.amount=parseFloat(ins[0].value)||item.amount||0;
+    });
+    var locked=sc.items.reduce(function(s,i){return s+(i.locked?(i.amount||0):0);},0);
     var rem=(sc.budget||0)-locked;
     var unlocked=sc.items.filter(function(i){return !i.locked;});
+    var catWeights={flight:0,accommodation:35,food:20,activity:25,transport:10,other:5};
     var weights=unlocked.map(function(item){
-      var k=item.label.toLowerCase();
-      return k.includes('accom')?35:k.includes('food')||k.includes('din')?20:k.includes('activ')?25:k.includes('flight')?0:k.includes('transport')?10:5;
+      return catWeights[item.category]||5;
     });
     var tw=weights.reduce(function(s,w){return s+w;},0)||1;
     unlocked.forEach(function(item,i){item.amount=Math.round(rem*(weights[i]/tw));});
-    // fix rounding
     var sum=unlocked.reduce(function(s,i){return s+(i.amount||0);},0);
-    if(unlocked.length>0)unlocked[unlocked.length-1].amount+=rem-sum;
+    if(unlocked.length>0)unlocked[unlocked.length-1].amount+=(rem-sum);
     // update inputs
     tbl.querySelectorAll('.calc-row').forEach(function(row){
       var id=parseInt(row.getAttribute('data-calc-id'));
@@ -3227,25 +3257,35 @@ function buildCalcBlock(sc, idx, container){
       var name=nameIn.value.trim();if(!name){nameIn.focus();return;}
       var cat=catSel.value;
       var catColors={flight:'#c62828',accommodation:'#5e35b1',food:'#e76f00',activity:'#2d6a4f',transport:'#1565c0',other:'#6b7280'};
-      var newItem={id:calcNextId++,label:name,amount:0,color:catColors[cat],locked:false,category:cat};
-    sc.items.push(newItem);
-    // add row to table
-    var row=document.createElement('div');row.className='calc-row';row.setAttribute('data-calc-id',newItem.id);
-    var lc2=document.createElement('div');lc2.className='calc-row-label';
-    var dot2=document.createElement('div');dot2.className='calc-dot';dot2.style.background=newItem.color;
-    var lIn2=document.createElement('input');lIn2.className='calc-label-input';lIn2.value=name;lIn2.onblur=function(){newItem.label=this.value;};
-    lc2.appendChild(dot2);lc2.appendChild(lIn2);row.appendChild(lc2);
-    var a2=document.createElement('input');a2.className='calc-amount-input';a2.type='number';a2.placeholder='0';
-    a2.oninput=function(){newItem.amount=parseFloat(this.value)||0;updateStatus();};
-    var p2=document.createElement('input');p2.className='calc-amount-input';p2.type='number';p2.placeholder='0';p2.style.fontSize='11px';
-    var pp2=document.createElement('input');pp2.className='calc-amount-input';pp2.type='number';pp2.placeholder='0';pp2.style.fontSize='11px';
-    row.appendChild(a2);row.appendChild(p2);row.appendChild(pp2);
-    var c2=document.createElement('div');c2.style.cssText='display:flex;align-items:center;gap:2px;';
-    c2.innerHTML='<button style="background:none;border:none;font-size:12px;opacity:0.3;">🔓</button><span class="act-drag" style="font-size:13px;opacity:0.3;cursor:grab;">≡</span>';
-    var rd2=document.createElement('button');rd2.className='act-del';rd2.innerHTML='×';rd2.onclick=function(){sc.items=sc.items.filter(function(x){return x.id!==newItem.id;});row.remove();updateStatus();};
-    c2.appendChild(rd2);row.appendChild(c2);
-    tbl.insertBefore(row,totRow);
-      updateStatus();
+      var ni={id:calcNextId++,label:name,amount:0,color:catColors[cat],locked:false,category:cat};
+      sc.items.push(ni);
+      form.remove();
+      // build proper row
+      var row=document.createElement('div');row.className='calc-row';row.setAttribute('data-calc-id',ni.id);
+      var lc2=document.createElement('div');lc2.className='calc-row-label';
+      var dot2=document.createElement('div');dot2.className='calc-dot';dot2.style.background=catColors[cat]||'#6b7280';
+      var lIn2=document.createElement('input');lIn2.className='calc-label-input';lIn2.value=name;lIn2.onblur=function(){ni.label=this.value;};
+      lc2.appendChild(dot2);lc2.appendChild(lIn2);row.appendChild(lc2);
+      var a2=document.createElement('input');a2.className='calc-amount-input';a2.type='number';a2.placeholder='0';
+      var pd2=document.createElement('input');pd2.className='calc-amount-input';pd2.type='number';pd2.placeholder='0';pd2.style.fontSize='11px';
+      var pp2=document.createElement('input');pp2.className='calc-amount-input';pp2.type='number';pp2.placeholder='0';pp2.style.fontSize='11px';
+      function doSync(src){
+        var d=sc.days||17;var p=sc.people||4;
+        if(src==='total'){ni.amount=parseFloat(a2.value)||0;pd2.value=ni.amount?Math.round(ni.amount/d):'';pp2.value=ni.amount?Math.round(ni.amount/p):'';}
+        else if(src==='day'){ni.amount=(parseFloat(pd2.value)||0)*d;a2.value=ni.amount||'';pp2.value=ni.amount?Math.round(ni.amount/p):'';}
+        else if(src==='person'){ni.amount=(parseFloat(pp2.value)||0)*p;a2.value=ni.amount||'';pd2.value=ni.amount?Math.round(ni.amount/d):'';}
+        updateStatus();refreshTotals();
+      }
+      a2.oninput=function(){doSync('total');};pd2.oninput=function(){doSync('day');};pp2.oninput=function(){doSync('person');};
+      row.appendChild(a2);row.appendChild(pd2);row.appendChild(pp2);
+      var ctrl=document.createElement('div');ctrl.style.cssText='display:flex;align-items:center;gap:2px;';
+      var lkBtn=document.createElement('button');lkBtn.style.cssText='background:none;border:none;cursor:pointer;font-size:12px;padding:1px;opacity:0.3;';lkBtn.innerHTML='🔓';
+      lkBtn.onclick=function(){ni.locked=!ni.locked;lkBtn.innerHTML=ni.locked?'🔒':'🔓';lkBtn.style.opacity=ni.locked?'1':'0.3';a2.readOnly=ni.locked;a2.style.background=ni.locked?'var(--gray-light)':'var(--white)';};
+      var drg=document.createElement('span');drg.className='act-drag';drg.innerHTML='≡';drg.style.cssText='font-size:13px;opacity:0.3;cursor:grab;';
+      var del=document.createElement('button');del.className='act-del';del.innerHTML='×';del.onclick=function(){sc.items=sc.items.filter(function(x){return x.id!==ni.id;});row.remove();updateStatus();};
+      ctrl.appendChild(lkBtn);ctrl.appendChild(drg);ctrl.appendChild(del);row.appendChild(ctrl);
+      tbl.insertBefore(row,totRow);
+      updateStatus();refreshTotals();
     };
     form.appendChild(nameIn);form.appendChild(catSel);form.appendChild(addItemBtn);form.appendChild(cancelBtn);
     actRow.parentNode.insertBefore(form,actRow.nextSibling);
