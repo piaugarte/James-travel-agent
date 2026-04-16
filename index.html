@@ -406,9 +406,9 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .cat-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
 .cat-tab{padding:6px 14px;border-radius:20px;border:1px solid var(--gray-border);cursor:pointer;font-size:13px;font-weight:500;background:var(--white);color:var(--text-muted);transition:all .15s;font-family:'DM Sans',sans-serif;}
 .cat-tab.active{color:var(--white);border-color:transparent;}
-.cat-tab.active.transport{background:#1565c0;}.cat-tab.active.food{background:#e76f00;}
-.cat-tab.active.activity{background:#5e35b1;}.cat-tab.active.hotel{background:#00695c;}
-.cat-tab.active.flight{background:#c62828;}.cat-tab.active.travel{background:#0277bd;}.cat-tab.active.all{background:var(--green);}
+.cat-tab.active.flight{background:#c62828;}.cat-tab.active.accommodation{background:#5e35b1;}
+.cat-tab.active.food{background:#e76f00;}.cat-tab.active.activity{background:#2d6a4f;}
+.cat-tab.active.transport{background:#1565c0;}.cat-tab.active.other{background:#6b7280;}.cat-tab.active.all{background:var(--green);}
 .category-breakdown{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;}
 .cat-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--gray-border);font-size:14px;}
 .cat-row:last-child{border-bottom:none;}
@@ -592,12 +592,12 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
       <div class="section-header" style="margin-top:20px;"><h3 style="font-size:16px;font-weight:700;">All items</h3></div>
       <div class="cat-tabs">
         <button class="cat-tab active all" onclick="filterBudgetCat('all',this)">All</button>
-        <button class="cat-tab transport" onclick="filterBudgetCat('transport',this)">&#128652; Transport</button>
-        <button class="cat-tab food" onclick="filterBudgetCat('food',this)">&#127829; Food</button>
-        <button class="cat-tab activity" onclick="filterBudgetCat('activity',this)">&#127914; Activities</button>
-        <button class="cat-tab hotel" onclick="filterBudgetCat('hotel',this)">&#127968; Hotel</button>
         <button class="cat-tab flight" onclick="filterBudgetCat('flight',this)">&#9992; Flights</button>
-        <button class="cat-tab travel" onclick="filterBudgetCat('travel',this)">&#9992; Travel</button>
+        <button class="cat-tab accommodation" onclick="filterBudgetCat('accommodation',this)">&#127968; Accommodation</button>
+        <button class="cat-tab food" onclick="filterBudgetCat('food',this)">&#127829; Food</button>
+        <button class="cat-tab activity" onclick="filterBudgetCat('activity',this)">&#127914; Activity</button>
+        <button class="cat-tab transport" onclick="filterBudgetCat('transport',this)">&#128652; Transport</button>
+        <button class="cat-tab other" onclick="filterBudgetCat('other',this)">&#128230; Misc / Other</button>
       </div>
       <div class="budget-items-table" id="budget-items-table"></div>
     </div>
@@ -675,8 +675,8 @@ const TRIP_ID = 'a1b2c3d4-0000-0000-0000-000000000001';
 const BUDGET_PASSWORD = 'pach2026';
 
 const AVATARS = ['🧑','👩','👨','👧','👦','🧒','👶','🧓','👴','👵','🧔','👱','🧕','🎅','🤶','🤠','🥷','👮','🕵','🧑‍🍳','🧑‍🎤','🦊','🐻','🐼','🐨','🦁','🐯','🐸','🐙','🦋'];
-const CAT_COLORS = {activity:'#5e35b1',hotel:'#00695c',food:'#e76f00',flight:'#c62828',transport:'#1565c0',travel:'#0277bd',other:'#6b7280'};
-const CAT_LABELS = {activity:'Activity',hotel:'Hotel',food:'Food',flight:'Flight',transport:'Transport',travel:'Travel',other:'Other'};
+const CAT_COLORS = {flight:'#c62828',accommodation:'#5e35b1',food:'#e76f00',activity:'#2d6a4f',transport:'#1565c0',other:'#6b7280'};
+const CAT_LABELS = {flight:'Flights',accommodation:'Accommodation',food:'Food',activity:'Activity',transport:'Transport',other:'Misc / Other'};
 const GROUP_EMOJI = {'Pia family':'🏡','Andy family':'✈️','Ines family':'🏡','Relatives':'👥'};
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1119,7 +1119,7 @@ function buildDayBlock(day, phaseColor){
   var timeIn=document.createElement('input');timeIn.type='time';timeIn.id='aa-time-'+day.id;
   var costIn=document.createElement('input');costIn.type='number';costIn.placeholder='Cost (US$)';costIn.id='aa-cost-'+day.id;
   var catSel=document.createElement('select');catSel.id='aa-cat-'+day.id;
-  ['activity','food','hotel','transport','flight','travel','other'].forEach(function(cat){
+  ['flight','accommodation','food','activity','transport','other'].forEach(function(cat){
     var opt=document.createElement('option');opt.value=cat;opt.textContent=cat.charAt(0).toUpperCase()+cat.slice(1);catSel.appendChild(opt);
   });
   var btnRow=document.createElement('div');btnRow.className='act-add-form-row';
@@ -1680,7 +1680,7 @@ function renderBudgetItems(){
   html+='<div class="add-budget-row">'+
     '<input type="text" placeholder="Item label..." id="bi-label" style="flex:2;min-width:120px;"/>'+
     '<input type="number" placeholder="US$" id="bi-amount" style="width:80px;"/>'+
-    '<select id="bi-cat"><option value="activity">Activity</option><option value="food">Food</option><option value="transport">Transport</option><option value="hotel">Hotel</option><option value="flight">Flight</option><option value="other">Other</option></select>'+
+    '<select id="bi-cat"><option value="flight">Flights</option><option value="accommodation">Accommodation</option><option value="food">Food</option><option value="activity">Activity</option><option value="transport">Transport</option><option value="other">Misc / Other</option></select>'+
     '<button class="btn btn-primary btn-sm" onclick="addBudgetItem()">+ Add</button></div>';
   el.innerHTML=html;
 }
@@ -2907,12 +2907,12 @@ async function initCalculator(){
   var saved=await loadSavedScenarios();
   if(saved.length){
     var defaultItems=[
-      {id:1,label:'Flights',amount:0,color:'#c62828',locked:false},
-      {id:2,label:'Accommodation',amount:0,color:'#5e35b1',locked:false},
-      {id:3,label:'Food & Dining',amount:0,color:'#e76f00',locked:false},
-      {id:4,label:'Activities',amount:0,color:'#2d6a4f',locked:false},
-      {id:5,label:'Transport',amount:0,color:'#1565c0',locked:false},
-      {id:6,label:'Shopping & Misc',amount:0,color:'#6b7280',locked:false}
+      {id:1,label:'Flights',amount:0,color:'#c62828',locked:false,category:'flight'},
+      {id:2,label:'Accommodation',amount:0,color:'#5e35b1',locked:false,category:'accommodation'},
+      {id:3,label:'Food',amount:0,color:'#e76f00',locked:false,category:'food'},
+      {id:4,label:'Activity',amount:0,color:'#2d6a4f',locked:false,category:'activity'},
+      {id:5,label:'Transport',amount:0,color:'#1565c0',locked:false,category:'transport'},
+      {id:6,label:'Misc / Other',amount:0,color:'#6b7280',locked:false,category:'other'}
     ];
     calcScenarioBlocks=saved.map(function(s){
       var items=s.items&&s.items.length?s.items:JSON.parse(JSON.stringify(defaultItems));
@@ -2949,12 +2949,12 @@ function renderCalculator(){
       name:'New Scenario',
       budget:10000,
       items:[
-        {id:calcNextId++,label:'Flights',amount:0,color:'#c62828',locked:false},
-        {id:calcNextId++,label:'Accommodation',amount:0,color:'#5e35b1',locked:false},
-        {id:calcNextId++,label:'Food & Dining',amount:0,color:'#e76f00',locked:false},
-        {id:calcNextId++,label:'Activities',amount:0,color:'#2d6a4f',locked:false},
-        {id:calcNextId++,label:'Transport',amount:0,color:'#1565c0',locked:false},
-        {id:calcNextId++,label:'Shopping & Misc',amount:0,color:'#6b7280',locked:false}
+        {id:calcNextId++,label:'Flights',amount:0,color:'#c62828',locked:false,category:'flight'},
+        {id:calcNextId++,label:'Accommodation',amount:0,color:'#5e35b1',locked:false,category:'accommodation'},
+        {id:calcNextId++,label:'Food',amount:0,color:'#e76f00',locked:false,category:'food'},
+        {id:calcNextId++,label:'Activity',amount:0,color:'#2d6a4f',locked:false,category:'activity'},
+        {id:calcNextId++,label:'Transport',amount:0,color:'#1565c0',locked:false,category:'transport'},
+        {id:calcNextId++,label:'Misc / Other',amount:0,color:'#6b7280',locked:false,category:'other'}
       ],
       days:window.calcDays||17,
       people:window.calcPeople||4
@@ -2976,12 +2976,12 @@ function renderCalculator(){
       id:null,name:'My Budget',
       budget:10000,
       items:[
-        {id:1,label:'Flights',amount:0,color:'#c62828',locked:false},
-        {id:2,label:'Accommodation',amount:0,color:'#5e35b1',locked:false},
-        {id:3,label:'Food & Dining',amount:0,color:'#e76f00',locked:false},
-        {id:4,label:'Activities',amount:0,color:'#2d6a4f',locked:false},
-        {id:5,label:'Transport',amount:0,color:'#1565c0',locked:false},
-        {id:6,label:'Shopping & Misc',amount:0,color:'#6b7280',locked:false}
+        {id:1,label:'Flights',amount:0,color:'#c62828',locked:false,category:'flight'},
+        {id:2,label:'Accommodation',amount:0,color:'#5e35b1',locked:false,category:'accommodation'},
+        {id:3,label:'Food',amount:0,color:'#e76f00',locked:false,category:'food'},
+        {id:4,label:'Activity',amount:0,color:'#2d6a4f',locked:false,category:'activity'},
+        {id:5,label:'Transport',amount:0,color:'#1565c0',locked:false,category:'transport'},
+        {id:6,label:'Misc / Other',amount:0,color:'#6b7280',locked:false,category:'other'}
       ],
       days:window.calcDays||17,
       people:window.calcPeople||4
@@ -3208,11 +3208,26 @@ function buildCalcBlock(sc, idx, container){
   actRow.appendChild(genBtn);
 
   // Add category
-  var addCatBtn=document.createElement('button');addCatBtn.className='btn btn-ghost btn-sm';addCatBtn.textContent='+ Category';
+  var addCatBtn=document.createElement('button');addCatBtn.className='btn btn-ghost btn-sm';addCatBtn.textContent='+ Item';
   addCatBtn.onclick=function(){
-    var name=prompt('Category name:');if(!name)return;
-    var palette=['#5e35b1','#e76f00','#2d6a4f','#1565c0','#c62828','#6b7280'];
-    var newItem={id:calcNextId++,label:name,amount:0,color:palette[sc.items.length%palette.length],locked:false};
+    // show inline form
+    var form=document.createElement('div');
+    form.style.cssText='padding:12px 16px;border-top:1px solid var(--gray-border);display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--white);';
+    var nameIn=document.createElement('input');nameIn.placeholder='Item name (e.g. Airbnb Whistler)';
+    nameIn.style.cssText='flex:2;min-width:140px;border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:6px 10px;font-size:13px;font-family:DM Sans,sans-serif;';
+    var catSel=document.createElement('select');
+    catSel.style.cssText='border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:6px 10px;font-size:13px;font-family:DM Sans,sans-serif;';
+    [['flight','✈️ Flights'],['accommodation','🏨 Accommodation'],['food','🍽️ Food'],['activity','🎯 Activity'],['transport','🚌 Transport'],['other','📦 Misc / Other']].forEach(function(opt){
+      var o=document.createElement('option');o.value=opt[0];o.textContent=opt[1];catSel.appendChild(o);
+    });
+    var addItemBtn=document.createElement('button');addItemBtn.className='btn btn-primary btn-sm';addItemBtn.textContent='Add';
+    var cancelBtn=document.createElement('button');cancelBtn.className='btn btn-ghost btn-sm';cancelBtn.textContent='Cancel';
+    cancelBtn.onclick=function(){form.remove();};
+    addItemBtn.onclick=function(){
+      var name=nameIn.value.trim();if(!name){nameIn.focus();return;}
+      var cat=catSel.value;
+      var catColors={flight:'#c62828',accommodation:'#5e35b1',food:'#e76f00',activity:'#2d6a4f',transport:'#1565c0',other:'#6b7280'};
+      var newItem={id:calcNextId++,label:name,amount:0,color:catColors[cat],locked:false,category:cat};
     sc.items.push(newItem);
     // add row to table
     var row=document.createElement('div');row.className='calc-row';row.setAttribute('data-calc-id',newItem.id);
@@ -3230,7 +3245,11 @@ function buildCalcBlock(sc, idx, container){
     var rd2=document.createElement('button');rd2.className='act-del';rd2.innerHTML='×';rd2.onclick=function(){sc.items=sc.items.filter(function(x){return x.id!==newItem.id;});row.remove();updateStatus();};
     c2.appendChild(rd2);row.appendChild(c2);
     tbl.insertBefore(row,totRow);
-    updateStatus();
+      updateStatus();
+    };
+    form.appendChild(nameIn);form.appendChild(catSel);form.appendChild(addItemBtn);form.appendChild(cancelBtn);
+    actRow.parentNode.insertBefore(form,actRow.nextSibling);
+    setTimeout(function(){nameIn.focus();},50);
   };
   actRow.appendChild(addCatBtn);
 
