@@ -2900,18 +2900,17 @@ async function initCalculator(){
       });
     }catch(e){}
   }
-  // load most recent saved scenario
+  // load saved scenarios from Supabase
   var saved=await loadSavedScenarios();
   if(saved.length){
-    var latest=saved[0];
-    if(latest.items&&latest.items.length)calcItems=latest.items;
-    if(latest.budget)calcBudget=latest.budget;
-    if(latest.days)window.calcDays=latest.days;
-    if(latest.people)window.calcPeople=latest.people;
+    calcScenarioBlocks=saved.map(function(s){
+      return{id:s.id,name:s.name,budget:s.budget,items:s.items||[],days:s.days||17,people:s.people||4};
+    });
+    window.calcDays=saved[0].days||17;
+    window.calcPeople=saved[0].people||4;
     window.calcBudgetSet=true;
   }
   renderCalculator();
-  if(saved.length)renderCalcScenarioTabs(saved);
 }
 
 
@@ -2920,350 +2919,321 @@ function fmt$(n){
   return 'US$'+(Math.round((Number(n)||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});
 }
 
+// each scenario is {id, name, budget, items, days, people}
+var calcScenarioBlocks = []; // list of scenario objects being shown
+
 function renderCalculator(){
   var container=document.getElementById('calculator-container');
   if(!container)return;
   container.innerHTML='';
 
-  // init defaults
-  if(!window.calcDays)window.calcDays=tripData&&tripData.start_date&&tripData.end_date?Math.max(1,Math.round((new Date(tripData.end_date)-new Date(tripData.start_date))/86400000)+1):17;
-  if(!window.calcPeople)window.calcPeople=4;
-  if(!window.calcBudgetSet){window.calcBudgetSet=true;calcBudget=10000;}
-
-  function getTotal(){return calcItems.reduce(function(s,i){return s+(Number(i.amount)||0);},0);}
-  function getDiff(){return calcBudget-getTotal();}
-  function statusText(d){
-    var ad=Math.abs(Math.round(d*100)/100);
-    if(d<0)return 'Over by US$'+ad.toLocaleString('en-US',{maximumFractionDigits:0})+' ⚠️';
-    if(d===0)return 'Exactly on budget ✓';
-    return 'US$'+ad.toLocaleString('en-US',{maximumFractionDigits:0})+' remaining ✓';
-  }
-  function statusClass(d){return d<0?'over':d===0?'exact':'under';}
-
-  // wrapper for side-by-side
-  var wrapper=document.createElement('div');
-  wrapper.style.cssText='display:flex;flex-direction:column;gap:24px;';
-  container.appendChild(wrapper);
-
-  function buildScenarioBlock(scenarioItems, scenarioBudget, scenarioLabel, onSave, onRemove){
-    var block=document.createElement('div');
-    block.style.cssText='background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);';
-
-    // scenario label if provided
-    if(scenarioLabel){
-      var labelBar=document.createElement('div');
-      labelBar.style.cssText='background:var(--green);color:white;padding:6px 16px;font-size:12px;font-weight:700;display:flex;justify-content:space-between;align-items:center;';
-      labelBar.textContent=scenarioLabel;
-      if(onRemove){var rmBtn=document.createElement('button');rmBtn.style.cssText='background:none;border:none;color:white;cursor:pointer;font-size:14px;';rmBtn.innerHTML='✕';rmBtn.onclick=onRemove;labelBar.appendChild(rmBtn);}
-      block.appendChild(labelBar);
-    }
-
-    // header
-    var hdr=document.createElement('div');hdr.style.cssText='padding:16px 20px 12px;border-bottom:1px solid var(--gray-border);';
-    var topRow=document.createElement('div');topRow.style.cssText='display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:10px;';
-
-    var budgetWrap=document.createElement('div');
-    var budgetLbl=document.createElement('div');budgetLbl.style.cssText='font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:2px;';budgetLbl.textContent='FIXED BUDGET';
-    var budgetRow=document.createElement('div');budgetRow.style.cssText='display:flex;align-items:center;gap:6px;';
-    var budgetIn=document.createElement('input');budgetIn.type='number';budgetIn.value=scenarioBudget[0];budgetIn.placeholder='10000';
-    budgetIn.style.cssText='border:none;font-family:Funnel Display,sans-serif;font-size:26px;font-weight:700;color:var(--green);width:160px;background:transparent;';
-    budgetIn.oninput=function(){
-      scenarioBudget[0]=parseFloat(this.value)||0;
-      calcBudget=scenarioBudget[0];
-      var d=scenarioBudget[0]-scenarioItems.reduce(function(s,i){return s+(i.amount||0);},0);
-      statusEl.className='calc-status '+statusClass(d);
-      statusEl.textContent=statusText(d);
-      
-    };
-    var budgetUnit=document.createElement('span');budgetUnit.style.cssText='font-size:13px;color:var(--text-muted);';budgetUnit.textContent='US$ total';
-    budgetRow.appendChild(budgetIn);budgetRow.appendChild(budgetUnit);
-    budgetWrap.appendChild(budgetLbl);budgetWrap.appendChild(budgetRow);
-
-    var statusEl=document.createElement('div');
-    var curDiff=scenarioBudget[0]-scenarioItems.reduce(function(s,i){return s+(i.amount||0);},0);
-    statusEl.className='calc-status '+statusClass(curDiff);statusEl.textContent=statusText(curDiff);
-    topRow.appendChild(budgetWrap);topRow.appendChild(statusEl);
-    hdr.appendChild(topRow);
-
-    // stats
-    var statsRow=document.createElement('div');statsRow.style.cssText='display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:12px;';
-    function makeNumInput(lbl,val,onChange){
-      var w=document.createElement('div');w.style.cssText='display:flex;align-items:center;gap:4px;';
-      var l=document.createElement('span');l.style.color='var(--text-muted)';l.textContent=lbl;
-      var inp=document.createElement('input');inp.type='number';inp.value=val;inp.min='1';
-      inp.style.cssText='width:46px;border:1px solid var(--gray-border);border-radius:4px;padding:2px 5px;font-size:12px;font-weight:700;text-align:center;font-family:DM Sans,sans-serif;';
-      inp.oninput=function(){onChange(parseInt(this.value)||1);refreshAll();};
-      w.appendChild(l);w.appendChild(inp);return w;
-    }
-    var daysRef=[window.calcDays],peopleRef=[window.calcPeople];
-    statsRow.appendChild(makeNumInput('Days',daysRef[0],function(v){daysRef[0]=v;window.calcDays=v;}));
-    statsRow.appendChild(makeNumInput('Travelers',peopleRef[0],function(v){peopleRef[0]=v;window.calcPeople=v;}));
-    var perDayEl=document.createElement('span');var perPersonEl=document.createElement('span');var perPPDEl=document.createElement('span');
-    statsRow.appendChild(perDayEl);statsRow.appendChild(perPersonEl);statsRow.appendChild(perPPDEl);
-    hdr.appendChild(statsRow);
-    block.appendChild(hdr);
-
-    // table
-    var tbl=document.createElement('div');
-
-    var thead=document.createElement('div');thead.className='calc-table-header';
-    thead.innerHTML='<span>Category</span><span style="text-align:right;">Total</span><span style="text-align:right;">/Day</span><span style="text-align:right;">/Person</span><span></span>';
-    tbl.appendChild(thead);
-
-    scenarioItems.forEach(function(item){
-      var row=document.createElement('div');row.className='calc-row';row.setAttribute('data-calc-id',item.id);
-
-      var lc=document.createElement('div');lc.className='calc-row-label';
-      var dot=document.createElement('div');dot.className='calc-dot';dot.style.background=item.color;
-      var lIn=document.createElement('input');lIn.className='calc-label-input';lIn.value=item.label;lIn.onblur=function(){item.label=this.value;};
-      lc.appendChild(dot);lc.appendChild(lIn);row.appendChild(lc);
-
-      // total input
-      var aIn=document.createElement('input');aIn.className='calc-amount-input';aIn.type='number';
-      aIn.value=item.amount||'';aIn.placeholder='0';
-      if(item.locked){aIn.readOnly=true;aIn.style.background='var(--gray-light)';}
-
-      // /day input (editable - changes total)
-      var pdIn=document.createElement('input');pdIn.className='calc-amount-input';pdIn.type='number';
-      pdIn.value=item.amount?Math.round(item.amount/daysRef[0]):'';pdIn.placeholder='0';
-      pdIn.style.cssText+='font-size:11px;';
-
-      // /person input (editable - syncs to total)
-      var ppCell=document.createElement('input');ppCell.className='calc-amount-input';ppCell.type='number';
-      ppCell.value=item.amount?Math.round(item.amount/peopleRef[0]):'';ppCell.placeholder='0';
-      ppCell.style.cssText+='font-size:11px;';
-
-      function syncAll(source){
-        if(source==='total'){
-          pdIn.value=item.amount?Math.round(item.amount/daysRef[0]):'';
-          ppCell.value=item.amount?Math.round(item.amount/peopleRef[0]):'';
-        } else if(source==='day'){
-          item.amount=(parseFloat(pdIn.value)||0)*daysRef[0];
-          aIn.value=item.amount||'';
-          ppCell.value=item.amount?Math.round(item.amount/peopleRef[0]):'';
-        } else if(source==='person'){
-          item.amount=(parseFloat(ppCell.value)||0)*peopleRef[0];
-          aIn.value=item.amount||'';
-          pdIn.value=item.amount?Math.round(item.amount/daysRef[0]):'';
-        }
-        updateStatus();refreshSummary();
-      }
-
-      aIn.oninput=function(){item.amount=parseFloat(this.value)||0;syncAll('total');};
-      pdIn.oninput=function(){syncAll('day');};
-      ppCell.oninput=function(){syncAll('person');};
-
-      function updateStatus(){
-        var t=scenarioItems.reduce(function(s,i){return s+(i.amount||0);},0);
-        var d=scenarioBudget[0]-t;
-        statusEl.className='calc-status '+statusClass(d);statusEl.textContent=statusText(d);
-        totAmtEl.textContent=fmt$(t);
-        totDayEl.textContent=fmt$(t/daysRef[0]);
-        totPersonEl.textContent=fmt$(t/peopleRef[0]);
-      }
-
-      row.appendChild(aIn);row.appendChild(pdIn);row.appendChild(ppCell);
-
-      var ctrl=document.createElement('div');ctrl.style.cssText='display:flex;align-items:center;gap:2px;';
-      var lockBtn=document.createElement('button');lockBtn.style.cssText='background:none;border:none;cursor:pointer;font-size:12px;padding:1px;opacity:'+(item.locked?'1':'0.3')+';';
-      lockBtn.innerHTML=item.locked?'🔒':'🔓';
-      lockBtn.onclick=function(){item.locked=!item.locked;lockBtn.innerHTML=item.locked?'🔒':'🔓';lockBtn.style.opacity=item.locked?'1':'0.3';aIn.readOnly=item.locked;aIn.style.background=item.locked?'var(--gray-light)':'var(--white)';};
-      var drgH=document.createElement('span');drgH.className='act-drag';drgH.innerHTML='≡';drgH.style.cssText='font-size:13px;opacity:0.3;cursor:grab;';
-      var delBtn=document.createElement('button');delBtn.className='act-del';delBtn.innerHTML='×';
-      delBtn.onclick=function(){
-        var idx=scenarioItems.indexOf(item);if(idx>-1)scenarioItems.splice(idx,1);
-        row.remove();refreshSummary();
-      };
-      ctrl.appendChild(lockBtn);ctrl.appendChild(drgH);ctrl.appendChild(delBtn);
-      row.appendChild(ctrl);
-      tbl.appendChild(row);
-    });
-
-    // totals
-    var totRow=document.createElement('div');totRow.className='calc-total-row';
-    var totAmtEl=document.createElement('span');var totDayEl=document.createElement('span');var totPersonEl=document.createElement('span');
-    totAmtEl.style.textAlign='right';totDayEl.style.textAlign='right';totPersonEl.style.textAlign='right';
-    totRow.innerHTML='<span>Total</span>';
-    totRow.appendChild(totAmtEl);totRow.appendChild(totDayEl);totRow.appendChild(totPersonEl);
-    totRow.appendChild(document.createElement('span'));
-    tbl.appendChild(totRow);
-    block.appendChild(tbl);
-
-    function refreshSummary(){
-      var t=scenarioItems.reduce(function(s,i){return s+(i.amount||0);},0);
-      totAmtEl.textContent=fmt$(t);
-      totDayEl.textContent=fmt$(t/daysRef[0]);
-      totPersonEl.textContent=fmt$(t/peopleRef[0]);
-      var sd=scenarioBudget[0]-t;statusEl.className='calc-status '+statusClass(sd);statusEl.textContent=statusText(sd);
-      perDayEl.innerHTML='<span style="color:var(--text-muted)">Per day</span> <strong>'+fmt$(t/daysRef[0])+'</strong>';
-      perPersonEl.innerHTML='<span style="color:var(--text-muted)">Per person</span> <strong>'+fmt$(t/peopleRef[0])+'</strong>';
-      perPPDEl.innerHTML='<span style="color:var(--text-muted)">/person/day</span> <strong>'+fmt$(t/daysRef[0]/peopleRef[0])+'</strong>';
-    }
-    function refreshAll(){
-      // re-populate /day inputs
-      tbl.querySelectorAll('.calc-row').forEach(function(row){
-        var id=parseInt(row.getAttribute('data-calc-id'));
-        var item=scenarioItems.find(function(x){return x.id===id;});
-        if(!item)return;
-        var inputs=row.querySelectorAll('input[type=number]');
-        if(inputs[1])inputs[1].value=item.amount?Math.round(item.amount/daysRef[0]):'';
-        var derived=row.querySelector('.calc-derived');
-        if(derived)derived.textContent=item.amount?fmt$(item.amount/peopleRef[0]):'—';
-      });
-      refreshSummary();
-    }
-    refreshSummary();
-
-    // actions row
-    var actRow=document.createElement('div');actRow.style.cssText='padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid var(--gray-border);background:var(--gray-light);';
-    var genBtn=document.createElement('button');genBtn.className='btn btn-primary btn-sm';genBtn.textContent='✨ Generate';
-    genBtn.onclick=function(){
-      var locked=scenarioItems.reduce(function(s,i){return s+(i.locked?i.amount:0);},0);
-      var rem=scenarioBudget[0]-locked;
-      // assign weights then normalize so total = rem
-      var splits={accommodation:35,food:20,activities:25,transport:10,flights:15,misc:5};
-      var unlocked=scenarioItems.filter(function(i){return !i.locked;});
-      var weights=unlocked.map(function(item){
-        var k=item.label.toLowerCase();
-        return k.includes('accom')?splits.accommodation:k.includes('food')||k.includes('din')?splits.food:k.includes('activ')?splits.activities:k.includes('flight')?splits.flights:k.includes('transport')||k.includes('car')||k.includes('uber')?splits.transport:splits.misc;
-      });
-      var totalWeight=weights.reduce(function(s,w){return s+w;},0)||1;
-      unlocked.forEach(function(item,i){
-        item.amount=Math.round(rem*(weights[i]/totalWeight));
-      });
-      // fix rounding so sum === rem exactly
-      var sumNow=unlocked.reduce(function(s,i){return s+(i.amount||0);},0);
-      if(unlocked.length>0)unlocked[unlocked.length-1].amount+=rem-sumNow;
-      // update inputs
-      tbl.querySelectorAll('.calc-row').forEach(function(row){
-        var id=parseInt(row.getAttribute('data-calc-id'));
-        var item=scenarioItems.find(function(x){return x.id===id;});
-        if(!item||item.locked)return;
-        var inputs=row.querySelectorAll('input[type=number]');
-        if(inputs[0])inputs[0].value=item.amount||'';
-        if(inputs[1])inputs[1].value=item.amount?Math.round(item.amount/daysRef[0]):'';
-        if(inputs[2])inputs[2].value=item.amount?Math.round(item.amount/peopleRef[0]):'';
-      });
-      var d=scenarioBudget[0]-scenarioItems.reduce(function(s,i){return s+(i.amount||0);},0);
-      statusEl.className='calc-status '+statusClass(d);statusEl.textContent=statusText(d);
-      refreshSummary();showToast('Generated!');
-    };
-    actRow.appendChild(genBtn);
-
-    var addCatBtn=document.createElement('button');addCatBtn.className='btn btn-ghost btn-sm';addCatBtn.textContent='+ Category';
-    addCatBtn.onclick=function(){
-      var palette=['#c62828','#5e35b1','#e76f00','#2d6a4f','#1565c0','#00695c','#ad1457','#6b7280','#f9a825','#4527a0'];
-      var popup=document.createElement('div');
-      popup.style.cssText='position:fixed;background:white;border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:12px;box-shadow:var(--shadow-md);z-index:500;min-width:220px;';
-      popup.innerHTML='<div style="font-size:12px;font-weight:600;margin-bottom:8px;">New category</div>'+
-        '<input id="new-cat-name" placeholder="Category name" style="width:100%;border:1px solid var(--gray-border);border-radius:4px;padding:6px 10px;font-family:DM Sans,sans-serif;font-size:13px;margin-bottom:8px;"/>'+ 
-        '<div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Color</div>'+
-        '<div id="new-cat-colors" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>'+
-        '<div style="display:flex;gap:6px;"><button id="new-cat-add" class="btn btn-primary btn-sm" style="flex:1;">Add</button><button id="new-cat-cancel" class="btn btn-ghost btn-sm">Cancel</button></div>';
-      popup.style.cssText+='top:50%;left:50%;transform:translate(-50%,-50%);';
-      document.body.appendChild(popup);
-      var selectedColor=palette[0];
-      var colorWrap=popup.querySelector('#new-cat-colors');
-      palette.forEach(function(col){
-        var dot=document.createElement('div');dot.style.cssText='width:22px;height:22px;border-radius:50%;background:'+col+';cursor:pointer;border:2px solid '+(col===selectedColor?'#000':'transparent')+';transition:all .1s;';
-        dot.onclick=function(){selectedColor=col;colorWrap.querySelectorAll('div').forEach(function(d){d.style.borderColor='transparent';});dot.style.borderColor='#000';};
-        colorWrap.appendChild(dot);
-      });
-      popup.querySelector('#new-cat-add').onclick=function(){
-        var name=popup.querySelector('#new-cat-name').value.trim()||'New category';
-        var newItem={id:calcNextId++,label:name,amount:0,color:selectedColor,locked:false};
-        scenarioItems.push(newItem);
-        // rebuild just this row properly
-        var row=document.createElement('div');row.className='calc-row';row.setAttribute('data-calc-id',newItem.id);
-        var lc=document.createElement('div');lc.className='calc-row-label';
-        var dot2=document.createElement('div');dot2.className='calc-dot';dot2.style.background=selectedColor;
-        var lIn=document.createElement('input');lIn.className='calc-label-input';lIn.value=name;lIn.onblur=function(){newItem.label=this.value;};
-        lc.appendChild(dot2);lc.appendChild(lIn);row.appendChild(lc);
-        var aIn=document.createElement('input');aIn.className='calc-amount-input';aIn.type='number';aIn.placeholder='0';
-        aIn.oninput=function(){newItem.amount=parseFloat(this.value)||0;refreshSummary();};
-        var pdIn=document.createElement('input');pdIn.className='calc-amount-input';pdIn.type='number';pdIn.placeholder='0';pdIn.style.fontSize='11px';
-        pdIn.oninput=function(){newItem.amount=(parseFloat(this.value)||0)*daysRef[0];aIn.value=newItem.amount||'';refreshSummary();};
-        var ppC=document.createElement('div');ppC.className='calc-derived';ppC.textContent='—';
-        row.appendChild(aIn);row.appendChild(pdIn);row.appendChild(ppC);
-        var ctrl=document.createElement('div');ctrl.style.cssText='display:flex;align-items:center;gap:2px;';
-        ctrl.innerHTML='<button style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.3;">🔓</button><span class="act-drag" style="font-size:13px;opacity:0.3;cursor:grab;">≡</span>';
-        var db=document.createElement('button');db.className='act-del';db.innerHTML='×';db.onclick=function(){scenarioItems.splice(scenarioItems.indexOf(newItem),1);row.remove();refreshSummary();};
-        ctrl.appendChild(db);row.appendChild(ctrl);
-        tbl.insertBefore(row,totRow);
-        popup.remove();refreshSummary();
-      };
-      popup.querySelector('#new-cat-cancel').onclick=function(){popup.remove();};
-      setTimeout(function(){popup.querySelector('#new-cat-name').focus();},50);
-    };
-    actRow.appendChild(addCatBtn);
-
-    if(onSave){
-      var saveBtn=document.createElement('button');saveBtn.className='btn btn-ghost btn-sm';saveBtn.textContent='Save';
-      saveBtn.onclick=function(){onSave(scenarioItems,scenarioBudget[0]);};
-      actRow.appendChild(saveBtn);
-    }
-    block.appendChild(actRow);
-
-    // sortable
-    if(typeof Sortable!=='undefined'){
-      Sortable.create(tbl,{handle:'.act-drag',animation:150,ghostClass:'sortable-ghost',filter:'.calc-table-header,.calc-total-row'});
-    }
-
-    return block;
-  }
-
-  // main scenario
-  var mainBudget=[calcBudget];
-  var mainBlock=buildScenarioBlock(calcItems,mainBudget,'',function(items,budget){
-    var name=prompt('Name this scenario:','Scenario '+(calcScenarios.length+1));
-    if(!name)return;
-    calcScenarios.push({name:name,budget:budget,items:JSON.parse(JSON.stringify(items))});
-    renderCalcScenarioTabs();showToast('Saved: '+name);
-  },null);
-  wrapper.appendChild(mainBlock);
-
-  // extra scenarios
-  calcExtraScenarios.forEach(function(sc,idx){
-    var scBudget=[sc.budget];
-    var scBlock=buildScenarioBlock(sc.items,scBudget,sc.name,function(items,budget){
-      var name=prompt('Name this scenario:','Scenario '+(calcScenarios.length+1));
-      if(!name)return;
-      calcScenarios.push({name:name,budget:budget,items:JSON.parse(JSON.stringify(items))});
-      renderCalcScenarioTabs();showToast('Saved: '+name);
-    },function(){
-      calcExtraScenarios.splice(idx,1);renderCalculator();
-    });
-    wrapper.appendChild(scBlock);
-  });
-
-  // add scenario button
-  var addScBtn=document.createElement('button');addScBtn.className='btn btn-ghost';
-  addScBtn.style.cssText='width:100%;padding:14px;border:2px dashed var(--gray-border);border-radius:var(--radius);font-size:14px;color:var(--text-muted);';
-  addScBtn.textContent='+ Add scenario to compare';
-  addScBtn.onclick=function(){
-    var colors=['#5e35b1','#e76f00','#2d6a4f','#1565c0','#c62828','#6b7280'];
-    var newName='Scenario '+(calcExtraScenarios.length+2);
-    calcExtraScenarios.push({
-      name:newName,budget:calcBudget,
-      items:[
+  // + Add Scenario button at top
+  var addBar=document.createElement('div');
+  addBar.style.cssText='display:flex;justify-content:flex-end;margin-bottom:16px;';
+  var addBtn=document.createElement('button');
+  addBtn.className='btn btn-primary btn-sm';
+  addBtn.innerHTML='+ Add Scenario';
+  addBtn.onclick=function(){
+    calcScenarioBlocks.unshift({
+      id:null,
+      name:'New Scenario',
+      budget:10000,
+      items:JSON.parse(JSON.stringify([
         {id:calcNextId++,label:'Flights',amount:0,color:'#c62828',locked:false},
         {id:calcNextId++,label:'Accommodation',amount:0,color:'#5e35b1',locked:false},
         {id:calcNextId++,label:'Food & Dining',amount:0,color:'#e76f00',locked:false},
         {id:calcNextId++,label:'Activities',amount:0,color:'#2d6a4f',locked:false},
         {id:calcNextId++,label:'Transport',amount:0,color:'#1565c0',locked:false},
         {id:calcNextId++,label:'Shopping & Misc',amount:0,color:'#6b7280',locked:false}
-      ]
+      ])),
+      days:window.calcDays||17,
+      people:window.calcPeople||4
     });
     renderCalculator();
+    container.scrollTop=0;
   };
-  wrapper.appendChild(addScBtn);
+  addBar.appendChild(addBtn);
+  container.appendChild(addBar);
 
-  // saved scenarios
-  var scenSection=document.createElement('div');scenSection.id='calc-scenario-section';
-  container.appendChild(scenSection);
-  renderCalcScenarioTabs();
+  // render each scenario block
+  calcScenarioBlocks.forEach(function(sc,idx){
+    var block=buildCalcBlock(sc,idx,container);
+    container.appendChild(block);
+  });
+
+  if(calcScenarioBlocks.length===0){
+    // first time - show one default block
+    calcScenarioBlocks.push({
+      id:null,name:'My Budget',
+      budget:calcBudget||10000,
+      items:JSON.parse(JSON.stringify(calcItems)),
+      days:window.calcDays||17,
+      people:window.calcPeople||4
+    });
+    renderCalculator();
+  }
 }
 
+function buildCalcBlock(sc, idx, container){
+  var days=sc.days||17;
+  var people=sc.people||4;
+
+  var block=document.createElement('div');
+  block.style.cssText='background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:24px;overflow:hidden;';
+
+  // ── HEADER ──
+  var hdr=document.createElement('div');
+  hdr.style.cssText='padding:16px 20px 12px;border-bottom:1px solid var(--gray-border);';
+
+  // title row
+  var titleRow=document.createElement('div');
+  titleRow.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:12px;';
+  var titleIn=document.createElement('input');
+  titleIn.value=sc.name||'My Budget';
+  titleIn.style.cssText='border:none;font-family:Funnel Display,sans-serif;font-size:18px;font-weight:700;color:var(--text);flex:1;background:transparent;border-bottom:2px solid transparent;transition:border-color .15s;';
+  titleIn.placeholder='Scenario name...';
+  titleIn.onfocus=function(){this.style.borderBottomColor='var(--green)';};
+  titleIn.onblur=function(){this.style.borderBottomColor='transparent';sc.name=this.value;};
+  titleIn.oninput=function(){sc.name=this.value;};
+
+  // delete button
+  var delBtn=document.createElement('button');
+  delBtn.style.cssText='background:none;border:none;cursor:pointer;color:var(--gray);font-size:18px;opacity:0.4;padding:4px;flex-shrink:0;';
+  delBtn.innerHTML='×';delBtn.title='Remove scenario';
+  delBtn.onclick=function(){
+    if(calcScenarioBlocks.length===1){showToast('Need at least one scenario');return;}
+    if(sc.id){sb.from('calculator_scenarios').delete().eq('id',sc.id);}
+    calcScenarioBlocks.splice(idx,1);
+    renderCalculator();
+  };
+  titleRow.appendChild(titleIn);titleRow.appendChild(delBtn);
+  hdr.appendChild(titleRow);
+
+  // budget + status row
+  var budgetRow=document.createElement('div');
+  budgetRow.style.cssText='display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;';
+  var budgetWrap=document.createElement('div');budgetWrap.style.cssText='display:flex;align-items:center;gap:8px;';
+  var budgetLbl=document.createElement('span');budgetLbl.style.cssText='font-size:12px;color:var(--text-muted);';budgetLbl.textContent='FIXED BUDGET';
+  var budgetIn=document.createElement('input');budgetIn.type='number';budgetIn.value=sc.budget||10000;
+  budgetIn.style.cssText='border:none;font-family:Funnel Display,sans-serif;font-size:26px;font-weight:700;color:var(--green);width:150px;background:transparent;';
+  budgetIn.oninput=function(){sc.budget=parseFloat(this.value)||0;updateStatus();};
+  var budgetUnit=document.createElement('span');budgetUnit.style.cssText='font-size:13px;color:var(--text-muted);';budgetUnit.textContent='US$';
+  budgetWrap.appendChild(budgetLbl);budgetWrap.appendChild(budgetIn);budgetWrap.appendChild(budgetUnit);
+
+  var statusEl=document.createElement('div');
+  function getTotal(){return sc.items.reduce(function(s,i){return s+(Number(i.amount)||0);},0);}
+  function updateStatus(){
+    var t=getTotal();var d=(sc.budget||0)-t;
+    statusEl.className='calc-status '+(d<0?'over':d===0?'exact':'under');
+    if(d<0)statusEl.textContent='Over by US$'+Math.abs(Math.round(d)).toLocaleString()+' ⚠️';
+    else if(d===0)statusEl.textContent='Exactly on budget ✓';
+    else statusEl.textContent='US$'+Math.round(d).toLocaleString()+' remaining ✓';
+    refreshTotals();
+  }
+  updateStatus();
+  budgetRow.appendChild(budgetWrap);budgetRow.appendChild(statusEl);
+  hdr.appendChild(budgetRow);
+
+  // stats row
+  var statsRow=document.createElement('div');statsRow.style.cssText='display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:12px;';
+  function makeNumIn(lbl,val,onChange){
+    var w=document.createElement('div');w.style.cssText='display:flex;align-items:center;gap:4px;';
+    var l=document.createElement('span');l.style.color='var(--text-muted)';l.textContent=lbl;
+    var inp=document.createElement('input');inp.type='number';inp.value=val;inp.min='1';
+    inp.style.cssText='width:46px;border:1px solid var(--gray-border);border-radius:4px;padding:2px 5px;font-size:12px;font-weight:700;text-align:center;font-family:DM Sans,sans-serif;';
+    inp.oninput=function(){onChange(parseInt(this.value)||1);refreshAllDerived();};
+    w.appendChild(l);w.appendChild(inp);return w;
+  }
+  statsRow.appendChild(makeNumIn('Days',days,function(v){days=v;sc.days=v;}));
+  statsRow.appendChild(makeNumIn('Travelers',people,function(v){people=v;sc.people=v;}));
+  var perDayEl=document.createElement('span');var perPersonEl=document.createElement('span');var perPPDEl=document.createElement('span');
+  statsRow.appendChild(perDayEl);statsRow.appendChild(perPersonEl);statsRow.appendChild(perPPDEl);
+  hdr.appendChild(statsRow);
+  block.appendChild(hdr);
+
+  // ── TABLE ──
+  var tbl=document.createElement('div');
+
+  var thead=document.createElement('div');thead.className='calc-table-header';
+  thead.innerHTML='<span>Category</span><span style="text-align:right;">Total</span><span style="text-align:right;">/Day</span><span style="text-align:right;">/Person</span><span></span>';
+  tbl.appendChild(thead);
+
+  sc.items.forEach(function(item){
+    var row=document.createElement('div');row.className='calc-row';row.setAttribute('data-calc-id',item.id);
+    var lc=document.createElement('div');lc.className='calc-row-label';
+    var dot=document.createElement('div');dot.className='calc-dot';dot.style.background=item.color;
+    var lIn=document.createElement('input');lIn.className='calc-label-input';lIn.value=item.label;lIn.onblur=function(){item.label=this.value;};
+    lc.appendChild(dot);lc.appendChild(lIn);row.appendChild(lc);
+
+    var aIn=document.createElement('input');aIn.className='calc-amount-input';aIn.type='number';
+    aIn.value=item.amount||'';aIn.placeholder='0';
+    if(item.locked){aIn.readOnly=true;aIn.style.background='var(--gray-light)';}
+
+    var pdIn=document.createElement('input');pdIn.className='calc-amount-input';pdIn.type='number';
+    pdIn.value=item.amount?Math.round(item.amount/days):'';pdIn.placeholder='0';pdIn.style.cssText+='font-size:11px;';
+
+    var ppIn=document.createElement('input');ppIn.className='calc-amount-input';ppIn.type='number';
+    ppIn.value=item.amount?Math.round(item.amount/people):'';ppIn.placeholder='0';ppIn.style.cssText+='font-size:11px;';
+
+    function syncFrom(source){
+      if(source==='total'){
+        item.amount=parseFloat(aIn.value)||0;
+        pdIn.value=item.amount?Math.round(item.amount/days):'';
+        ppIn.value=item.amount?Math.round(item.amount/people):'';
+      } else if(source==='day'){
+        item.amount=(parseFloat(pdIn.value)||0)*days;
+        aIn.value=item.amount||'';
+        ppIn.value=item.amount?Math.round(item.amount/people):'';
+      } else if(source==='person'){
+        item.amount=(parseFloat(ppIn.value)||0)*people;
+        aIn.value=item.amount||'';
+        pdIn.value=item.amount?Math.round(item.amount/days):'';
+      }
+      updateStatus();
+    }
+    aIn.oninput=function(){syncFrom('total');};
+    pdIn.oninput=function(){syncFrom('day');};
+    ppIn.oninput=function(){syncFrom('person');};
+
+    row.appendChild(aIn);row.appendChild(pdIn);row.appendChild(ppIn);
+
+    var ctrl=document.createElement('div');ctrl.style.cssText='display:flex;align-items:center;gap:2px;';
+    var lockBtn=document.createElement('button');lockBtn.style.cssText='background:none;border:none;cursor:pointer;font-size:12px;padding:1px;opacity:'+(item.locked?'1':'0.3')+';';
+    lockBtn.innerHTML=item.locked?'🔒':'🔓';
+    lockBtn.onclick=function(){item.locked=!item.locked;lockBtn.innerHTML=item.locked?'🔒':'🔓';lockBtn.style.opacity=item.locked?'1':'0.3';aIn.readOnly=item.locked;aIn.style.background=item.locked?'var(--gray-light)':'var(--white)';};
+    var drgH=document.createElement('span');drgH.className='act-drag';drgH.innerHTML='≡';drgH.style.cssText='font-size:13px;opacity:0.3;cursor:grab;';
+    var rowDel=document.createElement('button');rowDel.className='act-del';rowDel.innerHTML='×';
+    rowDel.onclick=function(){sc.items=sc.items.filter(function(x){return x.id!==item.id;});row.remove();updateStatus();};
+    ctrl.appendChild(lockBtn);ctrl.appendChild(drgH);ctrl.appendChild(rowDel);
+    row.appendChild(ctrl);
+    tbl.appendChild(row);
+  });
+
+  // totals row
+  var totRow=document.createElement('div');totRow.className='calc-total-row';
+  var totAmt=document.createElement('span');totAmt.style.textAlign='right';
+  var totDay=document.createElement('span');totDay.style.textAlign='right';
+  var totPerson=document.createElement('span');totPerson.style.textAlign='right';
+  totRow.innerHTML='<span>Total</span>';
+  totRow.appendChild(totAmt);totRow.appendChild(totDay);totRow.appendChild(totPerson);
+  totRow.appendChild(document.createElement('span'));
+  tbl.appendChild(totRow);
+  block.appendChild(tbl);
+
+  function refreshTotals(){
+    var t=getTotal();
+    totAmt.textContent=fmt$(t);totDay.textContent=fmt$(t/days);totPerson.textContent=fmt$(t/people);
+  }
+  function refreshAllDerived(){
+    sc.items.forEach(function(item){
+      tbl.querySelectorAll('.calc-row').forEach(function(row){
+        var id=parseInt(row.getAttribute('data-calc-id'));
+        if(id!==item.id)return;
+        var ins=row.querySelectorAll('input[type=number]');
+        if(ins[1])ins[1].value=item.amount?Math.round(item.amount/days):'';
+        if(ins[2])ins[2].value=item.amount?Math.round(item.amount/people):'';
+      });
+    });
+    refreshTotals();
+    updateStatus();
+  }
+  refreshTotals();
+  refreshAllDerived();
+
+  // sortable
+  if(typeof Sortable!=='undefined'){
+    Sortable.create(tbl,{handle:'.act-drag',animation:150,ghostClass:'sortable-ghost',filter:'.calc-table-header,.calc-total-row'});
+  }
+
+  // ── ACTIONS ──
+  var actRow=document.createElement('div');actRow.style.cssText='padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid var(--gray-border);background:var(--gray-light);';
+
+  // Generate
+  var genBtn=document.createElement('button');genBtn.className='btn btn-primary btn-sm';genBtn.textContent='✨ Generate';
+  genBtn.onclick=function(){
+    var locked=sc.items.reduce(function(s,i){return s+(i.locked?i.amount:0);},0);
+    var rem=(sc.budget||0)-locked;
+    var unlocked=sc.items.filter(function(i){return !i.locked;});
+    var weights=unlocked.map(function(item){
+      var k=item.label.toLowerCase();
+      return k.includes('accom')?35:k.includes('food')||k.includes('din')?20:k.includes('activ')?25:k.includes('flight')?0:k.includes('transport')?10:5;
+    });
+    var tw=weights.reduce(function(s,w){return s+w;},0)||1;
+    unlocked.forEach(function(item,i){item.amount=Math.round(rem*(weights[i]/tw));});
+    // fix rounding
+    var sum=unlocked.reduce(function(s,i){return s+(i.amount||0);},0);
+    if(unlocked.length>0)unlocked[unlocked.length-1].amount+=rem-sum;
+    // update inputs
+    tbl.querySelectorAll('.calc-row').forEach(function(row){
+      var id=parseInt(row.getAttribute('data-calc-id'));
+      var item=sc.items.find(function(x){return x.id===id;});
+      if(!item||item.locked)return;
+      var ins=row.querySelectorAll('input[type=number]');
+      if(ins[0])ins[0].value=item.amount||'';
+      if(ins[1])ins[1].value=item.amount?Math.round(item.amount/days):'';
+      if(ins[2])ins[2].value=item.amount?Math.round(item.amount/people):'';
+    });
+    updateStatus();refreshTotals();showToast('Generated!');
+  };
+  actRow.appendChild(genBtn);
+
+  // Add category
+  var addCatBtn=document.createElement('button');addCatBtn.className='btn btn-ghost btn-sm';addCatBtn.textContent='+ Category';
+  addCatBtn.onclick=function(){
+    var name=prompt('Category name:');if(!name)return;
+    var palette=['#5e35b1','#e76f00','#2d6a4f','#1565c0','#c62828','#6b7280'];
+    var newItem={id:calcNextId++,label:name,amount:0,color:palette[sc.items.length%palette.length],locked:false};
+    sc.items.push(newItem);
+    // add row to table
+    var row=document.createElement('div');row.className='calc-row';row.setAttribute('data-calc-id',newItem.id);
+    var lc2=document.createElement('div');lc2.className='calc-row-label';
+    var dot2=document.createElement('div');dot2.className='calc-dot';dot2.style.background=newItem.color;
+    var lIn2=document.createElement('input');lIn2.className='calc-label-input';lIn2.value=name;lIn2.onblur=function(){newItem.label=this.value;};
+    lc2.appendChild(dot2);lc2.appendChild(lIn2);row.appendChild(lc2);
+    var a2=document.createElement('input');a2.className='calc-amount-input';a2.type='number';a2.placeholder='0';
+    a2.oninput=function(){newItem.amount=parseFloat(this.value)||0;updateStatus();};
+    var p2=document.createElement('input');p2.className='calc-amount-input';p2.type='number';p2.placeholder='0';p2.style.fontSize='11px';
+    var pp2=document.createElement('input');pp2.className='calc-amount-input';pp2.type='number';pp2.placeholder='0';pp2.style.fontSize='11px';
+    row.appendChild(a2);row.appendChild(p2);row.appendChild(pp2);
+    var c2=document.createElement('div');c2.style.cssText='display:flex;align-items:center;gap:2px;';
+    c2.innerHTML='<button style="background:none;border:none;font-size:12px;opacity:0.3;">🔓</button><span class="act-drag" style="font-size:13px;opacity:0.3;cursor:grab;">≡</span>';
+    var rd2=document.createElement('button');rd2.className='act-del';rd2.innerHTML='×';rd2.onclick=function(){sc.items=sc.items.filter(function(x){return x.id!==newItem.id;});row.remove();updateStatus();};
+    c2.appendChild(rd2);row.appendChild(c2);
+    tbl.insertBefore(row,totRow);
+    updateStatus();
+  };
+  actRow.appendChild(addCatBtn);
+
+  // Save
+  var saveBtn=document.createElement('button');saveBtn.className='btn btn-primary btn-sm';saveBtn.style.marginLeft='auto';saveBtn.textContent='💾 Save';
+  saveBtn.onclick=async function(){
+    saveBtn.textContent='Saving...';saveBtn.disabled=true;
+    var payload={
+      trip_id:TRIP_ID,
+      name:sc.name||'My Budget',
+      budget:sc.budget||0,
+      items:JSON.parse(JSON.stringify(sc.items)),
+      days:days,people:people,
+      is_active:true,
+      updated_at:new Date().toISOString()
+    };
+    if(sc.id){
+      var r=await sb.from('calculator_scenarios').update(payload).eq('id',sc.id);
+      if(r.error)showToast('Error: '+r.error.message);
+      else{showToast('Saved: '+sc.name+'!');saveBtn.textContent='✓ Saved!';}
+    }else{
+      var r=await sb.from('calculator_scenarios').insert(payload).select().single();
+      if(r.error)showToast('Error: '+r.error.message);
+      else{sc.id=r.data.id;showToast('Saved: '+sc.name+'!');saveBtn.textContent='✓ Saved!';}
+    }
+    saveBtn.disabled=false;
+    setTimeout(function(){saveBtn.textContent='💾 Save';},2000);
+  };
+  actRow.appendChild(saveBtn);
+  block.appendChild(actRow);
+
+  return block;
+}
 
 function generateCalcBreakdown(){
   var days=window.calcDays||1;var people=window.calcPeople||1;
