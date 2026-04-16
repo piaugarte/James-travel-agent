@@ -2900,9 +2900,17 @@ async function initCalculator(){
       });
     }catch(e){}
   }
-  // load saved scenarios from Supabase to show below calculator
-  renderCalculator();
+  // load most recent saved scenario
   var saved=await loadSavedScenarios();
+  if(saved.length){
+    var latest=saved[0];
+    if(latest.items&&latest.items.length)calcItems=latest.items;
+    if(latest.budget)calcBudget=latest.budget;
+    if(latest.days)window.calcDays=latest.days;
+    if(latest.people)window.calcPeople=latest.people;
+    window.calcBudgetSet=true;
+  }
+  renderCalculator();
   if(saved.length)renderCalcScenarioTabs(saved);
 }
 
