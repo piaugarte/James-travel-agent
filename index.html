@@ -3018,10 +3018,15 @@ function buildCalcBlock(sc, idx, container){
   var delBtn=document.createElement('button');
   delBtn.style.cssText='background:none;border:none;cursor:pointer;color:var(--gray);font-size:18px;opacity:0.4;padding:4px;flex-shrink:0;';
   delBtn.innerHTML='×';delBtn.title='Remove scenario';
-  delBtn.onclick=function(){
+  delBtn.onclick=async function(){
     if(calcScenarioBlocks.length===1){showToast('Need at least one scenario');return;}
-    if(sc.id){sb.from('calculator_scenarios').delete().eq('id',sc.id);}
-    calcScenarioBlocks.splice(idx,1);
+    if(sc.id){
+      var r=await sb.from('calculator_scenarios').delete().eq('id',sc.id);
+      if(r.error){showToast('Error deleting: '+r.error.message);return;}
+    }
+    var i=calcScenarioBlocks.indexOf(sc);
+    if(i>-1)calcScenarioBlocks.splice(i,1);
+    showToast('Scenario deleted!');
     renderCalculator();
   };
   titleRow.appendChild(titleIn);titleRow.appendChild(delBtn);
