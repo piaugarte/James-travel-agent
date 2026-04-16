@@ -217,6 +217,24 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .ob-btn-ghost:hover{color:var(--text);}
 .ob-progress-bar{height:3px;background:var(--gray-border);border-radius:2px;margin-bottom:16px;overflow:hidden;}
 .ob-progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s;}
+/* waiting bay */
+.waiting-bay{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;}
+.waiting-bay-header{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;user-select:none;background:linear-gradient(135deg,#fff8e1,#fffde7);border-bottom:1px solid var(--gray-border);}
+.waiting-bay-header h3{font-size:14px;font-weight:700;color:#e65100;flex:1;}
+.waiting-bay-header .count{background:#e65100;color:white;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;}
+.waiting-bay-header .toggle{font-size:12px;color:var(--text-muted);transition:transform .2s;}
+.waiting-bay-header .toggle.open{transform:rotate(180deg);}
+.waiting-bay-body{padding:12px 16px;}
+.waiting-bay-empty{text-align:center;padding:20px;color:var(--text-muted);font-size:13px;}
+.waiting-bay-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.wb-card{background:var(--gray-light);border:1px solid var(--gray-border);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:8px;cursor:grab;transition:all .15s;min-width:160px;}
+.wb-card:hover{box-shadow:var(--shadow);background:var(--white);}
+.wb-card-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.wb-card-info{flex:1;min-width:0;}
+.wb-card-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wb-card-meta{font-size:10px;color:var(--text-muted);}
+.wb-card-del{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:0;opacity:0.4;flex-shrink:0;}
+.wb-card-del:hover{opacity:1;color:var(--red);}
 /* plan panel */
 .plan-panel-inner{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:sticky;top:80px;}
 .plan-panel-header{background:linear-gradient(135deg,var(--green) 0%,#1b4332 100%);padding:16px 20px;color:white;}
@@ -1060,6 +1078,112 @@ function getBadge(day){
   return['paid','Higher spend'];
 }
 
+function initWaitingBayDrop(){
+  // allow dragging waiting bay items into day lists
+  document.querySelectorAll('.items-list').forEach(function(list){
+    list.addEventListener('dragover',function(e){
+      e.preventDefault();
+      list.style.background='rgba(45,106,79,0.05)';
+      list.style.outline='2px dashed var(--green)';
+      list.style.borderRadius='8px';
+    });
+    list.addEventListener('dragleave',function(){
+      list.style.background='';list.style.outline='';
+    });
+    list.addEventListener('drop',async function(e){
+      e.preventDefault();
+      list.style.background='';list.style.outline='';
+      var itemId=e.dataTransfer.getData('text/plain');
+      var fromWB=e.dataTransfer.getData('from-waiting-bay');
+      if(!fromWB||!itemId)return;
+      var dayCard=list.closest('.day-card');
+      if(!dayCard)return;
+      var dayId=dayCard.id.replace('day-','');
+      await sb.from('itinerary_items').update({day_id:dayId}).eq('id',itemId);
+      showToast('Added to day!');
+      await loadAll();
+    });
+  });
+}
+
+function getWaitingBayItems(){
+  return allItems.filter(function(i){return !i.day_id;});
+}
+
+function renderWaitingBay(container){
+  var items=getWaitingBayItems();
+
+  var bay=document.createElement('div');bay.className='waiting-bay';
+
+  // header
+  var hdr=document.createElement('div');hdr.className='waiting-bay-header';
+  var emoji=document.createElement('span');emoji.textContent='🗂️';
+  var title=document.createElement('h3');title.textContent='Waiting Bay';
+  var count=document.createElement('span');count.className='count';count.textContent=items.length;
+  var sub=document.createElement('span');sub.style.cssText='font-size:11px;color:var(--text-muted);flex:1;';sub.textContent=items.length?'Drag to any day below':'Add ideas here from the plan generator';
+  var toggle=document.createElement('span');toggle.className='toggle open';toggle.textContent='▼';
+
+  hdr.appendChild(emoji);hdr.appendChild(title);hdr.appendChild(count);hdr.appendChild(sub);hdr.appendChild(toggle);
+
+  var body=document.createElement('div');body.className='waiting-bay-body';
+  var isOpen=true;
+
+  hdr.onclick=function(){
+    isOpen=!isOpen;
+    body.style.display=isOpen?'':'none';
+    toggle.className='toggle'+(isOpen?' open':'');
+  };
+
+  if(items.length===0){
+    var empty=document.createElement('div');empty.className='waiting-bay-empty';
+    empty.innerHTML='🏖️ Nothing here yet — hit <strong>✨ Generate Plan</strong> in the Calculator to add ideas!';
+    body.appendChild(empty);
+  } else {
+    var grid=document.createElement('div');grid.className='waiting-bay-grid';
+    items.forEach(function(item){
+      var card=document.createElement('div');card.className='wb-card';card.setAttribute('data-item-id',item.id);card.setAttribute('draggable','true');
+      var dot=document.createElement('div');dot.className='wb-card-dot';dot.style.background=CAT_COLORS[item.category]||'#6b7280';
+      var info=document.createElement('div');info.className='wb-card-info';
+      var name=document.createElement('div');name.className='wb-card-name';name.textContent=item.activity;
+      var meta=document.createElement('div');meta.className='wb-card-meta';
+      meta.textContent=(item.cost?'US$'+item.cost+' · ':'')+(CAT_LABELS[item.category]||item.category||'');
+      info.appendChild(name);info.appendChild(meta);
+      var del=document.createElement('button');del.className='wb-card-del';del.innerHTML='×';del.title='Remove';
+      del.onclick=async function(e){
+        e.stopPropagation();
+        await sb.from('itinerary_items').delete().eq('id',item.id);
+        await loadAll();
+      };
+      card.appendChild(dot);card.appendChild(info);card.appendChild(del);
+      grid.appendChild(card);
+
+      // drag from waiting bay to a day
+      card.addEventListener('dragstart',function(e){
+        e.dataTransfer.setData('text/plain',item.id);
+        e.dataTransfer.setData('from-waiting-bay','1');
+        card.style.opacity='0.5';
+      });
+      card.addEventListener('dragend',function(){card.style.opacity='1';});
+    });
+    body.appendChild(grid);
+
+    // also make waiting bay a drop target (to drag back)
+    body.addEventListener('dragover',function(e){e.preventDefault();body.style.background='#fff8e1';});
+    body.addEventListener('dragleave',function(){body.style.background='';});
+    body.addEventListener('drop',async function(e){
+      e.preventDefault();body.style.background='';
+      var itemId=e.dataTransfer.getData('text/plain');
+      if(!itemId)return;
+      await sb.from('itinerary_items').update({day_id:null}).eq('id',itemId);
+      await loadAll();
+    });
+  }
+
+  bay.appendChild(hdr);bay.appendChild(body);
+  container.appendChild(bay);
+}
+
+
 function renderDays(){
   var container=document.getElementById('phases-container');
   if(!container)return;
@@ -1088,6 +1212,9 @@ function renderDays(){
     container.appendChild(empty);
     return;
   }
+
+  // render waiting bay first
+  renderWaitingBay(container);
 
   // render days flat, no phases
   var sortedDays=allDays.slice().sort(function(a,b){return (a.day_number||0)-(b.day_number||0);});
