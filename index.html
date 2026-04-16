@@ -2823,58 +2823,34 @@ async function addSuggToItinerary(item, category, btn){
   }
 }
 
-var calcSaveTimer=null;
-var calcScenarioId=null; // current active scenario in DB
-
-function saveCalcState(){
-  // debounce - wait 800ms after last change before saving
-  clearTimeout(calcSaveTimer);
-  calcSaveTimer=setTimeout(function(){_doSaveCalcState();},800);
+// calc scenarios saved to Supabase
+async function saveCalcScenario(name, items, budget){
+  var payload={
+    trip_id:TRIP_ID,
+    name:name,
+    budget:budget,
+    items:JSON.parse(JSON.stringify(items)),
+    days:window.calcDays||17,
+    people:window.calcPeople||4,
+    is_active:true,
+    updated_at:new Date().toISOString()
+  };
+  var res=await sb.from('calculator_scenarios').insert(payload).select().single();
+  if(res.error){showToast('Error saving: '+res.error.message);return null;}
+  showToast('Scenario saved!');
+  return res.data;
 }
 
-async function _doSaveCalcState(){
-  try{
-    var payload={
-      trip_id:TRIP_ID,
-      name:'My Scenario',
-      budget:calcBudget,
-      items:JSON.parse(JSON.stringify(calcItems)),
-      days:window.calcDays||17,
-      people:window.calcPeople||4,
-      is_active:true,
-      updated_at:new Date().toISOString()
-    };
-    if(calcScenarioId){
-      var upd=await sb.from('calculator_scenarios').update(payload).eq('id',calcScenarioId);
-      if(upd.error)console.error('calc update error:',upd.error);
-      else console.log('calc updated OK');
-    }else{
-      var res=await sb.from('calculator_scenarios').insert(payload).select().single();
-      if(res.error)console.error('calc insert error:',res.error);
-      else if(res.data){calcScenarioId=res.data.id;console.log('calc saved, id:',calcScenarioId);}
-    }
-  }catch(e){console.error('calc save exception:',e);}
+async function loadSavedScenarios(){
+  var res=await sb.from('calculator_scenarios')
+    .select('*')
+    .eq('trip_id',TRIP_ID)
+    .order('updated_at',{ascending:false});
+  return res.data||[];
 }
 
-async function loadCalcState(){
-  try{
-    var res=await sb.from('calculator_scenarios')
-      .select('*')
-      .eq('trip_id',TRIP_ID)
-      .eq('is_active',true)
-      .order('updated_at',{ascending:false})
-      .limit(1)
-      .single();
-    if(res.error||!res.data)return false;
-    var s=res.data;
-    calcScenarioId=s.id;
-    if(s.budget)calcBudget=s.budget;
-    if(s.items&&s.items.length)calcItems=s.items;
-    if(s.days)window.calcDays=s.days;
-    if(s.people)window.calcPeople=s.people;
-    window.calcBudgetSet=true;
-    return true;
-  }catch(e){return false;}
+async function deleteCalcScenario(id){
+  await sb.from('calculator_scenarios').delete().eq('id',id);
 }
 
 // ── CALCULATOR ──
@@ -2909,25 +2885,25 @@ function updateCalcStatus(){
 
 async function initCalculator(){
   if(!window.calcBudgetSet){
-    var loaded=await loadCalcState();
-    if(!loaded){
-      calcBudget=10000;
-      window.calcBudgetSet=true;
-      // check for pre-costs from onboarding
-      try{
-        var pcs=JSON.parse(localStorage.getItem('calc_precosts')||'[]');
-        var colors=['#c62828','#5e35b1','#1565c0','#00695c','#6b7280'];
-        pcs.filter(function(pc){return pc.desc&&pc.amount>0;}).forEach(function(pc,i){
-          if(pc.desc.toLowerCase().includes('flight')){
-            var row=calcItems.find(function(x){return x.label==='Flights';});
-            if(row){row.amount=pc.amount;row.locked=true;return;}
-          }
-          calcItems.push({id:calcNextId++,label:pc.desc,amount:pc.amount,color:colors[i%colors.length],locked:true});
-        });
-      }catch(e){}
-    }
+    calcBudget=10000;
+    window.calcBudgetSet=true;
+    // check for pre-costs from onboarding
+    try{
+      var pcs=JSON.parse(localStorage.getItem('calc_precosts')||'[]');
+      var colors=['#c62828','#5e35b1','#1565c0','#00695c','#6b7280'];
+      pcs.filter(function(pc){return pc.desc&&pc.amount>0;}).forEach(function(pc,i){
+        if(pc.desc.toLowerCase().includes('flight')){
+          var row=calcItems.find(function(x){return x.label==='Flights';});
+          if(row){row.amount=pc.amount;row.locked=true;return;}
+        }
+        calcItems.push({id:calcNextId++,label:pc.desc,amount:pc.amount,color:colors[i%colors.length],locked:true});
+      });
+    }catch(e){}
   }
+  // load saved scenarios from Supabase to show below calculator
   renderCalculator();
+  var saved=await loadSavedScenarios();
+  if(saved.length)renderCalcScenarioTabs(saved);
 }
 
 
@@ -2989,7 +2965,7 @@ function renderCalculator(){
       var d=scenarioBudget[0]-scenarioItems.reduce(function(s,i){return s+(i.amount||0);},0);
       statusEl.className='calc-status '+statusClass(d);
       statusEl.textContent=statusText(d);
-      saveCalcState();
+      
     };
     var budgetUnit=document.createElement('span');budgetUnit.style.cssText='font-size:13px;color:var(--text-muted);';budgetUnit.textContent='US$ total';
     budgetRow.appendChild(budgetIn);budgetRow.appendChild(budgetUnit);
@@ -3008,7 +2984,7 @@ function renderCalculator(){
       var l=document.createElement('span');l.style.color='var(--text-muted)';l.textContent=lbl;
       var inp=document.createElement('input');inp.type='number';inp.value=val;inp.min='1';
       inp.style.cssText='width:46px;border:1px solid var(--gray-border);border-radius:4px;padding:2px 5px;font-size:12px;font-weight:700;text-align:center;font-family:DM Sans,sans-serif;';
-      inp.oninput=function(){onChange(parseInt(this.value)||1);refreshAll();saveCalcState();};
+      inp.oninput=function(){onChange(parseInt(this.value)||1);refreshAll();};
       w.appendChild(l);w.appendChild(inp);return w;
     }
     var daysRef=[window.calcDays],peopleRef=[window.calcPeople];
@@ -3065,9 +3041,9 @@ function renderCalculator(){
         updateStatus();refreshSummary();
       }
 
-      aIn.oninput=function(){item.amount=parseFloat(this.value)||0;syncAll('total');console.log('input fired, saving...');saveCalcState();};
-      pdIn.oninput=function(){syncAll('day');saveCalcState();};
-      ppCell.oninput=function(){syncAll('person');saveCalcState();};
+      aIn.oninput=function(){item.amount=parseFloat(this.value)||0;syncAll('total');};
+      pdIn.oninput=function(){syncAll('day');};
+      ppCell.oninput=function(){syncAll('person');};
 
       function updateStatus(){
         var t=scenarioItems.reduce(function(s,i){return s+(i.amount||0);},0);
@@ -3088,7 +3064,7 @@ function renderCalculator(){
       var delBtn=document.createElement('button');delBtn.className='act-del';delBtn.innerHTML='×';
       delBtn.onclick=function(){
         var idx=scenarioItems.indexOf(item);if(idx>-1)scenarioItems.splice(idx,1);
-        row.remove();refreshSummary();saveCalcState();
+        row.remove();refreshSummary();
       };
       ctrl.appendChild(lockBtn);ctrl.appendChild(drgH);ctrl.appendChild(delBtn);
       row.appendChild(ctrl);
@@ -3162,7 +3138,7 @@ function renderCalculator(){
       });
       var d=scenarioBudget[0]-scenarioItems.reduce(function(s,i){return s+(i.amount||0);},0);
       statusEl.className='calc-status '+statusClass(d);statusEl.textContent=statusText(d);
-      refreshSummary();saveCalcState();showToast('Generated!');
+      refreshSummary();showToast('Generated!');
     };
     actRow.appendChild(genBtn);
 
@@ -3303,30 +3279,47 @@ function generateCalcBreakdown(){
   });
   renderCalculator();showToast('Breakdown generated!');
 }
-function renderCalcScenarioTabs(){
+function renderCalcScenarioTabs(scenarios){
   var section=document.getElementById('calc-scenario-section');
-  if(!section||calcScenarios.length===0)return;
+  if(!section)return;
+  var list=scenarios||calcScenarios;
+  if(!list.length){section.innerHTML='';return;}
   section.innerHTML='';
   var hdr=document.createElement('div');hdr.style.cssText='font-size:13px;font-weight:700;margin:20px 0 10px;';hdr.textContent='Saved Scenarios';
   section.appendChild(hdr);
-  var grid=document.createElement('div');grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;';
-  calcScenarios.forEach(function(sc,idx){
+  var grid=document.createElement('div');grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;';
+  list.forEach(function(sc){
     var card=document.createElement('div');
     card.style.cssText='background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);';
-    var nameEl=document.createElement('div');nameEl.style.cssText='font-weight:700;font-size:14px;margin-bottom:6px;';nameEl.textContent=sc.name;
-    var budgetEl=document.createElement('div');budgetEl.style.cssText='font-size:12px;color:var(--text-muted);margin-bottom:8px;';
-    var scTotal=sc.items.reduce(function(s,i){return s+(i.amount||0);},0);
-    var scDiff=sc.budget-scTotal;
-    budgetEl.textContent='Budget: US$'+sc.budget.toLocaleString()+' · Spent: US$'+scTotal.toLocaleString();
+    var nameEl=document.createElement('div');nameEl.style.cssText='font-weight:700;font-size:14px;margin-bottom:4px;';nameEl.textContent=sc.name;
+    var dateEl=document.createElement('div');dateEl.style.cssText='font-size:11px;color:var(--text-muted);margin-bottom:6px;';
+    dateEl.textContent=sc.updated_at?new Date(sc.updated_at).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+    var scItems=sc.items||[];
+    var scTotal=scItems.reduce(function(s,i){return s+(Number(i.amount)||0);},0);
+    var scDiff=(sc.budget||0)-scTotal;
+    var budgetEl=document.createElement('div');budgetEl.style.cssText='font-size:12px;color:var(--text-muted);margin-bottom:4px;';
+    budgetEl.textContent='Budget: US$'+(sc.budget||0).toLocaleString()+' · Allocated: US$'+scTotal.toLocaleString();
     var statusEl=document.createElement('div');statusEl.style.cssText='font-size:12px;font-weight:600;margin-bottom:10px;color:'+(scDiff<0?'var(--red)':'var(--green)');
     statusEl.textContent=scDiff<0?'Over by US$'+Math.abs(Math.round(scDiff)).toLocaleString():'US$'+Math.round(scDiff).toLocaleString()+' remaining';
     var btnRow=document.createElement('div');btnRow.style.cssText='display:flex;gap:6px;';
-    var loadBtn=document.createElement('button');loadBtn.className='btn btn-ghost btn-sm';loadBtn.textContent='Load';
-    loadBtn.onclick=function(){calcItems=JSON.parse(JSON.stringify(sc.items));calcBudget=sc.budget;renderCalculator();showToast('Loaded: '+sc.name);};
+    var loadBtn=document.createElement('button');loadBtn.className='btn btn-primary btn-sm';loadBtn.textContent='Load';
+    loadBtn.onclick=function(){
+      calcItems=JSON.parse(JSON.stringify(scItems));
+      calcBudget=sc.budget||10000;
+      window.calcDays=sc.days||17;
+      window.calcPeople=sc.people||4;
+      window.calcBudgetSet=true;
+      renderCalculator();
+      showToast('Loaded: '+sc.name);
+    };
     var delBtn=document.createElement('button');delBtn.className='btn btn-ghost btn-sm';delBtn.style.color='var(--red)';delBtn.textContent='Delete';
-    delBtn.onclick=function(){calcScenarios.splice(idx,1);renderCalcScenarioTabs();};
+    delBtn.onclick=async function(){
+      if(sc.id)await deleteCalcScenario(sc.id);
+      var allSaved=await loadSavedScenarios();
+      renderCalcScenarioTabs(allSaved);
+    };
     btnRow.appendChild(loadBtn);btnRow.appendChild(delBtn);
-    card.appendChild(nameEl);card.appendChild(budgetEl);card.appendChild(statusEl);card.appendChild(btnRow);
+    card.appendChild(nameEl);card.appendChild(dateEl);card.appendChild(budgetEl);card.appendChild(statusEl);card.appendChild(btnRow);
     grid.appendChild(card);
   });
   section.appendChild(grid);
