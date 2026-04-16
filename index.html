@@ -3467,7 +3467,7 @@ function buildCalcBlock(sc, idx, container){
     var locked=sc.items.reduce(function(s,i){return s+(i.locked?(i.amount||0):0);},0);
     var rem=(sc.budget||0)-locked;
     var unlocked=sc.items.filter(function(i){return !i.locked;});
-    console.log('Generate: budget=',sc.budget,'locked=',locked,'rem=',rem,'unlocked=',unlocked.map(function(x){return x.label+'('+x.category+')'}));
+
     var catWeights={flight:0,accommodation:35,food:20,activity:25,transport:10,other:5};
     var weights=unlocked.map(function(item){
       return catWeights[item.category]||5;
@@ -3476,17 +3476,9 @@ function buildCalcBlock(sc, idx, container){
     unlocked.forEach(function(item,i){item.amount=Math.round(rem*(weights[i]/tw));});
     var sum=unlocked.reduce(function(s,i){return s+(i.amount||0);},0);
     if(unlocked.length>0)unlocked[unlocked.length-1].amount+=(rem-sum);
-    // update inputs
-    tbl.querySelectorAll('.calc-row').forEach(function(row){
-      var id=parseInt(row.getAttribute('data-calc-id'));
-      var item=sc.items.find(function(x){return x.id===id;});
-      if(!item||item.locked)return;
-      var ins=row.querySelectorAll('input[type=number]');
-      if(ins[0])ins[0].value=item.amount||'';
-      if(ins[1])ins[1].value=item.amount?Math.round(item.amount/days):'';
-      if(ins[2])ins[2].value=item.amount?Math.round(item.amount/people):'';
-    });
-    updateStatus();refreshTotals();showToast('Generated!');
+    // re-render entire calculator so all inputs reflect new values cleanly
+    showToast('Generated!');
+    renderCalculator();
   };
   actRow.appendChild(genBtn);
 
