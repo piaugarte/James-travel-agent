@@ -2905,8 +2905,6 @@ async function initCalculator(){
       });
     }catch(e){}
   }
-  // reset calcItems to clean defaults before loading
-  calcItems=[{id:1,label:'Flights',amount:0,color:'#c62828',locked:false,category:'flight'},{id:2,label:'Accommodation',amount:0,color:'#5e35b1',locked:false,category:'accommodation'},{id:3,label:'Food',amount:0,color:'#e76f00',locked:false,category:'food'},{id:4,label:'Activity',amount:0,color:'#2d6a4f',locked:false,category:'activity'},{id:5,label:'Transport',amount:0,color:'#1565c0',locked:false,category:'transport'},{id:6,label:'Misc / Other',amount:0,color:'#6b7280',locked:false,category:'other'}];
   // load saved scenarios from Supabase
   var saved=await loadSavedScenarios();
   if(saved.length){
@@ -2976,7 +2974,7 @@ function renderCalculator(){
   });
 
   if(calcScenarioBlocks.length===0){
-    calcScenarioBlocks.push({
+    calcScenarioBlocks=[{
       id:null,name:'My Budget',
       budget:10000,
       items:[
@@ -2989,7 +2987,7 @@ function renderCalculator(){
       ],
       days:window.calcDays||17,
       people:window.calcPeople||4
-    });
+    }];
     renderCalculator();
   }
 }
@@ -3305,7 +3303,13 @@ function buildCalcBlock(sc, idx, container){
       trip_id:TRIP_ID,
       name:sc.name||'My Budget',
       budget:sc.budget||0,
-      items:JSON.parse(JSON.stringify(sc.items)),
+      items:(function(){
+        // deduplicate by id before saving
+        var seen={};
+        return JSON.parse(JSON.stringify(sc.items)).filter(function(x){
+          if(seen[x.id])return false;seen[x.id]=true;return true;
+        });
+      })(),
       days:days,people:people,
       is_active:true,
       updated_at:new Date().toISOString()
