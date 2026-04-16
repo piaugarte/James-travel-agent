@@ -2833,25 +2833,27 @@ function saveCalcState(){
 }
 
 async function _doSaveCalcState(){
-  console.log('Saving calc state... budget:',calcBudget,'items:',calcItems.length,'id:',calcScenarioId);
   try{
     var payload={
       trip_id:TRIP_ID,
       name:'My Scenario',
       budget:calcBudget,
-      items:calcItems,
+      items:JSON.parse(JSON.stringify(calcItems)),
       days:window.calcDays||17,
       people:window.calcPeople||4,
       is_active:true,
       updated_at:new Date().toISOString()
     };
     if(calcScenarioId){
-      await sb.from('calculator_scenarios').update(payload).eq('id',calcScenarioId);
+      var upd=await sb.from('calculator_scenarios').update(payload).eq('id',calcScenarioId);
+      if(upd.error)console.error('calc update error:',upd.error);
+      else console.log('calc updated OK');
     }else{
       var res=await sb.from('calculator_scenarios').insert(payload).select().single();
-      if(res.data){calcScenarioId=res.data.id;console.log('Saved new scenario:',calcScenarioId);}
+      if(res.error)console.error('calc insert error:',res.error);
+      else if(res.data){calcScenarioId=res.data.id;console.log('calc saved, id:',calcScenarioId);}
     }
-  }catch(e){console.error('calc save error:',e);}
+  }catch(e){console.error('calc save exception:',e);}
 }
 
 async function loadCalcState(){
