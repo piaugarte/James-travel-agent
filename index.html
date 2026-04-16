@@ -2883,6 +2883,9 @@ function updateCalcStatus(){
 }
 
 
+// each scenario is {id, name, budget, items, days, people}
+var calcScenarioBlocks=[];
+
 async function initCalculator(){
   if(!window.calcBudgetSet){
     calcBudget=10000;
@@ -2903,8 +2906,17 @@ async function initCalculator(){
   // load saved scenarios from Supabase
   var saved=await loadSavedScenarios();
   if(saved.length){
+    var defaultItems=[
+      {id:1,label:'Flights',amount:0,color:'#c62828',locked:false},
+      {id:2,label:'Accommodation',amount:0,color:'#5e35b1',locked:false},
+      {id:3,label:'Food & Dining',amount:0,color:'#e76f00',locked:false},
+      {id:4,label:'Activities',amount:0,color:'#2d6a4f',locked:false},
+      {id:5,label:'Transport',amount:0,color:'#1565c0',locked:false},
+      {id:6,label:'Shopping & Misc',amount:0,color:'#6b7280',locked:false}
+    ];
     calcScenarioBlocks=saved.map(function(s){
-      return{id:s.id,name:s.name,budget:s.budget,items:s.items||[],days:s.days||17,people:s.people||4};
+      var items=s.items&&s.items.length?s.items:JSON.parse(JSON.stringify(defaultItems));
+      return{id:s.id,name:s.name,budget:s.budget,items:items,days:s.days||17,people:s.people||4};
     });
     window.calcDays=saved[0].days||17;
     window.calcPeople=saved[0].people||4;
@@ -2919,8 +2931,6 @@ function fmt$(n){
   return 'US$'+(Math.round((Number(n)||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});
 }
 
-// each scenario is {id, name, budget, items, days, people}
-var calcScenarioBlocks = []; // list of scenario objects being shown
 
 function renderCalculator(){
   var container=document.getElementById('calculator-container');
@@ -2938,14 +2948,14 @@ function renderCalculator(){
       id:null,
       name:'New Scenario',
       budget:10000,
-      items:JSON.parse(JSON.stringify([
+      items:[
         {id:calcNextId++,label:'Flights',amount:0,color:'#c62828',locked:false},
         {id:calcNextId++,label:'Accommodation',amount:0,color:'#5e35b1',locked:false},
         {id:calcNextId++,label:'Food & Dining',amount:0,color:'#e76f00',locked:false},
         {id:calcNextId++,label:'Activities',amount:0,color:'#2d6a4f',locked:false},
         {id:calcNextId++,label:'Transport',amount:0,color:'#1565c0',locked:false},
         {id:calcNextId++,label:'Shopping & Misc',amount:0,color:'#6b7280',locked:false}
-      ])),
+      ],
       days:window.calcDays||17,
       people:window.calcPeople||4
     });
@@ -2962,11 +2972,17 @@ function renderCalculator(){
   });
 
   if(calcScenarioBlocks.length===0){
-    // first time - show one default block
     calcScenarioBlocks.push({
       id:null,name:'My Budget',
-      budget:calcBudget||10000,
-      items:JSON.parse(JSON.stringify(calcItems)),
+      budget:10000,
+      items:[
+        {id:1,label:'Flights',amount:0,color:'#c62828',locked:false},
+        {id:2,label:'Accommodation',amount:0,color:'#5e35b1',locked:false},
+        {id:3,label:'Food & Dining',amount:0,color:'#e76f00',locked:false},
+        {id:4,label:'Activities',amount:0,color:'#2d6a4f',locked:false},
+        {id:5,label:'Transport',amount:0,color:'#1565c0',locked:false},
+        {id:6,label:'Shopping & Misc',amount:0,color:'#6b7280',locked:false}
+      ],
       days:window.calcDays||17,
       people:window.calcPeople||4
     });
