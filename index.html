@@ -3467,6 +3467,7 @@ function buildCalcBlock(sc, idx, container){
     var locked=sc.items.reduce(function(s,i){return s+(i.locked?(i.amount||0):0);},0);
     var rem=(sc.budget||0)-locked;
     var unlocked=sc.items.filter(function(i){return !i.locked;});
+    console.log('Generate: budget=',sc.budget,'locked=',locked,'rem=',rem,'unlocked=',unlocked.map(function(x){return x.label+'('+x.category+')'}));
     var catWeights={flight:0,accommodation:35,food:20,activity:25,transport:10,other:5};
     var weights=unlocked.map(function(item){
       return catWeights[item.category]||5;
