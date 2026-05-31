@@ -3218,6 +3218,20 @@ function spRenderRows(sc, tbl, totRow, statusEl){
     row.appendChild(aIn); row.appendChild(pdIn); row.appendChild(ppIn);
 
     // controls
+    // group selector
+    var grpSel = document.createElement('select');
+    grpSel.style.cssText = 'border:1px solid var(--gray-border);border-radius:4px;font-size:10px;padding:2px 4px;font-family:DM Sans,sans-serif;color:var(--text-muted);max-width:90px;';
+    grpSel.title = 'Move to group';
+    (sc.groups||[]).forEach(function(g){
+      var o=document.createElement('option');o.value=g.id;o.textContent=g.name;
+      if(g.id===item.group)o.selected=true;
+      grpSel.appendChild(o);
+    });
+    grpSel.onchange=function(){
+      item.group=this.value;
+      spRenderRows(sc,tbl,totRow,statusEl);
+    };
+
     var ctrl = document.createElement('div'); ctrl.style.cssText = 'display:flex;align-items:center;gap:3px;';
     var lkBtn = document.createElement('button');
     lkBtn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:13px;padding:1px;opacity:'+(item.locked?'1':'0.3')+';';
@@ -3233,7 +3247,7 @@ function spRenderRows(sc, tbl, totRow, statusEl){
     var drg = document.createElement('span'); drg.className = 'act-drag'; drg.innerHTML = '≡'; drg.style.cssText = 'font-size:13px;opacity:0.3;cursor:grab;';
     var del = document.createElement('button'); del.className = 'act-del'; del.innerHTML = '×';
     del.onclick = function(){ sc.items = sc.items.filter(function(x){ return x.id !== item.id; }); spRenderRows(sc, tbl, totRow, statusEl); };
-    ctrl.appendChild(lkBtn); ctrl.appendChild(drg); ctrl.appendChild(del);
+    ctrl.appendChild(grpSel); ctrl.appendChild(lkBtn); ctrl.appendChild(drg); ctrl.appendChild(del);
     row.appendChild(ctrl);
 
     tbl.insertBefore(row, totRow);
