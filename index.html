@@ -3011,15 +3011,19 @@ function spBuildBlock(sc, idx){
   // Generate
   var genBtn = document.createElement('button'); genBtn.className = 'btn btn-primary btn-sm'; genBtn.textContent = '✨ Generate';
   genBtn.onclick = function(){
+    // snapshot group assignments before compute
+    var groupMap = {};
+    sc.items.forEach(function(it){ groupMap[it.id] = it.group; });
     var locked = sc.items.reduce(function(s,i){ return s+(i.locked?i.amount:0); }, 0);
     var rem = sc.budget - locked;
     var unlocked = sc.items.filter(function(i){ return !i.locked; });
     var weights = unlocked.map(function(i){ return SP_WEIGHTS[i.category]||5; });
     var tw = weights.reduce(function(s,w){ return s+w; }, 0)||1;
     unlocked.forEach(function(item,i){ item.amount = Math.round(rem*(weights[i]/tw)); });
-    // fix rounding diff
     var diff = rem - unlocked.reduce(function(s,i){ return s+i.amount; },0);
     if(unlocked.length) unlocked[unlocked.length-1].amount += diff;
+    // restore group assignments
+    sc.items.forEach(function(it){ if(groupMap[it.id]) it.group = groupMap[it.id]; });
     spRenderRows(sc, tbl, totRow, statusEl);
     showToast('Generated!');
   };
@@ -3257,6 +3261,16 @@ function spUpdateTotals(sc, totRow, d, p){
   if(spans[1]) spans[1].textContent = 'US$'+t.toLocaleString();
   if(spans[2]) spans[2].textContent = d ? 'US$'+Math.round(t/d).toLocaleString() : '';
   if(spans[3]) spans[3].textContent = p ? 'US$'+Math.round(t/p).toLocaleString() : '';
+  // update group subtotals
+  if(sc.groups && totRow.parentNode){
+    sc.groups.forEach(function(grp){
+      var ghdr = totRow.parentNode.querySelector('.sp-group-header[data-group-id="'+grp.id+'"]');
+      if(!ghdr) return;
+      var grpTotal = sc.items.filter(function(i){return i.group===grp.id;}).reduce(function(s,i){return s+(i.amount||0);},0);
+      var sub = ghdr.querySelectorAll('span')[2];
+      if(sub) sub.textContent = 'US$'+grpTotal.toLocaleString();
+    });
+  }
 }
 
 function spUpdateStatus(sc, el){
