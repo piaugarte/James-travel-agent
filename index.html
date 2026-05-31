@@ -539,7 +539,6 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
     <span class="nav-brand">&#128329; Vancouver 2026</span>
     <button class="nav-tab active" onclick="switchTab('itinerary',this)">Itinerary</button>
     <button class="nav-tab" onclick="switchTab('costs',this)">Expenses</button>
-    <button class="nav-tab" onclick="switchTab('calculator',this)">&#129518; Calculator</button>
     <button class="nav-tab" onclick="switchTab('scenarios',this)">&#127358; Scenarios</button>
     <button class="nav-tab" id="suggestions-tab-btn" style="display:none;" onclick="switchTab('suggestions',this)">&#10024; Suggestions</button>
     <span class="nav-spacer"></span>
@@ -3156,9 +3155,10 @@ function spRenderRows(sc, tbl, totRow, statusEl){
   spUpdateTotals(sc, totRow, sc.days||17, sc.people||4);
   spUpdateStatus(sc, statusEl);
 
-  // sortable
+  // sortable - destroy existing instance first to prevent doubling
   if(typeof Sortable !== 'undefined'){
-    Sortable.create(tbl, {
+    if(tbl._sortable){ tbl._sortable.destroy(); }
+    tbl._sortable = Sortable.create(tbl, {
       handle: '.act-drag', animation: 150, ghostClass: 'sortable-ghost',
       filter: '.calc-table-header,.calc-total-row',
       onEnd: function(){
