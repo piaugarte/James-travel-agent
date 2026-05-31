@@ -132,7 +132,7 @@
     <div class="hero-stat"><span class="val">17</span><span class="lbl">Days</span></div>
     <div class="hero-stat"><span class="val">12</span><span class="lbl">People</span></div>
     <div class="hero-stat"><span class="val" id="stat-activities">—</span><span class="lbl">Activities</span></div>
-    <div class="hero-stat"><span class="val" id="stat-cost">—</span><span class="lbl">Budget</span></div>
+
   </div>
 </div>
 
@@ -207,8 +207,7 @@ async function loadData(){
 
   // update stats
   document.getElementById('stat-activities').textContent = allItems.length;
-  var totalCost = allItems.reduce(function(s,i){return s+(Number(i.cost)||0);},0);
-  document.getElementById('stat-cost').textContent = totalCost ? fmtMoney(totalCost) : '—';
+
 
   renderList();
   renderCalendar();
