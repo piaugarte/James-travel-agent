@@ -3249,14 +3249,29 @@ function spRenderRows(sc, tbl, totRow, statusEl){
     tbl._sortable = Sortable.create(tbl, {
       handle: '.act-drag', animation: 150, ghostClass: 'sortable-ghost',
       filter: '.calc-table-header,.calc-total-row',
-      onEnd: function(){
+      onEnd: function(evt){
         var order = [];
+        // find which group the dragged row landed in
+        // by checking the nearest group header above it in the DOM
         tbl.querySelectorAll('.calc-row').forEach(function(row){
           var id = parseInt(row.getAttribute('data-sp-id'));
           var item = sc.items.find(function(x){ return x.id === id; });
-          if(item) order.push(item);
+          if(!item) return;
+          // find group by walking backwards through siblings
+          var newGroup = '';
+          var prev = row.previousElementSibling;
+          while(prev){
+            if(prev.classList.contains('sp-group-header')){
+              newGroup = prev.getAttribute('data-group-id');
+              break;
+            }
+            prev = prev.previousElementSibling;
+          }
+          if(newGroup) item.group = newGroup;
+          order.push(item);
         });
         sc.items = order;
+        spUpdateTotals(sc, totRow, sc.days||17, sc.people||4);
       }
     });
   }
