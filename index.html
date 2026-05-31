@@ -2877,7 +2877,9 @@ async function spInit(){
         days: s.days || 17,
         people: s.people || 4,
         items: (s.items && s.items.length) ? s.items.map(function(it){
-          return {id: SP.nextId++, label: it.label||'', category: it.category||'other', amount: it.amount||0, locked: !!it.locked, group: it.group||''};
+          var itemId = it.id || SP.nextId++;
+          if(typeof itemId === 'number' && itemId >= SP.nextId) SP.nextId = itemId + 1;
+          return {id: itemId, label: it.label||'', category: it.category||'other', amount: it.amount||0, locked: !!it.locked, group: it.group||''};
         }) : spDefaultItems(),
       groups: (s.groups && s.groups.length) ? s.groups : spDefaultGroups()
       };
@@ -3057,7 +3059,7 @@ function spBuildBlock(sc, idx){
       people: sc.people,
       is_active: true,
       items: sc.items.map(function(it){ return {id:it.id,label:it.label,category:it.category,amount:it.amount,locked:it.locked,group:it.group||''}; }),
-      groups: sc.groups||[],
+      groups: (sc.groups||[]).map(function(g){return {id:g.id,name:g.name,collapsed:false};}),  
       updated_at: new Date().toISOString()
     };
     var r;
@@ -3068,7 +3070,12 @@ function spBuildBlock(sc, idx){
       if(r.data) sc.id = r.data.id;
     }
     if(r.error){ showToast('Error: '+r.error.message); console.error(r.error); }
-    else { showToast('✓ Saved!'); saveBtn.textContent = '✓ Saved!'; setTimeout(function(){ saveBtn.textContent = '💾 Save'; }, 2000); }
+    else {
+      showToast('✓ Saved!'); saveBtn.textContent = '✓ Saved!';
+      setTimeout(function(){ saveBtn.textContent = '💾 Save'; }, 2000);
+      // force reload next time tab is opened
+      SP.loaded = false;
+    }
     saveBtn.disabled = false;
   };
   actRow.appendChild(saveBtn);
