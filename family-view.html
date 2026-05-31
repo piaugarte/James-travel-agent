@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vancouver 2026 🍁</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -26,7 +26,7 @@
   }
   .hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
   .hero-emoji{font-size:48px;margin-bottom:12px;display:block;}
-  .hero-title{font-family:'Playfair Display',serif;font-size:clamp(32px,6vw,56px);font-weight:900;color:white;line-height:1.1;margin-bottom:8px;}
+  .hero-title{font-family:'DM Sans',sans-serif;font-size:clamp(32px,6vw,56px);font-weight:900;color:white;line-height:1.1;margin-bottom:8px;}
   .hero-sub{color:rgba(255,255,255,0.75);font-size:16px;margin-bottom:24px;}
   .hero-stats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
   .hero-stat{background:rgba(255,255,255,0.12);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:10px 18px;color:white;text-align:center;}
@@ -35,13 +35,13 @@
 
   /* NAV */
   .nav{background:white;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
-  .nav-inner{display:flex;max-width:900px;margin:0 auto;padding:0 16px;}
+  .nav-inner{display:flex;max-width:1100px;margin:0 auto;padding:0 24px;}
   .nav-btn{flex:1;padding:14px 8px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--text-muted);cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;}
   .nav-btn.active{color:var(--green);border-bottom-color:var(--green);}
   .nav-btn:hover{color:var(--green);}
 
   /* MAIN */
-  main{max-width:900px;margin:0 auto;padding:20px 16px 80px;}
+  main{max-width:1100px;margin:0 auto;padding:20px 24px 80px;}
 
   /* TABS */
   .tab{display:none;}.tab.active{display:block;}
@@ -49,7 +49,7 @@
   /* PHASE HEADERS */
   .phase-header{display:flex;align-items:center;gap:10px;padding:16px 0 8px;margin-top:8px;}
   .phase-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-  .phase-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);}
+  .phase-title{font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;color:var(--text);}
   .phase-dates{font-size:12px;color:var(--text-muted);background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:3px 10px;}
 
   /* DAY CARDS */
@@ -95,7 +95,7 @@
   .modal{background:white;border-radius:20px 20px 0 0;width:100%;max-width:600px;max-height:85vh;overflow-y:auto;padding:24px;}
   .modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px;}
   .modal-date{font-size:13px;color:var(--text-muted);margin-bottom:4px;}
-  .modal-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:16px;}
+  .modal-title{font-family:'DM Sans',sans-serif;font-size:22px;font-weight:700;margin-bottom:16px;}
 
   /* LEGEND */
   .legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
@@ -127,7 +127,7 @@
 <div class="hero">
   <span class="hero-emoji">🍁</span>
   <h1 class="hero-title">Vancouver 2026</h1>
-  <p class="hero-sub">Garcia-Morera Family Trip · June 15 – July 1</p>
+  <p class="hero-sub">Garcia-Morera Family Trip · June 15 – 30</p>
   <div class="hero-stats">
     <div class="hero-stat"><span class="val">17</span><span class="lbl">Days</span></div>
     <div class="hero-stat"><span class="val">12</span><span class="lbl">People</span></div>
@@ -151,11 +151,7 @@
 
   <!-- CALENDAR TAB -->
   <div id="tab-calendar" class="tab">
-    <div class="legend" id="cal-legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#1a4731"></div>Surrey</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#5e35b1"></div>Whistler</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#c62828"></div>Final Days</div>
-    </div>
+  
     <div id="cal-container"><div class="loading"><div class="loading-spinner"></div>Loading calendar...</div></div>
   </div>
 </main>
@@ -229,35 +225,20 @@ function renderList(){
     return;
   }
 
-  // group by phase
-  var phases = ['surrey','whistler','final'];
-  var phaseLabels = {surrey:'🏡 Surrey Base',whistler:'🏔️ Whistler',final:'🎂 Final Days'};
-  var phaseDates = {surrey:'Jun 15 – 24',whistler:'Jun 25 – 28',final:'Jun 29 – Jul 1'};
+  var container2 = document.getElementById('list-container');
+  var phaseEl = document.createElement('div');
+  phaseEl.style.cssText = 'margin-bottom:8px;';
 
-  phases.forEach(function(phase){
-    var days = allDays.filter(function(d){ return getPhase(d.date)===phase; });
-    if(!days.length) return;
-
-    var phaseEl = document.createElement('div');
-    phaseEl.style.cssText = 'margin-bottom:8px;';
-
-    var phHdr = document.createElement('div');
-    phHdr.className = 'phase-header';
-    phHdr.innerHTML = '<div class="phase-dot" style="background:'+getPhaseColor(phase)+'"></div>'+
-      '<span class="phase-title">'+phaseLabels[phase]+'</span>'+
-      '<span class="phase-dates">'+phaseDates[phase]+'</span>';
-    phaseEl.appendChild(phHdr);
-
-    days.forEach(function(day){
+  allDays.forEach(function(day){
       var items = allItems.filter(function(i){return i.day_id===day.id;}).sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);});
       var dayTotal = items.reduce(function(s,i){return s+(Number(i.cost)||0);},0);
 
       var card = document.createElement('div');
-      card.className = 'day-card fade-in phase-'+phase;
+      card.className = 'day-card fade-in';
 
       var hdr = document.createElement('div');
       hdr.className = 'day-header';
-      hdr.innerHTML = '<div class="day-num" style="background:'+getPhaseColor(phase)+'">'+day.day_number+'</div>'+
+      hdr.innerHTML = '<div class="day-num">'+day.day_number+'</div>'+
         '<div class="day-info"><div class="day-title">'+(day.title||'Day '+day.day_number)+'</div>'+
         '<div class="day-date">'+fmtDate(day.date)+'</div></div>'+
         (dayTotal?'<div class="day-cost">'+fmtMoney(dayTotal)+'</div>':'')+
@@ -309,11 +290,11 @@ function renderCalendar(){
   container.innerHTML = '';
 
   // June + July
-  [{year:2026,month:5,label:'June 2026'},{year:2026,month:6,label:'July 2026'}].forEach(function(m){
+  [{year:2026,month:5,label:'June 2026'}].forEach(function(m){
     var monthEl = document.createElement('div');
     monthEl.style.cssText = 'margin-bottom:24px;';
     var mHdr = document.createElement('div');
-    mHdr.style.cssText = 'font-family:Playfair Display,serif;font-size:20px;font-weight:700;margin-bottom:12px;color:var(--text);';
+    mHdr.style.cssText = 'font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;margin-bottom:12px;color:var(--text);';
     mHdr.textContent = m.label;
     monthEl.appendChild(mHdr);
 
