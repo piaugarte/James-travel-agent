@@ -275,12 +275,9 @@ function renderList(){
         document.getElementById('chev-'+day.id).className = 'day-chevron'+(isOpen?'':' open');
       };
 
-      card.appendChild(hdr);
-      card.appendChild(body);
-      phaseEl.appendChild(card);
-    });
-
-    container.appendChild(phaseEl);
+    card.appendChild(hdr);
+    card.appendChild(body);
+    container.appendChild(card);
   });
 }
 
