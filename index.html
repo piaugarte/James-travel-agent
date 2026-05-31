@@ -235,6 +235,9 @@ main{max-width:1200px;margin:0 auto;padding:20px 24px 100px;}
 .wb-card-meta{font-size:10px;color:var(--text-muted);}
 .wb-card-del{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:0;opacity:0.4;flex-shrink:0;}
 .wb-card-del:hover{opacity:1;color:var(--red);}
+/* scenario groups */
+.sp-group-header:hover{background:var(--gray-border)!important;}
+.sp-group-header input:focus{outline:none;}
 /* plan panel */
 .plan-panel-inner{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:sticky;top:80px;}
 .plan-panel-header{background:linear-gradient(135deg,var(--green) 0%,#1b4332 100%);padding:16px 20px;color:white;}
@@ -2848,9 +2851,15 @@ var SP_CATS = [
 var SP_WEIGHTS = {flight:0, accommodation:35, food:20, activity:25, transport:10, other:5};
 
 function spDefaultItems(){
-  return SP_CATS.map(function(cat,i){
-    return {id:SP.nextId++, label:cat.label, category:cat.key, amount:0, locked:false};
+  return SP_CATS.map(function(cat){
+    return {id:SP.nextId++, label:cat.label, category:cat.key, amount:0, locked:false, group:''};
   });
+}
+
+function spDefaultGroups(){
+  return [
+    {id:'g1', name:'General', collapsed:false}
+  ];
 }
 
 function spCatColor(cat){ return (SP_CATS.find(function(c){return c.key===cat;})||{color:'#6b7280'}).color; }
@@ -2868,12 +2877,13 @@ async function spInit(){
         days: s.days || 17,
         people: s.people || 4,
         items: (s.items && s.items.length) ? s.items.map(function(it){
-          return {id: SP.nextId++, label: it.label||'', category: it.category||'other', amount: it.amount||0, locked: !!it.locked};
-        }) : spDefaultItems()
+          return {id: SP.nextId++, label: it.label||'', category: it.category||'other', amount: it.amount||0, locked: !!it.locked, group: it.group||''};
+        }) : spDefaultItems(),
+      groups: (s.groups && s.groups.length) ? s.groups : spDefaultGroups()
       };
     });
   } else {
-    SP.scenarios = [{id:null, name:'My Budget', budget:10000, days:17, people:4, items:spDefaultItems()}];
+    SP.scenarios = [{id:null, name:'My Budget', budget:10000, days:17, people:4, items:spDefaultItems(), groups:spDefaultGroups()}];
   }
   SP.loaded = true;
   spRender();
@@ -2899,7 +2909,8 @@ function spRender(){
       budget: src.budget,
       days: src.days,
       people: src.people,
-      items: src.items.map(function(it){return Object.assign({}, it, {id: SP.nextId++});})
+      items: src.items.map(function(it){return Object.assign({}, it, {id: SP.nextId++});}),
+      groups: (src.groups||spDefaultGroups()).map(function(g){return Object.assign({},g);})
     };
     SP.scenarios.push(clone);
     spRender();
@@ -3014,34 +3025,16 @@ function spBuildBlock(sc, idx){
   };
   actRow.appendChild(genBtn);
 
-  // + Item
-  var addItemBtn = document.createElement('button'); addItemBtn.className = 'btn btn-ghost btn-sm'; addItemBtn.textContent = '+ Item';
-  addItemBtn.onclick = function(){
-    if(document.getElementById('sp-add-form-'+idx)) return;
-    var form = document.createElement('div');
-    form.id = 'sp-add-form-'+idx;
-    form.style.cssText = 'padding:10px 16px;border-top:1px solid var(--gray-border);display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--white);';
-    var nameIn = document.createElement('input'); nameIn.placeholder = 'Item name...';
-    nameIn.style.cssText = 'flex:2;min-width:120px;border:1px solid var(--gray-border);border-radius:6px;padding:6px 10px;font-size:13px;font-family:DM Sans,sans-serif;';
-    var catSel = document.createElement('select');
-    catSel.style.cssText = 'border:1px solid var(--gray-border);border-radius:6px;padding:6px 10px;font-size:13px;font-family:DM Sans,sans-serif;';
-    SP_CATS.forEach(function(cat){
-      var o = document.createElement('option'); o.value = cat.key; o.textContent = cat.label; catSel.appendChild(o);
-    });
-    var okBtn = document.createElement('button'); okBtn.className = 'btn btn-primary btn-sm'; okBtn.textContent = 'Add';
-    var cancelBtn = document.createElement('button'); cancelBtn.className = 'btn btn-ghost btn-sm'; cancelBtn.textContent = 'Cancel';
-    cancelBtn.onclick = function(){ form.remove(); };
-    okBtn.onclick = function(){
-      var name = nameIn.value.trim(); if(!name){ nameIn.focus(); return; }
-      sc.items.push({id:SP.nextId++, label:name, category:catSel.value, amount:0, locked:false});
-      form.remove();
-      spRenderRows(sc, tbl, totRow, statusEl);
-    };
-    form.appendChild(nameIn); form.appendChild(catSel); form.appendChild(okBtn); form.appendChild(cancelBtn);
-    actRow.parentNode.insertBefore(form, actRow.nextSibling);
-    setTimeout(function(){ nameIn.focus(); }, 30);
+  // + Group button
+  var addGrpBtn = document.createElement('button'); addGrpBtn.className = 'btn btn-ghost btn-sm'; addGrpBtn.textContent = '+ Group';
+  addGrpBtn.onclick = function(){
+    var name = prompt('Group name (e.g. Whistler Leg):'); if(!name) return;
+    if(!sc.groups) sc.groups = [];
+    var gid = 'g'+(Date.now());
+    sc.groups.push({id:gid, name:name, collapsed:false});
+    spRenderRows(sc, tbl, totRow, statusEl);
   };
-  actRow.appendChild(addItemBtn);
+  actRow.appendChild(addGrpBtn);
 
   // Generate Ideas
   var ideasBtn = document.createElement('button'); ideasBtn.className = 'btn btn-ghost btn-sm'; ideasBtn.textContent = '✨ Generate Ideas';
@@ -3059,7 +3052,8 @@ function spBuildBlock(sc, idx){
       days: sc.days,
       people: sc.people,
       is_active: true,
-      items: sc.items.map(function(it){ return {id:it.id,label:it.label,category:it.category,amount:it.amount,locked:it.locked}; }),
+      items: sc.items.map(function(it){ return {id:it.id,label:it.label,category:it.category,amount:it.amount,locked:it.locked,group:it.group||''}; }),
+      groups: sc.groups||[],
       updated_at: new Date().toISOString()
     };
     var r;
@@ -3079,12 +3073,94 @@ function spBuildBlock(sc, idx){
   return block;
 }
 
-function spRenderRows(sc, tbl, totRow, statusEl){
-  // remove existing rows (keep header and totRow)
-  Array.from(tbl.querySelectorAll('.calc-row')).forEach(function(r){ r.remove(); });
+function spShowAddItemForm(sc, groupId, tbl, totRow, statusEl){
+  var existingForm = tbl.parentNode.querySelector('.sp-add-item-form');
+  if(existingForm) existingForm.remove();
+  var form = document.createElement('div');
+  form.className = 'sp-add-item-form';
+  form.style.cssText = 'padding:10px 16px;border-top:1px solid var(--gray-border);display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#fffde7;';
+  var nameIn = document.createElement('input'); nameIn.placeholder = 'Item name...';
+  nameIn.style.cssText = 'flex:2;min-width:120px;border:1px solid var(--gray-border);border-radius:6px;padding:6px 10px;font-size:13px;font-family:DM Sans,sans-serif;';
+  var catSel = document.createElement('select');
+  catSel.style.cssText = 'border:1px solid var(--gray-border);border-radius:6px;padding:6px 10px;font-size:13px;font-family:DM Sans,sans-serif;';
+  SP_CATS.forEach(function(cat){
+    var o = document.createElement('option'); o.value=cat.key; o.textContent=cat.label; catSel.appendChild(o);
+  });
+  var okBtn = document.createElement('button'); okBtn.className='btn btn-primary btn-sm'; okBtn.textContent='Add';
+  var cancelBtn = document.createElement('button'); cancelBtn.className='btn btn-ghost btn-sm'; cancelBtn.textContent='Cancel';
+  cancelBtn.onclick = function(){ form.remove(); };
+  okBtn.onclick = function(){
+    var name=nameIn.value.trim(); if(!name){nameIn.focus();return;}
+    sc.items.push({id:SP.nextId++,label:name,category:catSel.value,amount:0,locked:false,group:groupId});
+    form.remove();
+    spRenderRows(sc,tbl,totRow,statusEl);
+  };
+  form.appendChild(nameIn); form.appendChild(catSel); form.appendChild(okBtn); form.appendChild(cancelBtn);
+  // insert after the group header
+  var ghdr = tbl.querySelector('.sp-group-header[data-group-id="'+groupId+'"]');
+  if(ghdr) ghdr.parentNode.insertBefore(form, ghdr.nextSibling);
+  else tbl.parentNode.insertBefore(form, tbl.nextSibling);
+  setTimeout(function(){ nameIn.focus(); },30);
+}
 
-  sc.items.forEach(function(item){
-    var row = document.createElement('div'); row.className = 'calc-row'; row.setAttribute('data-sp-id', item.id);
+function spRenderRows(sc, tbl, totRow, statusEl){
+  if(!sc.groups) sc.groups = spDefaultGroups();
+  // ensure all items have a group
+  sc.items.forEach(function(it){ if(!it.group) it.group = sc.groups[0] ? sc.groups[0].id : ''; });
+
+  // remove existing rows and group headers
+  Array.from(tbl.querySelectorAll('.calc-row,.sp-group-header')).forEach(function(r){ r.remove(); });
+
+  // render by group
+  sc.groups.forEach(function(grp){
+    // group header row
+    var ghdr = document.createElement('div');
+    ghdr.className = 'sp-group-header';
+    ghdr.setAttribute('data-group-id', grp.id);
+    ghdr.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--gray-light);border-bottom:1px solid var(--gray-border);cursor:pointer;user-select:none;';
+    var gtoggle = document.createElement('span');
+    gtoggle.style.cssText = 'font-size:10px;color:var(--text-muted);transition:transform .2s;transform:'+(grp.collapsed?'rotate(-90deg)':'rotate(0deg)')+';';
+    gtoggle.textContent = '▼';
+    var gname = document.createElement('input');
+    gname.value = grp.name;
+    gname.style.cssText = 'border:none;background:transparent;font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;flex:1;cursor:pointer;font-family:DM Sans,sans-serif;';
+    gname.onclick = function(e){ e.stopPropagation(); };
+    gname.onblur = function(){ grp.name = this.value; };
+    var gsubtotal = document.createElement('span');
+    gsubtotal.style.cssText = 'font-size:12px;font-weight:600;color:var(--text-muted);';
+    var grpItems = sc.items.filter(function(i){ return i.group === grp.id; });
+    var grpTotal = grpItems.reduce(function(s,i){ return s+(i.amount||0); },0);
+    gsubtotal.textContent = 'US$'+grpTotal.toLocaleString();
+    var gaddItem = document.createElement('button');
+    gaddItem.style.cssText = 'background:none;border:1px solid var(--gray-border);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;color:var(--text-muted);font-family:DM Sans,sans-serif;';
+    gaddItem.textContent = '+ Item';
+    gaddItem.onclick = function(e){
+      e.stopPropagation();
+      spShowAddItemForm(sc, grp.id, tbl, totRow, statusEl);
+    };
+    var gdelBtn = document.createElement('button');
+    gdelBtn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:14px;color:var(--text-muted);opacity:0.4;padding:0 2px;';
+    gdelBtn.innerHTML = '×';
+    gdelBtn.title = 'Delete group';
+    gdelBtn.onclick = function(e){
+      e.stopPropagation();
+      if(!confirm('Delete group "'+grp.name+'"? Items will move to first group.'))return;
+      sc.items.forEach(function(it){ if(it.group===grp.id) it.group=sc.groups[0]?sc.groups[0].id:''; });
+      sc.groups = sc.groups.filter(function(g){ return g.id!==grp.id; });
+      spRenderRows(sc,tbl,totRow,statusEl);
+    };
+    ghdr.appendChild(gtoggle); ghdr.appendChild(gname); ghdr.appendChild(gsubtotal); ghdr.appendChild(gaddItem); ghdr.appendChild(gdelBtn);
+    ghdr.addEventListener('click', function(){
+      grp.collapsed = !grp.collapsed;
+      gtoggle.style.transform = grp.collapsed?'rotate(-90deg)':'rotate(0deg)';
+      tbl.querySelectorAll('.calc-row[data-group="'+grp.id+'"]').forEach(function(r){ r.style.display=grp.collapsed?'none':''; });
+    });
+    tbl.insertBefore(ghdr, totRow);
+
+    // items in this group
+    grpItems.forEach(function(item){
+    var row = document.createElement('div'); row.className = 'calc-row'; row.setAttribute('data-sp-id', item.id); row.setAttribute('data-group', grp.id);
+    if(grp.collapsed) row.style.display = 'none';
     var d = sc.days||17; var p = sc.people||4;
 
     // label cell
@@ -3150,7 +3226,8 @@ function spRenderRows(sc, tbl, totRow, statusEl){
     row.appendChild(ctrl);
 
     tbl.insertBefore(row, totRow);
-  });
+    }); // end items forEach
+  }); // end groups forEach
 
   spUpdateTotals(sc, totRow, sc.days||17, sc.people||4);
   spUpdateStatus(sc, statusEl);
